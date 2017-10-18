@@ -1,0 +1,13 @@
+{
+  "components": {
+    "plugins": {
+      "UpdateMeta": {
+        "src": "src/plugins/UpdateMeta",
+        "test": "test/plugins/UpdateMeta"
+      }
+    }
+  },
+  "dependencies": {
+    "plugins": {}
+  }
+}
