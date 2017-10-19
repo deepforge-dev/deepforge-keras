@@ -424,5 +424,10 @@ define([
         }
     };
 
+    // Helpers for testing
+    UpdateMeta.prototype.getSchemas = function () {
+        return SCHEMAS;
+    };
+
     return UpdateMeta;
 });

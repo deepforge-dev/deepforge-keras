@@ -11,6 +11,7 @@ describe('UpdateMeta', function () {
         expect = testFixture.expect,
         logger = testFixture.logger.fork('UpdateMeta'),
         PluginCliManager = testFixture.WebGME.PluginCliManager,
+        manager = new PluginCliManager(null, logger, gmeConfig),
         projectName = 'testProject',
         pluginName = 'UpdateMeta',
         project,
@@ -54,8 +55,7 @@ describe('UpdateMeta', function () {
     });
 
     it('should run plugin and update the branch', function (done) {
-        var manager = new PluginCliManager(null, logger, gmeConfig),
-            pluginConfig = {
+        var pluginConfig = {
             },
             context = {
                 project: project,
@@ -79,6 +79,30 @@ describe('UpdateMeta', function () {
                     expect(branchHash).to.not.equal(commitHash);
                 })
                 .nodeify(done);
+        });
+    });
+
+    describe('plugin fns', function() {
+        let plugin = null;
+        before(done => {
+            var context = {
+                project: project,
+                commitHash: commitHash,
+                branchName: 'test',
+                activeNode: ''  // rootnode
+            };
+
+            return manager.initializePlugin(pluginName)
+                .then(plugin_ => {
+                    plugin = plugin_;
+                    return manager.configurePlugin(plugin, {}, context);
+                })
+                .nodeify(done);
+        });
+
+        it('should filter out abstract schemas', function () {
+            var abs = plugin.getSchemas().find(schema => schema.abstract);
+            expect(abs).to.equal(undefined);
         });
     });
 });
