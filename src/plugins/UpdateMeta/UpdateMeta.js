@@ -386,9 +386,6 @@ define([
                 y: Math.floor(x/MAX_WIDTH+1)*dy + 50
             };
         }
-        if (isNaN(position.x)) {
-            console.log('index is', index);
-        }
         return position;
     };
 
