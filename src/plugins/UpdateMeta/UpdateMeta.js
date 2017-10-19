@@ -8,6 +8,7 @@
 
 define([
     'plugin/PluginConfig',
+    'keras/Constants',
     'text!./metadata.json',
     'text!./schema.json',
     'plugin/PluginBase',
@@ -16,6 +17,7 @@ define([
     'q'
 ], function (
     PluginConfig,
+    Constants,
     pluginMetadata,
     schemaText,
     PluginBase,
@@ -27,11 +29,6 @@ define([
 
     pluginMetadata = JSON.parse(pluginMetadata);
     const SCHEMAS = JSON.parse(schemaText).filter(schema => !schema.abstract);
-
-    const META_CONSTANTS = {};
-    META_CONSTANTS.META_ASPECT_SET_NAME = 'MetaAspectSet';
-    META_CONSTANTS.META_ASPECT_SHEET_NAME_PREFIX = 'MetaAspectSet_';
-    META_CONSTANTS.CTOR_ARGS_ATTR = 'ctor_arg_order';
 
     const DEFAULT_META_TAB = 'META';
     const REGISTRY_KEYS = {};
@@ -77,7 +74,7 @@ define([
         this.nodes = {};
         // TODO: Generate the metamodel from the schema
 
-        return this.prepareMetaModel(SCHEMAS)
+        return this.prepareMetaModel()
             .then(() => this.createCategories(SCHEMAS))
             .then(() => this.updateNodes())
             .then(() => this.save('UpdateMeta updated metamodel.'))
@@ -92,18 +89,20 @@ define([
 
     };
 
-    UpdateMeta.prototype.prepareMetaModel = function (schemas) {
+    UpdateMeta.prototype.prepareMetaModel = function () {
         // Create the base class, if needed
         this.metaSheets.META = this.createMetaSheetTab('META');
         if (!this.META.Language) {
-            console.log('createNode');
             let node = this.core.createNode({
                 parent: this.rootNode,
                 base: this.META.FCO
             });
-            console.log('setAttribute');
             this.core.setAttribute(node, 'name', 'Language');
             this.META.Language = node;
+        }
+
+        if (!this.META.Architecture) {
+            this.META.Architecture = this.createMetaNode('Architecture', this.META.FCO);
         }
 
         if (!this.META.Layer) {
@@ -208,7 +207,7 @@ define([
             sheet;
 
         // Remove from meta
-        this.core.delMember(this.rootNode, META_CONSTANTS.META_ASPECT_SET_NAME, nodeId);
+        this.core.delMember(this.rootNode, Constants.META_ASPECT_SET_NAME, nodeId);
 
         // Remove from the given meta sheet
         sheet = sheets.find(sheet => {
@@ -223,7 +222,7 @@ define([
 
     UpdateMeta.prototype.createMetaSheetTab = function (name) {
         var sheets = this.core.getRegistry(this.rootNode, REGISTRY_KEYS.META_SHEETS),
-            id = META_CONSTANTS.META_ASPECT_SHEET_NAME_PREFIX + generateGuid(),
+            id = Constants.META_ASPECT_SHEET_NAME_PREFIX + generateGuid(),
             sheet,
             desc = {
                 SetID: id,
@@ -232,10 +231,8 @@ define([
             };
 
         sheet = sheets.find(sheet => sheet.title === name);
-        console.log(sheets);
         if (!sheet) {
             sheet = desc;
-            console.log('creating meta sheet!!!!!!!!!!!!');
             this.logger.debug(`creating meta sheet "${name}"`);
             this.core.createSet(this.rootNode, sheet.SetID);
             sheets.push(sheet);
@@ -281,7 +278,7 @@ define([
             this.addAttribute(arg.name, node, {type: arg.type}, arg.default);
         });
 
-        this.core.setAttribute(node, META_CONSTANTS.CTOR_ARGS_ATTR, argNames.join(','));
+        this.core.setAttribute(node, Constants.CTOR_ARGS_ATTR, argNames.join(','));
         this.logger.debug(`added attributes to ${layer.name}`);
 
         // Remove attributes not in the given list
@@ -342,12 +339,12 @@ define([
         }
 
         // Add it to the meta sheet
-        this.core.addMember(this.rootNode, META_CONSTANTS.META_ASPECT_SET_NAME, node);
+        this.core.addMember(this.rootNode, Constants.META_ASPECT_SET_NAME, node);
         this.core.addMember(this.rootNode, tabId, node);
 
         this.core.setMemberRegistry(
             this.rootNode,
-            META_CONSTANTS.META_ASPECT_SET_NAME,
+            Constants.META_ASPECT_SET_NAME,
             nodeId,
             REGISTRY_KEYS.POSITION,
             position
