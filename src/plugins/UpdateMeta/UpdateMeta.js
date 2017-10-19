@@ -26,7 +26,7 @@ define([
     'use strict';
 
     pluginMetadata = JSON.parse(pluginMetadata);
-    const SCHEMAS = JSON.parse(schemaText);
+    const SCHEMAS = JSON.parse(schemaText).filter(schema => !schema.abstract);
 
     const META_CONSTANTS = {};
     META_CONSTANTS.META_ASPECT_SET_NAME = 'MetaAspectSet';

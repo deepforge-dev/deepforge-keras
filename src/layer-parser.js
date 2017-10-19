@@ -27,7 +27,6 @@ function parseLayers(text, filename) {
         .map(def => parseLayer(def, text))
         .filter(schema => !!schema);
 
-    console.log(schemas.length);
     schemas.forEach(schema => schema.file = filename);
 
     return schemas.filter(schema => schema.name[0] !== '_');
@@ -50,10 +49,18 @@ function parseLayer(def, rawText) {
 
     // get the docstring
     let docstring = getDocString(def, rawText);
+
+    // Check if marked as abstract in the docstring
+    let isAbstract = false;
+    if (docstring.indexOf('Abstract') === 0) {
+        isAbstract = true;
+    }
+
     return {
         name: name,
         base: base,
         arguments: args,
+        abstract: isAbstract,
         docstring: docstring
     };
 }
