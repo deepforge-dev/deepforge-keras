@@ -180,21 +180,6 @@ define([
         return deferred.promise;
     };
 
-    ArchEditorWidget.prototype._creationNode = function(type, color, Decorator) {
-        return {
-            node: {
-                id: CREATE_ID,
-                class: 'create-node',
-                attributes: {},
-                name: `New ${type} Layer...`,
-                baseName: `New ${type} Layer...`,
-                layerType: type,
-                color: color,
-                Decorator: Decorator
-            }
-        };
-    };
-
     ArchEditorWidget.prototype.updateNode = function(desc) {
         var item = this.items[desc.id];
         item.update(desc);
