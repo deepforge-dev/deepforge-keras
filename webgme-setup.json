@@ -5,9 +5,39 @@
         "src": "src/plugins/UpdateMeta",
         "test": "test/plugins/UpdateMeta"
       }
+    },
+    "visualizers": {
+      "KerasArchEditor": {
+        "src": "panels/KerasArchEditor/KerasArchEditorPanel",
+        "title": "KerasArchEditor",
+        "panel": "src/visualizers/panels/KerasArchEditor",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/KerasArchEditor"
+      }
+    },
+    "decorators": {
+      "LayerDecorator": {
+        "src": "src/decorators/LayerDecorator"
+      }
     }
   },
   "dependencies": {
-    "plugins": {}
+    "plugins": {},
+    "visualizers": {
+      "EasyDAG": {
+        "src": "panels/EasyDAG/EasyDAGPanel",
+        "title": "EasyDAG",
+        "panel": "src/visualizers/panels/EasyDAG",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/EasyDAG",
+        "project": "webgme-easydag"
+      }
+    },
+    "decorators": {
+      "EllipseDecorator": {
+        "project": "webgme-easydag",
+        "path": "node_modules/webgme-easydag/src/decorators/EllipseDecorator"
+      }
+    }
   }
 }

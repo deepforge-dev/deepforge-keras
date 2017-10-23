@@ -1,0 +1,8 @@
+[
+  {
+    "id": "KerasArchEditor",
+    "title": "KerasArchEditor",
+    "panel": "panels/KerasArchEditor/KerasArchEditorPanel",
+    "DEBUG_ONLY": false
+  }
+]
