@@ -67,7 +67,7 @@ define([
         if (!desc.isConnection) {
             var allAttrs = desc.attributes,
                 names = Object.keys(allAttrs),
-                ctorInfo = desc.attributes[Constants.CTOR_ARGS_ATTR],
+                ctorInfo = desc.attributes[Constants.ATTR.CTOR_ARGS],
                 ctorAttrs = ctorInfo ? ctorInfo.value.split(','): [],
                 schema,
                 i;

@@ -23,7 +23,9 @@ define([
     //     - report the location of specific ports
     LayerDecorator = function (options) {
         options.skipAttributes = {name: true};
-        options.skipAttributes[Constants.CTOR_ARGS_ATTR] = true;
+
+        var skipAttrs = Object.keys(Constants.ATTR).map(key => Constants.ATTR[key]);
+        skipAttrs.forEach(attr => options.skipAttributes[attr] = true);
         EllipseDecorator.call(this, options);
     };
 

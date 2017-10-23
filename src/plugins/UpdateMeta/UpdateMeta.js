@@ -240,7 +240,7 @@ define([
 
     // Some helper methods w/ attribute handling
     UpdateMeta.prototype.createMetaLayer = function (layer) {
-        // TODO: create a meta node for the given layer
+        // create a meta node for the given layer
         var category = this.getBaseName(layer.file);
         var node = this.createMetaNode(layer.name, this.getBaseFor(layer), category);
 
@@ -255,8 +255,8 @@ define([
         });
 
         // Add ctor args
-        this.core.setAttributeMeta(node, Constants.CTOR_ARGS_ATTR, {type: 'string'});
-        this.core.setAttribute(node, Constants.CTOR_ARGS_ATTR, argNames.join(','));
+        this.core.setAttributeMeta(node, Constants.ATTR.CTOR_ARGS, {type: 'string'});
+        this.core.setAttribute(node, Constants.ATTR.CTOR_ARGS, argNames.join(','));
 
         this.logger.debug(`added attributes to ${layer.name}`);
 
