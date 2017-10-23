@@ -162,18 +162,12 @@ define([
     ArchEditorWidget.prototype.promptLayer = function(nodes) {
         var deferred = Q.defer(),
             types = {},
-            Decorator = this.getCreateNewDecorator(),
-            createNews,
             opts = {};  // 'create new' nodes
 
         nodes.map(pair => pair.node)
             .forEach(node => types[node.layerType] = node.color);
 
-        createNews = Object.keys(types).map(type =>
-            this._creationNode(type, types[type], Decorator));
-
         nodes.sort((a, b) => a.node.name < b.node.name ? -1 : 1);
-        nodes = nodes.concat(createNews);
 
         // Sort by layer type
         opts.tabs = this.getLayerCategoryTabs(types);
@@ -182,13 +176,7 @@ define([
         };
 
         AddNodeDialog.prompt(nodes, opts)
-            .then(selected => {
-                if (selected.node.id === CREATE_ID) {
-                    //DeepForge.create.Layer(selected.node.layerType);
-                } else {
-                    deferred.resolve(selected);
-                }
-            });
+            .then(selected => deferred.resolve(selected));
         return deferred.promise;
     };
 

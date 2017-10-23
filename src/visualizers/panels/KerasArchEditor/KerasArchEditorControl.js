@@ -200,15 +200,7 @@ define([
     // Widget extensions
     KerasArchEditorControl.prototype._initWidgetEventHandlers = function() {
         ThumbnailControl.prototype._initWidgetEventHandlers.call(this);
-        this._widget.getCreateNewDecorator = this.getCreateNewDecorator.bind(this);
         this._widget.insertLayer = this.insertLayer.bind(this);
-    };
-
-    KerasArchEditorControl.prototype.getCreateNewDecorator = function() {
-        return this._client.decoratorManager.getDecoratorForWidget(
-            'LayerDecorator',
-            'EasyDAG'
-        );
     };
 
     KerasArchEditorControl.prototype.insertLayer = function(layerBaseId, connId) {
