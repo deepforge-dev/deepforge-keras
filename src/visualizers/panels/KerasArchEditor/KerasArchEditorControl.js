@@ -24,12 +24,12 @@ define([
         DEFAULT_CONFIG = {
             DefaultColor: '#80cbc4',
             LayerColors: {
-                Container: '#ffb74d',
-                NestedContainer: '#ffe0b2',
-                Convolution: '#42a5f5',
-                Simple: '#ff9100',
-                Transfer: '#80deea',
-                Misc: '#ce93d8'
+                Recurrent: '#ffb74d',
+                Pooling: '#ffe0b2',
+                Convolutional: '#90caf9',
+                Core: '#ff9100',
+                Wrappers: '#80deea',
+                Normalization: '#ce93d8'
             }
         };
 
