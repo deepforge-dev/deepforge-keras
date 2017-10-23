@@ -31,9 +31,6 @@ define([
     const SCHEMAS = JSON.parse(schemaText).filter(schema => !schema.abstract);
 
     const DEFAULT_META_TAB = 'META';
-    const REGISTRY_KEYS = {};
-    REGISTRY_KEYS.POSITION = 'position';
-    REGISTRY_KEYS.META_SHEETS = 'MetaSheets';
 
     /**
      * Initializes a new instance of UpdateMeta.
@@ -203,7 +200,7 @@ define([
     };
 
     UpdateMeta.prototype.removeFromMeta = function (nodeId) {
-        var sheets = this.core.getRegistry(this.rootNode, REGISTRY_KEYS.META_SHEETS),
+        var sheets = this.core.getRegistry(this.rootNode, Constants.REGISTRY.META_SHEETS),
             sheet;
 
         // Remove from meta
@@ -221,7 +218,7 @@ define([
     };
 
     UpdateMeta.prototype.createMetaSheetTab = function (name) {
-        var sheets = this.core.getRegistry(this.rootNode, REGISTRY_KEYS.META_SHEETS),
+        var sheets = this.core.getRegistry(this.rootNode, Constants.REGISTRY.META_SHEETS),
             id = Constants.META_ASPECT_SHEET_NAME_PREFIX + generateGuid(),
             sheet,
             desc = {
@@ -236,33 +233,12 @@ define([
             this.logger.debug(`creating meta sheet "${name}"`);
             this.core.createSet(this.rootNode, sheet.SetID);
             sheets.push(sheet);
-            this.core.setRegistry(this.rootNode, REGISTRY_KEYS.META_SHEETS, sheets);
+            this.core.setRegistry(this.rootNode, Constants.REGISTRY.META_SHEETS, sheets);
         }
         return sheet.SetID;
     };
 
-    UpdateMeta.prototype.getJsonLayers = function () {
-        var config = this.getCurrentConfig(),
-            schema = config.layerSchema;
-
-        if (schema === 'all') {
-            return Object.keys(Schemas).map(key => JSON.parse(Schemas[key]))
-                .reduce((l1, l2) => l1.concat(l2), []);
-        }
-
-        return JSON.parse(Schemas[schema]);
-    };
-
     // Some helper methods w/ attribute handling
-    var PYTHON_TO_GME = {
-        boolean: 'boolean',
-        float: 'float',
-        int: 'integer',
-        string: 'string'
-    };
-
-    var isLayerAttribute = type => type && type.substring(0, 3) === 'nn.';
-
     UpdateMeta.prototype.createMetaLayer = function (layer) {
         // TODO: create a meta node for the given layer
         var category = this.getBaseName(layer.file);
@@ -278,26 +254,29 @@ define([
             this.addAttribute(arg.name, node, {type: arg.type}, arg.default);
         });
 
+        // Add ctor args
+        this.core.setAttributeMeta(node, Constants.CTOR_ARGS_ATTR, {type: 'string'});
         this.core.setAttribute(node, Constants.CTOR_ARGS_ATTR, argNames.join(','));
+
         this.logger.debug(`added attributes to ${layer.name}`);
 
         // Remove attributes not in the given list
-        var currentAttrs = this.core.getValidAttributeNames(node),
-            defVal,
-            rmAttrs,
-            simpleAttrs,
-            rmPtrs;
+        //var currentAttrs = this.core.getValidAttributeNames(node),
+            //defVal,
+            //rmAttrs,
+            //simpleAttrs,
+            //rmPtrs;
 
-        simpleAttrs = argNames;
-        rmAttrs = _.difference(currentAttrs, simpleAttrs)  // old attribute names
-            .filter(attr => attr !== 'name');
+        //simpleAttrs = argNames;
+        //rmAttrs = _.difference(currentAttrs, simpleAttrs)  // old attribute names
+            //.filter(attr => attr !== 'name');
 
-        rmAttrs.forEach(attr => {
-            this.core.delAttributeMeta(node, attr);
-            if (this.core.getOwnAttribute(node, attr) !== undefined) {
-                this.core.delAttribute(node, attr);
-            }
-        });
+        //rmAttrs.forEach(attr => {
+            //this.core.delAttributeMeta(node, attr);
+            //if (this.core.getOwnAttribute(node, attr) !== undefined) {
+                //this.core.delAttribute(node, attr);
+            //}
+        //});
         this.logger.debug(`removed old attributes for ${layer.name}`);
 
         return node;
@@ -346,14 +325,14 @@ define([
             this.rootNode,
             Constants.META_ASPECT_SET_NAME,
             nodeId,
-            REGISTRY_KEYS.POSITION,
+            Constants.REGISTRY.POSITION,
             position
         );
         this.core.setMemberRegistry(
             this.rootNode,
             tabId,
             nodeId,
-            REGISTRY_KEYS.POSITION,
+            Constants.REGISTRY.POSITION,
             position
         );
 

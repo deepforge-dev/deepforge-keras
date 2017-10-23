@@ -6,5 +6,11 @@ define([], function() {
     Constants.CTOR_ARGS_ATTR = 'ctor_arg_order';
     Constants.CONTAINED_LAYER_SET = 'addLayers';
     Constants.CONTAINED_LAYER_INDEX = 'index';
+
+    // Registry
+    Constants.REGISTRY = {};
+    Constants.REGISTRY.POSITION = 'position';
+    Constants.REGISTRY.META_SHEETS = 'MetaSheets';
+
     return Constants;
 });

@@ -9,6 +9,7 @@ var testFixture = require('../../globals');
 describe('UpdateMeta', function () {
     var gmeConfig = testFixture.getGmeConfig(),
         expect = testFixture.expect,
+        assert = require('assert'),
         logger = testFixture.logger.fork('UpdateMeta'),
         PluginCliManager = testFixture.WebGME.PluginCliManager,
         manager = new PluginCliManager(null, logger, gmeConfig),
@@ -17,7 +18,8 @@ describe('UpdateMeta', function () {
         project,
         gmeAuth,
         storage,
-        commitHash;
+        commitHash,
+        plugin;
 
     before(function (done) {
         testFixture.clearDBAndGetGMEAuth(gmeConfig, projectName)
@@ -43,6 +45,19 @@ describe('UpdateMeta', function () {
                 commitHash = importResult.commitHash;
                 return project.createBranch('test', commitHash);
             })
+            // Create a plugin instance
+            .then(() => manager.initializePlugin(pluginName))
+            .then(plugin_ => {
+                let context = {
+                    project: project,
+                    commitHash: commitHash,
+                    branchName: 'test',
+                    activeNode: ''  // rootnode
+                };
+
+                plugin = plugin_;
+                return manager.configurePlugin(plugin, {}, context);
+            })
             .nodeify(done);
     });
 
@@ -54,25 +69,18 @@ describe('UpdateMeta', function () {
             .nodeify(done);
     });
 
-    it('should run plugin and update the branch', function (done) {
-        var pluginConfig = {
-            },
-            context = {
-                project: project,
-                commitHash: commitHash,
-                branchName: 'test',
-                activeNode: '/1',
-            };
+    describe('execution', function() {
+        let pluginResult = null;
+        before(done => {
+            manager.runPluginMain(plugin, (err, res) => {
+                pluginResult = res;
+                done(err);
+            });
+        });
 
-        manager.executePlugin(pluginName, pluginConfig, context, function (err, pluginResult) {
-            try {
-                expect(err).to.equal(null);
-                expect(typeof pluginResult).to.equal('object');
-                expect(pluginResult.success).to.equal(true);
-            } catch (e) {
-                done(e);
-                return;
-            }
+        it('should run plugin and update the branch', function (done) {
+            expect(typeof pluginResult).to.equal('object');
+            expect(pluginResult.success).to.equal(true);
 
             project.getBranchHash('test')
                 .then(function (branchHash) {
@@ -80,26 +88,29 @@ describe('UpdateMeta', function () {
                 })
                 .nodeify(done);
         });
+
+        it('should add tabs to the meta', function () {
+            let sheets = plugin.core.getRegistry(plugin.rootNode, 'MetaSheets');
+            assert(sheets.length > 1);
+        });
+
+        it.skip('should add ctor_arg_order attribute', function () {
+            let sheets = plugin.core.getRegistry(plugin.rootNode, 'MetaSheets');
+            let meta = plugin.core.getAllMetaNodes(plugin.rootNode);
+            let nodes = Object.keys(meta).map(k => meta[k]);
+            let dense = nodes.find(node => plugin.core.getAttribute(node, 'name'));
+
+            let names = nodes.map(n => plugin.core.getAttribute(n, 'name'));
+            //console.log(pluginResult);
+            //console.log(Object.keys(project));
+            //plugin.core.loadRoot()
+            let attrs = plugin.core.getAttributeNames(dense);
+            assert(attrs.length > 1, 'No attributes loaded for the "dense" layer');
+            assert(attrs.includes('ctor_arg_order'));
+        });
     });
 
     describe('plugin fns', function() {
-        let plugin = null;
-        before(done => {
-            var context = {
-                project: project,
-                commitHash: commitHash,
-                branchName: 'test',
-                activeNode: ''  // rootnode
-            };
-
-            return manager.initializePlugin(pluginName)
-                .then(plugin_ => {
-                    plugin = plugin_;
-                    return manager.configurePlugin(plugin, {}, context);
-                })
-                .nodeify(done);
-        });
-
         it('should filter out abstract schemas', function () {
             var abs = plugin.getSchemas().find(schema => schema.abstract);
             expect(abs).to.equal(undefined);
