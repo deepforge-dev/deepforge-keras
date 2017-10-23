@@ -8,17 +8,28 @@ var config = require('webgme/config/config.default'),
 
 // The paths can be loaded from the webgme-setup.json
 config.plugin.basePaths.push(__dirname + '/../src/plugins');
+config.visualization.decoratorPaths.push(__dirname + '/../src/decorators');
+config.visualization.decoratorPaths.push(__dirname + '/../node_modules/webgme-easydag/src/decorators');
 
 
 
+config.visualization.panelPaths.push(__dirname + '/../node_modules/webgme-easydag/src/visualizers/panels');
+config.visualization.panelPaths.push(__dirname + '/../src/visualizers/panels');
 
 
 
 
 // Visualizer descriptors
-
+config.visualization.visualizerDescriptors.push(__dirname + '/../src/visualizers/Visualizers.json');
 // Add requirejs paths
-
+config.requirejsPaths = {
+  'EllipseDecorator': 'node_modules/webgme-easydag/src/decorators/EllipseDecorator',
+  'EasyDAG': 'panels/EasyDAG/EasyDAGPanel',
+  'panels': './src/visualizers/panels',
+  'widgets': './src/visualizers/widgets',
+  'panels/EasyDAG': './node_modules/webgme-easydag/src/visualizers/panels/EasyDAG',
+  'widgets/EasyDAG': './node_modules/webgme-easydag/src/visualizers/widgets/EasyDAG'
+};
 
 
 config.mongo.uri = 'mongodb://127.0.0.1:27017/deepforge_keras';
