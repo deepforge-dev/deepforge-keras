@@ -18,10 +18,17 @@ var schemas = files
     .map(filename => {
         let filepath = path.join(layersDir, filename);
         let content = fs.readFileSync(filepath, 'utf8');
-        let schemas = layerParser.parseLayers(content, filename);
+        let schemas = layerParser.parseLayers(content, `keras/layers/${filename}`);
         return schemas;
     })
     .reduce((l1, l2) => l1.concat(l2), []);
+
+// Add Input layer
+let topologyFile = path.join(process.argv[2], 'keras', 'engine', 'topology.py');
+let inputLayer = layerParser.parseFnLayers(fs.readFileSync(topologyFile, 'utf8'), 'keras/engine/topology.py')
+    .find(schema => schema.name === 'Input');
+
+schemas.push(inputLayer);
 
 let outputDir = path.join(__dirname, '..', 'src', 'plugins', 'UpdateMeta', 'schema.json');
 let content = JSON.stringify(schemas, null, 2);

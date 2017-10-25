@@ -173,7 +173,7 @@ define([
     };
 
     UpdateMeta.prototype.getBaseName = function (filename) {
-        var type = filename.replace(/\.py$/, '');
+        var type = filename.split('/').pop().replace(/\.py$/, '');
         return type[0].toUpperCase() + type.substring(1);
     };
 

@@ -23,7 +23,7 @@ function parseLayers(text, filename) {
             return nodeType === NODE_TYPE.CLASS;
         });
 
-    schemas = definitions
+    let schemas = definitions
         .map(def => parseLayer(def, text))
         .filter(schema => !!schema);
 
@@ -48,7 +48,7 @@ function parseLayer(def, rawText) {
     let args = parseLayerCtor(ctor);
 
     // get the docstring
-    let docstring = getDocString(def, rawText);
+    let docstring = getDocString(def);
 
     // Check if marked as abstract in the docstring
     let isAbstract = false;
@@ -89,13 +89,56 @@ function parseLayerCtor(def) {
     return args;
 }
 
-function getDocString(node, text) {
+function getDocString(node) {
     let first = node.body[0];
     if (isNodeType(first, NODE_TYPE.EXPRESSION) && isNodeType(first.value, NODE_TYPE.STRING)) {
         return first.value.s.v;
     }
 }
 
+// For `Input`
+function parseFnLayers(text, filename) {
+    var cst = skulpt.parse(filename, text).cst;
+    var ast = skulpt.astFromParse(cst, filename);
+
+    // Check the functional definitions?
+    var definitions = ast.body
+        .filter(node => {  // get the class nodes
+            var nodeType = node.constructor.name;
+            return nodeType === NODE_TYPE.FUNCTION;
+        });
+
+    let schemas = definitions
+        .map(def => parseFnLayer(def, text))
+        .filter(schema => !!schema);
+
+    schemas.forEach(schema => schema.file = filename);
+
+    return schemas.filter(schema => schema.name[0] !== '_');
+}
+
+function parseFnLayer(def) {
+    let name = def.name.v;
+    let args = parseLayerCtor(def);
+
+    // get the docstring
+    let docstring = getDocString(def);
+
+    // Check if marked as abstract in the docstring
+    let isAbstract = false;
+    if (docstring && docstring.indexOf('Abstract') === 0) {
+        isAbstract = true;
+    }
+
+    return {
+        name: name,
+        arguments: args,
+        abstract: isAbstract,
+        docstring: docstring
+    };
+}
+
 module.exports = {
-    parseLayers: parseLayers
+    parseLayers: parseLayers,
+    parseFnLayers: parseFnLayers
 };
