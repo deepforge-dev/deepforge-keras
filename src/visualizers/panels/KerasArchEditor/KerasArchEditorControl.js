@@ -3,7 +3,6 @@
 
 define([
     'keras/Constants',
-    //'deepforge/viz/panels/ThumbnailControl',  // TODO
     'panels/EasyDAG/EasyDAGControl',
     'js/NodePropertyNames',
     'js/Utils/ComponentSettings',

@@ -24,9 +24,8 @@ define([
 ) {
     'use strict';
 
-    var CREATE_ID = '__NEW_LAYER__',
-        ArchEditorWidget,
-        WIDGET_CLASS = 'arch-editor',
+    var ArchEditorWidget,
+        WIDGET_CLASS = 'keras-arch-editor',
         LAYER_TAB_ORDER = [  // TODO: FIXME
             'Simple',
             'Transfer',
