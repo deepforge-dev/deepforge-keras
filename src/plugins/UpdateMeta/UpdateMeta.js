@@ -244,10 +244,12 @@ define([
         var category = this.getBaseName(layer.file);
         var node = this.createMetaNode(layer.name, this.getBaseFor(layer), category);
 
-        // TODO: configure the given node
+        // Clean the arguments
         if (layer.arguments[0] && layer.arguments[0].name === 'self') {
             layer.arguments.shift();
         }
+        layer.arguments = layer.arguments.filter(arg => arg.name !== 'name');
+
         var argNames = layer.arguments.map(arg => arg.name);
 
         layer.arguments.forEach(arg => {
