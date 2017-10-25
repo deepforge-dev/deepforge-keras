@@ -6,8 +6,11 @@ var testFixture = require('../../globals');
 describe('GenerateKeras', function () {
     var gmeConfig = testFixture.getGmeConfig(),
         expect = testFixture.expect,
+        assert = require('assert'),
         path = testFixture.path,
+        BlobClient = require('webgme-engine/src/server/middleware/blob/BlobClientWithFSBackend'),
         logger = testFixture.logger.fork('GenerateKeras'),
+        blobClient = new BlobClient(gmeConfig, logger),
         PluginCliManager = testFixture.WebGME.PluginCliManager,
         SEED_DIR = path.join(__dirname, '..', '..', '..', 'src', 'seeds', 'dev'),
         projectName = 'testProject',
@@ -52,34 +55,47 @@ describe('GenerateKeras', function () {
             .nodeify(done);
     });
 
-    it('should run plugin and update the branch', function (done) {
-        var manager = new PluginCliManager(null, logger, gmeConfig),
-            pluginConfig = {
-            },
-            context = {
-                project: project,
-                commitHash: commitHash,
-                branchName: 'test',
-                activeNode: '/X',
-            };
-
-        manager.executePlugin(pluginName, pluginConfig, context, function (err, pluginResult) {
-            try {
-                expect(err).to.equal(null);
-                expect(typeof pluginResult).to.equal('object');
-                expect(pluginResult.success).to.equal(true);
-                done();
-            } catch (e) {
-                done(e);
-                return;
-            }
-        });
-    });
-
     describe('code', function() {
-        it('should import the required layers', function() {
-            // TODO
+        let code;
+        before(function(done) {  // run the plugin and get the generated code
+            var manager = new PluginCliManager(null, logger, gmeConfig),
+                pluginConfig = {
+                },
+                context = {
+                    project: project,
+                    commitHash: commitHash,
+                    branchName: 'test',
+                    activeNode: '/X',
+                };
+
+            manager.executePlugin(pluginName, pluginConfig, context, function (err, pluginResult) {
+                try {
+                    expect(err).to.equal(null);
+                    expect(typeof pluginResult).to.equal('object');
+                    expect(pluginResult.success).to.equal(true);
+                    let codeHash = pluginResult.artifacts[0];
+                    blobClient.getObject(codeHash, function(err, obj) {
+                        code = String.fromCharCode.apply(null, new Uint8Array(obj));
+                        done();
+                    });
+                } catch (e) {
+                    done(e);
+                    return;
+                }
+            });
         });
-        // TODO
+
+        it('should import all keras layers', function() {
+            assert(code.includes('from keras.layers import *'));
+        });
+
+        it('should create a model', function() {
+            assert(code.includes('model = Model('));
+        });
+
+        it('should import Model', function() {
+            assert(code.includes('import Model'));
+        });
+
     });
 });

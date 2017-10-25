@@ -58,13 +58,28 @@ define([
         this.variableNames = {};
 
         // Add the inputs with the dimensions
+        var modelName = this.generateVariableName('model');
         code = layers.map(layer => this.generateLayerCode(layer));
 
         // Import the layers
         code.unshift('');
         code.unshift('from keras.layers import *');
+        code.unshift('from keras.models import Model');
 
-        console.log(code.join('\n'));
+        // Return the model
+        var inputs = layers
+            .filter(layer => layer[SimpleConstants.PREV].length === 0)
+            .map(layer => layer.variableName)
+            .join(',');
+
+        var outputs = layers
+            .filter(layer => layer[SimpleConstants.NEXT].length === 0)
+            .map(layer => layer.variableName)
+            .join(',');
+
+        code.push('');
+        code.push(`${modelName} = Model(inputs=[${inputs}], outputs=[${outputs}])`);
+
         outputFiles['output.py'] = code.join('\n');
 
         return outputFiles;
@@ -84,9 +99,8 @@ define([
         }
     };
 
-    GenerateKeras.prototype.generateLayerName = function(layer) {
+    GenerateKeras.prototype.generateVariableName = function(basename) {
         var count = 2;
-        var basename = layer.name.toLowerCase();
         var name = basename;
 
         while (this.variableNames[name]) {
@@ -94,8 +108,13 @@ define([
             count++;
         }
         this.variableNames[name] = true;
-        layer.variableName = name;
         return name;
+    };
+
+    GenerateKeras.prototype.generateLayerName = function(layer) {
+        var basename = layer.name.toLowerCase();
+        layer.variableName = this.generateVariableName(basename);
+        return layer.variableName;
     };
 
     GenerateKeras.prototype.getArguments = function(layer) {
