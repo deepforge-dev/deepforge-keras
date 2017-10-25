@@ -21,6 +21,7 @@
     "webgme": "^2.7.1"
   },
   "dependencies": {
-    "webgme-easydag": "^1.1.0"
+    "webgme-easydag": "^1.1.0",
+    "webgme-simple-nodes": "github:brollb/webgme-simple-nodes"
   }
 }

@@ -4,6 +4,10 @@
       "UpdateMeta": {
         "src": "src/plugins/UpdateMeta",
         "test": "test/plugins/UpdateMeta"
+      },
+      "GenerateKeras": {
+        "src": "src/plugins/GenerateKeras",
+        "test": "test/plugins/GenerateKeras"
       }
     },
     "visualizers": {
@@ -19,10 +23,23 @@
       "LayerDecorator": {
         "src": "src/decorators/LayerDecorator"
       }
+    },
+    "addons": {},
+    "layouts": {},
+    "routers": {},
+    "seeds": {
+      "dev": {
+        "src": "src/seeds/dev"
+      }
     }
   },
   "dependencies": {
-    "plugins": {},
+    "plugins": {
+      "SimpleNodes": {
+        "project": "webgme-simple-nodes",
+        "path": "node_modules/webgme-simple-nodes/src/plugins/SimpleNodes"
+      }
+    },
     "visualizers": {
       "EasyDAG": {
         "src": "panels/EasyDAG/EasyDAGPanel",
@@ -38,6 +55,10 @@
         "project": "webgme-easydag",
         "path": "node_modules/webgme-easydag/src/decorators/EllipseDecorator"
       }
-    }
+    },
+    "addons": {},
+    "layouts": {},
+    "routers": {},
+    "seeds": {}
   }
 }

@@ -8,8 +8,10 @@ var config = require('webgme/config/config.default'),
 
 // The paths can be loaded from the webgme-setup.json
 config.plugin.basePaths.push(__dirname + '/../src/plugins');
+config.plugin.basePaths.push(__dirname + '/../node_modules/webgme-simple-nodes/src/plugins');
 config.visualization.decoratorPaths.push(__dirname + '/../src/decorators');
 config.visualization.decoratorPaths.push(__dirname + '/../node_modules/webgme-easydag/src/decorators');
+config.seedProjects.basePaths.push(__dirname + '/../src/seeds/dev');
 
 
 
@@ -25,6 +27,7 @@ config.visualization.visualizerDescriptors.push(__dirname + '/../src/visualizers
 config.requirejsPaths = {
   'EllipseDecorator': 'node_modules/webgme-easydag/src/decorators/EllipseDecorator',
   'EasyDAG': 'panels/EasyDAG/EasyDAGPanel',
+  'SimpleNodes': 'node_modules/webgme-simple-nodes/src/plugins/SimpleNodes',
   'panels': './src/visualizers/panels',
   'widgets': './src/visualizers/widgets',
   'panels/EasyDAG': './node_modules/webgme-easydag/src/visualizers/panels/EasyDAG',
