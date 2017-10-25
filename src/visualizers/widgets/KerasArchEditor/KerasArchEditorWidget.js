@@ -73,8 +73,12 @@ define([
 
         this.ItemClass.prototype.promptInitialLayer = function() {
             var nodes = this._widget.getValidInitialNodes();
-            return this._widget.promptLayer(nodes)
-                .then(selected => selected.node.id);
+            if (nodes.length === 1) {
+                return Q(nodes[0].node.id);
+            } else {
+                return this._widget.promptLayer(nodes)
+                    .then(selected => selected.node.id);
+            }
         };
     };
 
@@ -124,8 +128,12 @@ define([
 
     ArchEditorWidget.prototype.onCreateInitialNode = function() {
         var nodes = this.getValidInitialNodes();
-        return this.promptLayer(nodes)
-            .then(selected => this.createNode(selected.node.id));
+        if (nodes.length === 1) {
+            this.createNode(nodes[0].node.id);
+        } else {
+            return this.promptLayer(nodes)
+                .then(selected => this.createNode(selected.node.id));
+        }
     };
 
     ArchEditorWidget.prototype.onAddButtonClicked = function(item, reverse) {

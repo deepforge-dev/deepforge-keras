@@ -134,16 +134,54 @@ define([
     };
 
     ////////////////////////// Layer Selection Logic //////////////////////////
+    KerasArchEditorControl.prototype._getValidInitialNodes = function() {
+        // Return all (non-criterion) layer types
+        var metanodes = this._client.getAllMetaNodes(),
+            layerId,
+            name,
+            connId,
+            layers = [],
+            tgts,
+            j,
+            i;
+
+        for (i = metanodes.length; i--;) {
+            if (metanodes[i].getAttribute('name') === 'Layer') {
+                layerId = metanodes[i].getId();
+                break;
+            }
+        }
+
+        if (!layerId) {
+            this._logger.warn('Could not find layer connector');
+            return [];
+        }
+
+        for (i = metanodes.length; i--;) {
+            name = metanodes[i].getAttribute('name');
+            if (name === 'Input' && metanodes[i].isTypeOf(layerId)) {
+                layers.push(metanodes[i]);
+            } else if (!connId && name === 'Connection') {  // Detect the layer connection type...
+                tgts = this._client.getPointerMeta(metanodes[i].getId(), 'src').items;
+                for (j = tgts.length; j--;) {
+                    if (tgts[j].id === layerId) {
+                        connId = metanodes[i].getId();
+                    }
+                }
+
+            }
+        }
+
+        return this._getLayerConnDescs(layers, connId);
+    };
+
     KerasArchEditorControl.prototype.getValidSuccessors =
-    KerasArchEditorControl.prototype._getValidInitialNodes =
     KerasArchEditorControl.prototype.getNonCriterionLayers = function() {
         // Return all (non-criterion) layer types
         var metanodes = this._client.getAllMetaNodes(),
             layerId,
             connId,
-            conn,
             allLayers = [],
-            layers = [],
             tgts,
             j,
             i;
@@ -160,9 +198,7 @@ define([
             if (layerId) {
                 if (!metanodes[i].isAbstract() && metanodes[i].isTypeOf(layerId)) {
 
-                    if (metanodes[i].getAttribute('name') === 'Criterion') {
-                        criterionId = metanodes[i].getId();
-                    } else {
+                    if (metanodes[i].getAttribute('name') !== 'Criterion') {
                         allLayers.push(metanodes[i]);
                     }
                 } else if (!connId && metanodes[i].getAttribute('name') === 'Connection') {  // Detect the layer connection type...
@@ -176,21 +212,27 @@ define([
             }
         }
 
+        return this._getLayerConnDescs(allLayers, connId);
+    };
+
+    KerasArchEditorControl.prototype._getLayerConnDescs = function(layers, connId) {
+        var descs = [];
+
         if (!connId) {
             this._logger.warn('Could not find a layer connector');
             return [];
         }
-        // Convert the layers into the correct format
-        conn = this._getObjectDescriptor(connId);
+
+        var conn = this._getObjectDescriptor(connId);
         // Remove all criterion layers and abstract layers
-        for (i = allLayers.length; i--;) {
-            layers.push({
-                node: this._getObjectDescriptor(allLayers[i].getId()),
+        for (var i = layers.length; i--;) {
+            descs.push({
+                node: this._getObjectDescriptor(layers[i].getId()),
                 conn: conn
             });
         }
 
-        return layers;
+        return descs;
     };
 
     KerasArchEditorControl.prototype._isValidTerminalNode = function() {
