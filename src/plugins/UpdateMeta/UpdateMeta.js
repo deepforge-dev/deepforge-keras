@@ -1,14 +1,11 @@
 /*globals define*/
 /*jshint node:true, browser:true*/
 
-/**
- * This plugin is used to generate/update the metamodel given a schema generated
- * from keras.
- */
-
+// TODO: Add support for additional types
 define([
     'plugin/PluginConfig',
     'keras/Constants',
+    'text!keras/activations.json',
     'text!./metadata.json',
     'text!./schema.json',
     'plugin/PluginBase',
@@ -18,6 +15,7 @@ define([
 ], function (
     PluginConfig,
     Constants,
+    ActivationsTxt,
     pluginMetadata,
     schemaText,
     PluginBase,
@@ -29,7 +27,7 @@ define([
 
     pluginMetadata = JSON.parse(pluginMetadata);
     const SCHEMAS = JSON.parse(schemaText).filter(schema => !schema.abstract);
-
+    const ACTIVATIONS = JSON.parse(ActivationsTxt).map(info => info.name);
     const DEFAULT_META_TAB = 'META';
 
     /**
@@ -69,7 +67,6 @@ define([
         this.metaSheets = {};
         this.sheetCounts = {};
         this.nodes = {};
-        // TODO: Generate the metamodel from the schema
 
         return this.prepareMetaModel()
             .then(() => this.createCategories(SCHEMAS))
@@ -287,9 +284,9 @@ define([
     UpdateMeta.prototype.createMetaNode = function (name, base, tabName) {
         var node = this.META[name],
             nodeId = node && this.core.getPath(node),
-            setters = {},
-            defaults = {},
-            types = {},
+            //setters = {},
+            //defaults = {},
+            //types = {},
             position,
             tabId;
 
@@ -380,6 +377,7 @@ define([
             schema.type = 'string';
         }
 
+        // TODO: Add support for activations
         if (schema.min !== undefined) {
             schema.min = +schema.min;
         }
