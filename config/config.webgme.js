@@ -14,6 +14,7 @@ config.visualization.decoratorPaths.push(__dirname + '/../node_modules/webgme-ea
 config.seedProjects.basePaths.push(__dirname + '/../src/seeds/dev');
 config.seedProjects.basePaths.push(__dirname + '/../src/seeds/base');
 config.seedProjects.basePaths.push(__dirname + '/../src/seeds/keras');
+config.seedProjects.basePaths.push(__dirname + '/../src/seeds/tests');
 
 
 

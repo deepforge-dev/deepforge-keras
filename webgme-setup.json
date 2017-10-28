@@ -36,6 +36,9 @@
       },
       "keras": {
         "src": "src/seeds/keras"
+      },
+      "tests": {
+        "src": "src/seeds/tests"
       }
     }
   },
