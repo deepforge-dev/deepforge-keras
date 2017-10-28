@@ -12,7 +12,7 @@ describe('GenerateKeras', function () {
         logger = testFixture.logger.fork('GenerateKeras'),
         blobClient = new BlobClient(gmeConfig, logger),
         PluginCliManager = testFixture.WebGME.PluginCliManager,
-        SEED_DIR = path.join(__dirname, '..', '..', '..', 'src', 'seeds', 'dev'),
+        SEED_DIR = path.join(__dirname, '..', '..', '..', 'src', 'seeds', 'tests'),
         projectName = 'testProject',
         pluginName = 'GenerateKeras',
         project,
@@ -30,7 +30,7 @@ describe('GenerateKeras', function () {
             })
             .then(function () {
                 var importParam = {
-                    projectSeed: path.join(SEED_DIR, 'dev.webgmex'),
+                    projectSeed: path.join(SEED_DIR, 'tests.webgmex'),
                     projectName: projectName,
                     branchName: 'master',
                     logger: logger,
@@ -65,7 +65,7 @@ describe('GenerateKeras', function () {
                     project: project,
                     commitHash: commitHash,
                     branchName: 'test',
-                    activeNode: '/X',
+                    activeNode: '/v',
                 };
 
             manager.executePlugin(pluginName, pluginConfig, context, function (err, pluginResult) {

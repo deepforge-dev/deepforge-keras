@@ -30,6 +30,15 @@
     "seeds": {
       "dev": {
         "src": "src/seeds/dev"
+      },
+      "base": {
+        "src": "src/seeds/base"
+      },
+      "keras": {
+        "src": "src/seeds/keras"
+      },
+      "tests": {
+        "src": "src/seeds/tests"
       }
     }
   },
