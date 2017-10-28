@@ -30,6 +30,9 @@
     "seeds": {
       "dev": {
         "src": "src/seeds/dev"
+      },
+      "base": {
+        "src": "src/seeds/base"
       }
     }
   },

@@ -12,6 +12,7 @@ config.plugin.basePaths.push(__dirname + '/../node_modules/webgme-simple-nodes/s
 config.visualization.decoratorPaths.push(__dirname + '/../src/decorators');
 config.visualization.decoratorPaths.push(__dirname + '/../node_modules/webgme-easydag/src/decorators');
 config.seedProjects.basePaths.push(__dirname + '/../src/seeds/dev');
+config.seedProjects.basePaths.push(__dirname + '/../src/seeds/base');
 
 
 
