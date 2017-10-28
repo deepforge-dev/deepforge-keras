@@ -1,3 +1,6 @@
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
+[![Build Status](https://travis-ci.org/deepforge-dev/deepforge.svg?branch=master)](https://travis-ci.org/deepforge-dev/deepforge)
+
 **Notice**: This extension is still very much under development in preparation for the deepforge v2 release and is not ready for non-development use just yet!
 
 # deepforge-keras
