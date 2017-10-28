@@ -33,6 +33,9 @@
       },
       "base": {
         "src": "src/seeds/base"
+      },
+      "keras": {
+        "src": "src/seeds/keras"
       }
     }
   },
