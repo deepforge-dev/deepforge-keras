@@ -1,4 +1,4 @@
-// tensorflow parser for deepforge from cli
+// keras parser for deepforge from cli
 // In the future, this should be refactored to run in the browser
 
 if (!process.argv[2]) {
@@ -10,11 +10,20 @@ const path = require('path');
 const fs = require('fs');
 const layerParser = require('../src/layer-parser');
 
-var layersDir = path.join(process.argv[2], 'keras', 'layers');
-var files = fs.readdirSync(layersDir)
+// Parse the activation types
+let outputDir = 'src/common/activations.json';
+let activationsFile = path.join(process.argv[2], 'keras', 'activations.py');
+let activationTypes = layerParser.parseActivationTypes(fs.readFileSync(activationsFile, 'utf8'), `keras/activations.py`);
+
+saveJson(activationTypes, outputDir);
+console.log(`Detected ${activationTypes.length} activation functions. Saved to ${outputDir}`);
+
+// Parse the main layer definitions
+let layersDir = path.join(process.argv[2], 'keras', 'layers');
+let files = fs.readdirSync(layersDir)
     .filter(name => !name.includes('__init__') && !name.includes('_test.py'));
 
-var schemas = files
+let schemas = files
     .map(filename => {
         let filepath = path.join(layersDir, filename);
         let content = fs.readFileSync(filepath, 'utf8');
@@ -23,15 +32,21 @@ var schemas = files
     })
     .reduce((l1, l2) => l1.concat(l2), []);
 
-// Add Input layer
+// Add the Input layer
 let topologyFile = path.join(process.argv[2], 'keras', 'engine', 'topology.py');
 let inputLayer = layerParser.parseFnLayers(fs.readFileSync(topologyFile, 'utf8'), 'keras/engine/topology.py')
     .find(schema => schema.name === 'Input');
 
 schemas.push(inputLayer);
 
-let outputDir = path.join(__dirname, '..', 'src', 'plugins', 'UpdateMeta', 'schema.json');
-let content = JSON.stringify(schemas, null, 2);
-
-fs.writeFileSync(outputDir, content);
+outputDir = 'src/plugins/UpdateMeta/schema.json';
+saveJson(schemas, outputDir);
 console.log(`Found ${schemas.length} layers. Saved schema to ${outputDir}`);
+
+function saveJson(json, unixPath) {
+    let content = JSON.stringify(json, null, 2);
+    let dirs = [__dirname, '..'].concat(unixPath.split('/'));
+    let outputDir = path.join.apply(path, dirs);
+
+    fs.writeFileSync(outputDir, content);
+}

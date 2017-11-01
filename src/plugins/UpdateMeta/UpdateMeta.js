@@ -1,14 +1,10 @@
 /*globals define*/
 /*jshint node:true, browser:true*/
 
-/**
- * This plugin is used to generate/update the metamodel given a schema generated
- * from keras.
- */
-
 define([
     'plugin/PluginConfig',
     'keras/Constants',
+    'text!keras/activations.json',
     'text!./metadata.json',
     'text!./schema.json',
     'plugin/PluginBase',
@@ -18,6 +14,7 @@ define([
 ], function (
     PluginConfig,
     Constants,
+    ActivationsTxt,
     pluginMetadata,
     schemaText,
     PluginBase,
@@ -29,7 +26,7 @@ define([
 
     pluginMetadata = JSON.parse(pluginMetadata);
     const SCHEMAS = JSON.parse(schemaText).filter(schema => !schema.abstract);
-
+    const ACTIVATIONS = JSON.parse(ActivationsTxt).map(info => info.name);
     const DEFAULT_META_TAB = 'META';
 
     /**
@@ -69,7 +66,6 @@ define([
         this.metaSheets = {};
         this.sheetCounts = {};
         this.nodes = {};
-        // TODO: Generate the metamodel from the schema
 
         return this.prepareMetaModel()
             .then(() => this.createCategories(SCHEMAS))
@@ -262,34 +258,12 @@ define([
 
         this.logger.debug(`added attributes to ${layer.name}`);
 
-        // Remove attributes not in the given list
-        //var currentAttrs = this.core.getValidAttributeNames(node),
-            //defVal,
-            //rmAttrs,
-            //simpleAttrs,
-            //rmPtrs;
-
-        //simpleAttrs = argNames;
-        //rmAttrs = _.difference(currentAttrs, simpleAttrs)  // old attribute names
-            //.filter(attr => attr !== 'name');
-
-        //rmAttrs.forEach(attr => {
-            //this.core.delAttributeMeta(node, attr);
-            //if (this.core.getOwnAttribute(node, attr) !== undefined) {
-                //this.core.delAttribute(node, attr);
-            //}
-        //});
-        this.logger.debug(`removed old attributes for ${layer.name}`);
-
         return node;
     };
 
     UpdateMeta.prototype.createMetaNode = function (name, base, tabName) {
         var node = this.META[name],
             nodeId = node && this.core.getPath(node),
-            setters = {},
-            defaults = {},
-            types = {},
             position,
             tabId;
 
@@ -377,6 +351,15 @@ define([
     UpdateMeta.prototype.addAttribute = function (name, node, schema, defVal) {
         schema.type = schema.type || 'string';
         if (schema.type === 'list') {  // FIXME: add support for lists
+            schema.type = 'string';
+        }
+
+        ///////// Activation Types /////////
+        if (schema.type === 'activation') {
+            // Create the enum
+            schema.enum = ACTIVATIONS.concat('None');
+
+            // Set the type
             schema.type = 'string';
         }
 

@@ -7,9 +7,19 @@ NODE_TYPE.FUNCTION = 'FunctionDef';
 NODE_TYPE.CLASS = 'ClassDef';
 NODE_TYPE.EXPRESSION = 'Expr';
 NODE_TYPE.STRING = 'Str';
+NODE_TYPE.ASSIGN = 'Assign';
+NODE_TYPE.IF = 'If_';
+NODE_TYPE.BOOL = 'BoolOp';
+NODE_TYPE.CALL = 'Call';
+NODE_TYPE.ATTRIBUTE = 'Attribute';
+NODE_TYPE.NAME = 'Name';
 
 function isNodeType(node, type) {
     return node.constructor.name === type;
+}
+
+function getNodeType(node) {
+    return node.constructor.name;
 }
 
 function parseLayers(text, filename) {
@@ -41,7 +51,7 @@ function parseLayer(def, rawText) {
     let ctor = def.body.find(node => isNodeType(node, NODE_TYPE.FUNCTION) && node.name.v === '__init__');
 
     if (!ctor) {
-        console.log('Skipping', def.name.v);
+        console.log(`Skipping ${name}: Missing constructor`);
         // TODO: inherit?
         return;
     }
@@ -68,7 +78,9 @@ function parseLayer(def, rawText) {
 function parseLayerCtor(def) {
     let argsLen = def.args.args.length;
     let defsLen = def.args.defaults.length;
+    // FIXME: not detecting the defaults consistently...
     let args = def.args.args.map((n, i) => {
+        let name = n.id.v;
         let distFromEnd = argsLen - i;
         let defIndex = defsLen - distFromEnd;
         let value = null;
@@ -76,17 +88,49 @@ function parseLayerCtor(def) {
 
         if (defIndex > -1 && def.args.defaults[defIndex].id) {
             value = def.args.defaults[defIndex].id.v;
-            if (isBoolean.test(value)) type = 'boolean';
         }
+        type = inferArgumentType(name, value, def);
 
-        // TODO: add type info
         return {
-            name: n.id.v,
+            name: name,
             type: type,
             default: value
         };
     });
     return args;
+}
+
+function inferArgumentType(name, value, fnNode) {
+    if (isBoolean.test(value)) return 'boolean';
+
+    // TODO: Check for the import
+    // Check if it is an activation
+    let statements = fnNode.body;
+    // we are looking for the given structure:
+    //
+    //   <something> = activations.get(<variable)
+    //
+    let assignments = statements
+        .filter(stat => isNodeType(stat, NODE_TYPE.ASSIGN));
+
+    let rightMethodCalls = assignments
+        .map(assign => assign.value)  // right side of the '='
+        .filter(right => isNodeType(right, NODE_TYPE.CALL) && isNodeType(right.func, NODE_TYPE.ATTRIBUTE));
+
+    let isActivationName = rightMethodCalls
+        .filter(call => {  // check that we are calling 'get' on 'activations' with the arg
+            if (isNodeType(call.func.value, NODE_TYPE.NAME)) {
+                let caller = call.func.value.id.v;
+                let method = call.func.attr.v;
+                let argument = call.args[0];
+                let argumentName = argument && argument.id && argument.id.v;
+
+                return caller === 'activations' && method === 'get' &&
+                    argumentName === name;
+            }
+        }).length > 0;
+
+    if (isActivationName) return 'activation';
 }
 
 function getDocString(node) {
@@ -96,7 +140,7 @@ function getDocString(node) {
     }
 }
 
-// For `Input`
+// For `Input` layers (just a function definition)
 function parseFnLayers(text, filename) {
     var cst = skulpt.parse(filename, text).cst;
     var ast = skulpt.astFromParse(cst, filename);
@@ -138,7 +182,31 @@ function parseFnLayer(def) {
     };
 }
 
+// Parsing activation, regularization, etc
+const ACTIVATION_HELPERS = ['serialize', 'deserialize', 'get'];
+function parseActivationTypes(text, filename) {
+    var cst = skulpt.parse(filename, text).cst;
+    var ast = skulpt.astFromParse(cst, filename);
+
+    var definitions = ast.body
+        .filter(node => {  // get the class nodes
+            var nodeType = node.constructor.name;
+            return nodeType === NODE_TYPE.FUNCTION;
+        });
+    
+    return definitions
+        .map(def => {
+            return {
+                name: def.name.v,
+                args: parseLayerCtor(def),
+                docstring: getDocString(def)
+            };
+        })
+        .filter(schema => !ACTIVATION_HELPERS.includes(schema.name));
+}
+
 module.exports = {
     parseLayers: parseLayers,
-    parseFnLayers: parseFnLayers
+    parseFnLayers: parseFnLayers,
+    parseActivationTypes: parseActivationTypes
 };
