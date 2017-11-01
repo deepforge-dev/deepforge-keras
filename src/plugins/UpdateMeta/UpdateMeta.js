@@ -1,7 +1,6 @@
 /*globals define*/
 /*jshint node:true, browser:true*/
 
-// TODO: Add support for additional types
 define([
     'plugin/PluginConfig',
     'keras/Constants',
@@ -259,34 +258,12 @@ define([
 
         this.logger.debug(`added attributes to ${layer.name}`);
 
-        // Remove attributes not in the given list
-        //var currentAttrs = this.core.getValidAttributeNames(node),
-            //defVal,
-            //rmAttrs,
-            //simpleAttrs,
-            //rmPtrs;
-
-        //simpleAttrs = argNames;
-        //rmAttrs = _.difference(currentAttrs, simpleAttrs)  // old attribute names
-            //.filter(attr => attr !== 'name');
-
-        //rmAttrs.forEach(attr => {
-            //this.core.delAttributeMeta(node, attr);
-            //if (this.core.getOwnAttribute(node, attr) !== undefined) {
-                //this.core.delAttribute(node, attr);
-            //}
-        //});
-        this.logger.debug(`removed old attributes for ${layer.name}`);
-
         return node;
     };
 
     UpdateMeta.prototype.createMetaNode = function (name, base, tabName) {
         var node = this.META[name],
             nodeId = node && this.core.getPath(node),
-            //setters = {},
-            //defaults = {},
-            //types = {},
             position,
             tabId;
 
