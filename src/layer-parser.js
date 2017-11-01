@@ -134,34 +134,6 @@ function inferArgumentType(name, value, fnNode) {
     if (isActivationName) return 'activation';
 }
 
-function traverse(node, fn) {
-    let next = [];
-    let current = [node];
-    let stop = false;
-
-    while (current.length) {
-        for (var i = current.length; i--;) {
-            node = current[i];
-            stop = fn(node);
-            if (stop) return;
-            if (!getChildren[getNodeType(node)]) {
-                console.log('---\n', getNodeType(node));
-                console.log(node);
-            }
-            next = next.concat(getChildren[getNodeType(node)](node));
-        }
-        current = next;
-        next = [];
-    }
-}
-
-let getChildren = {};
-getChildren[NODE_TYPE.FUNCTION] = node => node.body;
-getChildren[NODE_TYPE.EXPRESSION] = node => [];
-getChildren[NODE_TYPE.ASSIGN] = node => [node.value].concat(node.targets);
-getChildren[NODE_TYPE.IF] = node => [node.test].concat(node.body);
-getChildren[NODE_TYPE.BOOL] = node => node.values;
-
 function getDocString(node) {
     let first = node.body[0];
     if (isNodeType(first, NODE_TYPE.EXPRESSION) && isNodeType(first.value, NODE_TYPE.STRING)) {
