@@ -12,11 +12,11 @@ const layerParser = require('../src/layer-parser');
 
 // Parse the activation types
 let outputDir = 'src/common/activations.json';
-//let activationsFile = path.join(process.argv[2], 'keras', 'activations.py');
-//let activationTypes = layerParser.parseActivationTypes(fs.readFileSync(activationsFile, 'utf8'), `keras/activations.py`);
+let activationsFile = path.join(process.argv[2], 'keras', 'activations.py');
+let activationTypes = layerParser.parseActivationTypes(fs.readFileSync(activationsFile, 'utf8'), `keras/activations.py`);
 
-//saveJson(activationTypes, outputDir);
-//console.log(`Detected ${activationTypes.length} activation functions. Saved to ${outputDir}`);
+saveJson(activationTypes, outputDir);
+console.log(`Detected ${activationTypes.length} activation functions. Saved to ${outputDir}`);
 
 // Parse the main layer definitions
 let layersDir = path.join(process.argv[2], 'keras', 'layers');
@@ -39,7 +39,6 @@ let inputLayer = layerParser.parseFnLayers(fs.readFileSync(topologyFile, 'utf8')
 
 schemas.push(inputLayer);
 
-console.log(schemas.filter(info => info.name === 'Dense')[0]);
 outputDir = 'src/plugins/UpdateMeta/schema.json';
 saveJson(schemas, outputDir);
 console.log(`Found ${schemas.length} layers. Saved schema to ${outputDir}`);
