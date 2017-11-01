@@ -90,9 +90,7 @@ function parseLayerCtor(def) {
             value = def.args.defaults[defIndex].id.v;
         }
         type = inferArgumentType(name, value, def);
-        // TODO: check if it is an activation
 
-        // TODO: add type info
         return {
             name: name,
             type: type,
