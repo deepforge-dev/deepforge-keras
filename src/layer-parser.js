@@ -103,12 +103,13 @@ function parseLayerCtor(def) {
 function inferArgumentType(name, value, fnNode) {
     if (isBoolean.test(value)) return 'boolean';
 
-    // TODO: CHeck for the import
+    // TODO: Check for the import
     // Check if it is an activation
     let statements = fnNode.body;
     // we are looking for the given structure:
     //
     //   <something> = activations.get(<variable)
+    //
     let assignments = statements
         .filter(stat => isNodeType(stat, NODE_TYPE.ASSIGN));
 
