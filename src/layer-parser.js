@@ -12,6 +12,7 @@ NODE_TYPE.IF = 'If_';
 NODE_TYPE.BOOL = 'BoolOp';
 NODE_TYPE.CALL = 'Call';
 NODE_TYPE.ATTRIBUTE = 'Attribute';
+NODE_TYPE.NAME = 'Name';
 
 function isNodeType(node, type) {
     return node.constructor.name === type;
@@ -119,13 +120,15 @@ function inferArgumentType(name, value, fnNode) {
 
     let isActivationName = rightMethodCalls
         .filter(call => {  // check that we are calling 'get' on 'activations' with the arg
-            if (!call.func.value.id) console.log(call);
-            let caller = call.func.value.id.v;
-            let method = call.func.attr.v;
-            let argument = call.args[0] && call.args[0].id.v;
+            if (isNodeType(call.func.value, NODE_TYPE.NAME)) {
+                let caller = call.func.value.id.v;
+                let method = call.func.attr.v;
+                let argument = call.args[0];
+                let argumentName = argument && argument.id && argument.id.v;
 
-            return caller === 'activations' && method === 'get' &&
-                argument === name;
+                return caller === 'activations' && method === 'get' &&
+                    argumentName === name;
+            }
         }).length > 0;
 
     if (isActivationName) return 'activation';

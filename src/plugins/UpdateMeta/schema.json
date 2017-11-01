@@ -786,10 +786,12 @@
       },
       {
         "name": "activation",
+        "type": "activation",
         "default": null
       },
       {
         "name": "recurrent_activation",
+        "type": "activation",
         "default": null
       },
       {
@@ -981,6 +983,7 @@
       },
       {
         "name": "activation",
+        "type": "activation",
         "default": null
       }
     ],
@@ -1095,6 +1098,7 @@
       },
       {
         "name": "activation",
+        "type": "activation",
         "default": "None"
       },
       {
@@ -1381,6 +1385,7 @@
       },
       {
         "name": "activation",
+        "type": "activation",
         "default": "None"
       },
       {
@@ -1451,6 +1456,7 @@
       },
       {
         "name": "activation",
+        "type": "activation",
         "default": "None"
       },
       {
@@ -1895,6 +1901,7 @@
       },
       {
         "name": "activation",
+        "type": "activation",
         "default": null
       },
       {
@@ -2064,10 +2071,12 @@
       },
       {
         "name": "activation",
+        "type": "activation",
         "default": null
       },
       {
         "name": "recurrent_activation",
+        "type": "activation",
         "default": null
       },
       {
@@ -2249,10 +2258,12 @@
       },
       {
         "name": "activation",
+        "type": "activation",
         "default": null
       },
       {
         "name": "recurrent_activation",
+        "type": "activation",
         "default": null
       },
       {
