@@ -377,7 +377,15 @@ define([
             schema.type = 'string';
         }
 
-        // TODO: Add support for activations
+        ///////// Activation Types /////////
+        if (schema.type === 'activation') {
+            // Create the enum
+            schema.enum = ACTIVATIONS.concat('None');
+
+            // Set the type
+            schema.type = 'string';
+        }
+
         if (schema.min !== undefined) {
             schema.min = +schema.min;
         }
