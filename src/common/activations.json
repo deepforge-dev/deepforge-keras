@@ -3,10 +3,12 @@
     "name": "softmax",
     "args": [
       {
-        "name": "x"
+        "name": "x",
+        "default": null
       },
       {
-        "name": "axis"
+        "name": "axis",
+        "default": null
       }
     ],
     "docstring": "Softmax activation function.\n\n    # Arguments\n        x : Tensor.\n        axis: Integer, axis along which the softmax normalization is applied.\n\n    # Returns\n        Tensor, output of softmax transformation.\n\n    # Raises\n        ValueError: In case `dim(x) == 1`.\n    "
@@ -15,10 +17,12 @@
     "name": "elu",
     "args": [
       {
-        "name": "x"
+        "name": "x",
+        "default": null
       },
       {
-        "name": "alpha"
+        "name": "alpha",
+        "default": null
       }
     ]
   },
@@ -26,7 +30,8 @@
     "name": "selu",
     "args": [
       {
-        "name": "x"
+        "name": "x",
+        "default": null
       }
     ],
     "docstring": "Scaled Exponential Linear Unit. (Klambauer et al., 2017)\n\n    # Arguments\n        x: A tensor or variable to compute the activation function for.\n\n    # References\n        - [Self-Normalizing Neural Networks](https://arxiv.org/abs/1706.02515)\n    "
@@ -35,7 +40,8 @@
     "name": "softplus",
     "args": [
       {
-        "name": "x"
+        "name": "x",
+        "default": null
       }
     ]
   },
@@ -43,7 +49,8 @@
     "name": "softsign",
     "args": [
       {
-        "name": "x"
+        "name": "x",
+        "default": null
       }
     ]
   },
@@ -51,13 +58,16 @@
     "name": "relu",
     "args": [
       {
-        "name": "x"
+        "name": "x",
+        "default": null
       },
       {
-        "name": "alpha"
+        "name": "alpha",
+        "default": null
       },
       {
-        "name": "max_value"
+        "name": "max_value",
+        "default": "None"
       }
     ]
   },
@@ -65,7 +75,8 @@
     "name": "tanh",
     "args": [
       {
-        "name": "x"
+        "name": "x",
+        "default": null
       }
     ]
   },
@@ -73,7 +84,8 @@
     "name": "sigmoid",
     "args": [
       {
-        "name": "x"
+        "name": "x",
+        "default": null
       }
     ]
   },
@@ -81,7 +93,8 @@
     "name": "hard_sigmoid",
     "args": [
       {
-        "name": "x"
+        "name": "x",
+        "default": null
       }
     ]
   },
@@ -89,7 +102,8 @@
     "name": "linear",
     "args": [
       {
-        "name": "x"
+        "name": "x",
+        "default": null
       }
     ]
   }
