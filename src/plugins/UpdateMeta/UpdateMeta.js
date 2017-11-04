@@ -4,7 +4,7 @@
 define([
     'plugin/PluginConfig',
     'keras/Constants',
-    'text!keras/activations.json',
+    'text!keras/schemas/activations.json',
     'text!./metadata.json',
     'text!./schema.json',
     'plugin/PluginBase',
