@@ -4,39 +4,40 @@
 define([
     'plugin/PluginConfig',
     'keras/Constants',
-    'text!keras/schemas/activations.json',
-    'text!./metadata.json',
-    'text!./schema.json',
     'plugin/PluginBase',
     'common/util/guid',
     'underscore',
-    'q'
+    'q',
+
+    'text!keras/schemas/activations.json',
+    'text!keras/schemas/layers.json',
+    'text!./metadata.json'
 ], function (
     PluginConfig,
     Constants,
-    ActivationsTxt,
-    pluginMetadata,
-    schemaText,
     PluginBase,
     generateGuid,
     _,
-    Q
+    Q,
+    ActivationsTxt,
+    LayerTxt,
+    pluginMetadata
 ) {
     'use strict';
 
     pluginMetadata = JSON.parse(pluginMetadata);
-    const SCHEMAS = JSON.parse(schemaText).filter(schema => !schema.abstract);
+    const LAYERS = JSON.parse(LayerTxt).filter(schema => !schema.abstract);
     const ACTIVATIONS = JSON.parse(ActivationsTxt).map(info => info.name);
     const DEFAULT_META_TAB = 'META';
 
     /**
-     * Initializes a new instance of UpdateMeta.
+     * Initializes a new instance of GenerateKerasMeta.
      * @class
      * @augments {PluginBase}
-     * @classdesc This class represents the plugin UpdateMeta.
+     * @classdesc This class represents the plugin GenerateKerasMeta.
      * @constructor
      */
-    var UpdateMeta = function () {
+    var GenerateKerasMeta = function () {
         // Call base class' constructor.
         PluginBase.call(this);
         this.pluginMetadata = pluginMetadata;
@@ -47,11 +48,11 @@ define([
      * This is also available at the instance at this.pluginMetadata.
      * @type {object}
      */
-    UpdateMeta.metadata = pluginMetadata;
+    GenerateKerasMeta.metadata = pluginMetadata;
 
     // Prototypical inheritance from PluginBase.
-    UpdateMeta.prototype = Object.create(PluginBase.prototype);
-    UpdateMeta.prototype.constructor = UpdateMeta;
+    GenerateKerasMeta.prototype = Object.create(PluginBase.prototype);
+    GenerateKerasMeta.prototype.constructor = GenerateKerasMeta;
 
     /**
      * Main function for the plugin to execute. This will perform the execution.
@@ -62,15 +63,15 @@ define([
      *
      * @param {function(string, plugin.PluginResult)} callback - the result callback
      */
-    UpdateMeta.prototype.main = function (callback) {
+    GenerateKerasMeta.prototype.main = function (callback) {
         this.metaSheets = {};
         this.sheetCounts = {};
         this.nodes = {};
 
         return this.prepareMetaModel()
-            .then(() => this.createCategories(SCHEMAS))
+            .then(() => this.createCategories(LAYERS))
             .then(() => this.updateNodes())
-            .then(() => this.save('UpdateMeta updated metamodel.'))
+            .then(() => this.save('GenerateKerasMeta updated metamodel.'))
             .then(() => {
                 this.result.setSuccess(true);
                 callback(null, this.result);
@@ -82,7 +83,7 @@ define([
 
     };
 
-    UpdateMeta.prototype.prepareMetaModel = function () {
+    GenerateKerasMeta.prototype.prepareMetaModel = function () {
         // Create the base class, if needed
         this.metaSheets.META = this.createMetaSheetTab('META');
         if (!this.META.Language) {
@@ -130,10 +131,10 @@ define([
         return Q();
     };
 
-    UpdateMeta.prototype.getCategories = function (schemas) {
+    GenerateKerasMeta.prototype.getCategories = function (schemas) {
         let content = {};
 
-        schemas = schemas || SCHEMAS;
+        schemas = schemas || LAYERS;
         schemas.forEach(layer => {
             var type = this.getBaseName(layer.file);
             if (!content[type]) {
@@ -145,7 +146,7 @@ define([
         return Object.keys(content);
     };
 
-    UpdateMeta.prototype.createCategories = function (schemas) {
+    GenerateKerasMeta.prototype.createCategories = function (schemas) {
         // Get the categories
         // Create the category nodes
         var categories = this.getCategories(schemas);
@@ -168,22 +169,22 @@ define([
 
     };
 
-    UpdateMeta.prototype.getBaseName = function (filename) {
+    GenerateKerasMeta.prototype.getBaseName = function (filename) {
         var type = filename.split('/').pop().replace(/\.py$/, '');
         return type[0].toUpperCase() + type.substring(1);
     };
 
-    UpdateMeta.prototype.getBaseFor = function (layer) {
+    GenerateKerasMeta.prototype.getBaseFor = function (layer) {
         var type = this.getBaseName(layer.file);
         if (!this.META[type]) type = 'Layer';
         return this.META[type];
     };
 
-    UpdateMeta.prototype.updateNodes = function () {
-        return Q.all(SCHEMAS.map(schema => this.updateNode(schema)));
+    GenerateKerasMeta.prototype.updateNodes = function () {
+        return Q.all(LAYERS.map(schema => this.updateNode(schema)));
     };
 
-    UpdateMeta.prototype.updateNode = function (layer) {
+    GenerateKerasMeta.prototype.updateNode = function (layer) {
         // Create the actual nodes
         this.logger.debug(`adding "${layer.name}" layer`);
         let node = this.createMetaLayer(layer);
@@ -195,7 +196,7 @@ define([
         }
     };
 
-    UpdateMeta.prototype.removeFromMeta = function (nodeId) {
+    GenerateKerasMeta.prototype.removeFromMeta = function (nodeId) {
         var sheets = this.core.getRegistry(this.rootNode, Constants.REGISTRY.META_SHEETS),
             sheet;
 
@@ -213,7 +214,7 @@ define([
         }
     };
 
-    UpdateMeta.prototype.createMetaSheetTab = function (name) {
+    GenerateKerasMeta.prototype.createMetaSheetTab = function (name) {
         var sheets = this.core.getRegistry(this.rootNode, Constants.REGISTRY.META_SHEETS),
             id = Constants.META_ASPECT_SHEET_NAME_PREFIX + generateGuid(),
             sheet,
@@ -235,7 +236,7 @@ define([
     };
 
     // Some helper methods w/ attribute handling
-    UpdateMeta.prototype.createMetaLayer = function (layer) {
+    GenerateKerasMeta.prototype.createMetaLayer = function (layer) {
         // create a meta node for the given layer
         var category = this.getBaseName(layer.file);
         var node = this.createMetaNode(layer.name, this.getBaseFor(layer), category);
@@ -261,7 +262,7 @@ define([
         return node;
     };
 
-    UpdateMeta.prototype.createMetaNode = function (name, base, tabName) {
+    GenerateKerasMeta.prototype.createMetaNode = function (name, base, tabName) {
         var node = this.META[name],
             nodeId = node && this.core.getPath(node),
             position,
@@ -317,7 +318,7 @@ define([
         return node;
     };
 
-    UpdateMeta.prototype.getPositionFor = function(name, tabName) {
+    GenerateKerasMeta.prototype.getPositionFor = function(name, tabName) {
         var index = this.sheetCounts[tabName] || 0,
             position,
             dx = 140,
@@ -341,14 +342,14 @@ define([
         return position;
     };
 
-    UpdateMeta.prototype.addLayerAttribute = function (name, node) {
+    GenerateKerasMeta.prototype.addLayerAttribute = function (name, node) {
         // No default value support for now...
         // Create a pointer of the given type on the node
         this.core.setPointerMetaTarget(node, name, this.META.Architecture, 1, 1);
         this.core.setPointerMetaLimits(node, name, 1, 1);
     };
 
-    UpdateMeta.prototype.addAttribute = function (name, node, schema, defVal) {
+    GenerateKerasMeta.prototype.addAttribute = function (name, node, schema, defVal) {
         schema.type = schema.type || 'string';
         if (schema.type === 'list') {  // FIXME: add support for lists
             schema.type = 'string';
@@ -386,9 +387,9 @@ define([
     };
 
     // Helpers for testing
-    UpdateMeta.prototype.getSchemas = function () {
-        return SCHEMAS;
+    GenerateKerasMeta.prototype.getSchemas = function () {
+        return LAYERS;
     };
 
-    return UpdateMeta;
+    return GenerateKerasMeta;
 });

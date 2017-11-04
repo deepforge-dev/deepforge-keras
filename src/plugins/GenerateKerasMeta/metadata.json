@@ -1,6 +1,6 @@
 {
-  "id": "UpdateMeta",
-  "name": "UpdateMeta",
+  "id": "GenerateKerasMeta",
+  "name": "GenerateKerasMeta",
   "version": "0.1.0",
   "description": "",
   "icon": {
