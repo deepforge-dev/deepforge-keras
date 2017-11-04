@@ -113,6 +113,7 @@ function parseFnArguments(def) {
     return args;
 }
 
+const TYPE_LOADERS = /^(activation|constraint|regularizer|initializer)s$/;
 function inferArgumentType(name, value, fnNode) {
     if (isBoolean.test(value)) return 'boolean';
 
@@ -122,6 +123,9 @@ function inferArgumentType(name, value, fnNode) {
     // we are looking for the given structure:
     //
     //   <something> = activations.get(<variable)
+    //   <something> = initializers.get(<variable)
+    //   <something> = regularizers.get(<variable)
+    //    etc..
     //
     let assignments = statements
         .filter(stat => isNodeType(stat, NODE_TYPE.ASSIGN));
@@ -130,20 +134,24 @@ function inferArgumentType(name, value, fnNode) {
         .map(assign => assign.value)  // right side of the '='
         .filter(right => isNodeType(right, NODE_TYPE.CALL) && isNodeType(right.func, NODE_TYPE.ATTRIBUTE));
 
-    let isActivationName = rightMethodCalls
-        .filter(call => {  // check that we are calling 'get' on 'activations' with the arg
+    // Create a list of the type information that can be inferred from each statement
+    let typeNames = rightMethodCalls
+        .map(call => {  // check that we are calling 'get' on 'activations' with the arg
             if (isNodeType(call.func.value, NODE_TYPE.NAME)) {
                 let caller = call.func.value.id.v;
                 let method = call.func.attr.v;
                 let argument = call.args[0];
                 let argumentName = argument && argument.id && argument.id.v;
+                let isTypeLoader = TYPE_LOADERS.test(caller) && method === 'get';
 
-                return caller === 'activations' && method === 'get' &&
-                    argumentName === name;
+                if (isTypeLoader && argumentName === name) {
+                    return caller.match(TYPE_LOADERS).pop();
+                }
             }
-        }).length > 0;
+        }).filter(type => !!type);
 
-    if (isActivationName) return 'activation';
+    // Return the first inferred type (may be undefined if none found)
+    return typeNames.pop();
 }
 
 function getDocString(node) {
