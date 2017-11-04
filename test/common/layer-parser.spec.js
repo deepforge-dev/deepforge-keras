@@ -10,7 +10,7 @@ describe('layer-parser', function() {
 
         before(() => {
             content = fs.readFileSync(path.join(__dirname, '..', 'test-cases', 'activations.py'), 'utf8');
-            acts = LayerParser.regularizers.parse(content);
+            acts = LayerParser.activations.parse(content);
         });
 
         it('should parse the activations', () => {
@@ -32,6 +32,40 @@ describe('layer-parser', function() {
             assert.equal(axis.default, -1);
         });
     });
+
+    describe('constraints', function () {
+        let content = null;
+        let acts = null;
+
+        before(() => {
+            content = fs.readFileSync(path.join(__dirname, '..', 'test-cases', 'constraints.py'), 'utf8');
+            acts = LayerParser.constraints.parse(content);
+        });
+
+        it('should parse the constraints', () => {
+            assert.equal(acts.length, 4);
+        });
+
+        it('should not include the base class', () => {
+            assert(!acts.find(act => act.name === 'Constraint'));
+        });
+
+        it('should parse constraint w/ name "MaxNorm"', () => {
+            assert(acts.find(info => info.name === 'MaxNorm'));
+        });
+
+        it('should parse the arguments (MaxNorm)', () => {
+            let MaxNorm = acts.find(info => info.name === 'MaxNorm');
+            assert(MaxNorm.arguments.find(arg => arg.name === 'axis'));
+        });
+
+        it('should parse the argument defaults (MaxNorm, axis)', () => {
+            let MaxNorm = acts.find(info => info.name === 'MaxNorm');
+            let axis = MaxNorm.arguments.find(arg => arg.name === 'axis');
+            assert.equal(axis.default, 0);
+        });
+    });
+
 
     describe('regularizers', function () {
         let content = null;
@@ -72,7 +106,7 @@ describe('layer-parser', function() {
         });
 
         it('should parse the initializers', () => {
-            assert.equal(inits.length, 13);
+            assert.equal(inits.length, 15);
         });
 
         it('should parse initializer w/ name "he_normal"', () => {
@@ -83,17 +117,17 @@ describe('layer-parser', function() {
             assert(!inits.find(info => info.name === '_compute_fans'));
         });
 
-        it('should use compatibility aliases', () => {
-            assert(inits.find(info => info.name === 'normal'));
+        it('should not use compatibility aliases', () => {
+            assert(!inits.find(info => info.name === 'normal'));
         });
 
-        it('should parse the arguments (normal)', () => {
-            let normal = inits.find(info => info.name === 'normal');
+        it('should parse the arguments (RandomNormal)', () => {
+            let normal = inits.find(info => info.name === 'RandomNormal');
             assert(normal.arguments.find(arg => arg.name === 'stddev'));
         });
 
-        it('should parse the argument defaults (normal, l)', () => {
-            let normal = inits.find(info => info.name === 'normal');
+        it('should parse the argument defaults (RandomNormal, stddev)', () => {
+            let normal = inits.find(info => info.name === 'RandomNormal');
             let l = normal.arguments.find(arg => arg.name === 'stddev');
             assert.equal(l.default, 0.05);
         });

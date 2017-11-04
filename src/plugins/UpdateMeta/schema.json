@@ -1437,6 +1437,54 @@
     "file": "keras/layers/local.py"
   },
   {
+    "name": "Add",
+    "base": "_Merge",
+    "arguments": [],
+    "abstract": false,
+    "docstring": "Layer that adds a list of inputs.\n\n    It takes as input a list of tensors,\n    all of the same shape, and returns\n    a single tensor (also of the same shape).\n\n    # Examples\n\n    ```python\n        import keras\n\n        input1 = keras.layers.Input(shape=(16,))\n        x1 = keras.layers.Dense(8, activation='relu')(input1)\n        input2 = keras.layers.Input(shape=(32,))\n        x2 = keras.layers.Dense(8, activation='relu')(input2)\n        added = keras.layers.Add()([x1, x2])  # equivalent to added = keras.layers.add([x1, x2])\n\n        out = keras.layers.Dense(4)(added)\n        model = keras.models.Model(inputs=[input1, input2], outputs=out)\n    ```\n    ",
+    "file": "keras/layers/merge.py"
+  },
+  {
+    "name": "Subtract",
+    "base": "_Merge",
+    "arguments": [],
+    "abstract": false,
+    "docstring": "Layer that subtracts two inputs.\n\n    It takes as input a list of tensors of size 2,\n    both of the same shape, and returns a single tensor, (inputs[0] - inputs[1]),\n    also of the same shape.\n\n    # Examples\n\n    ```python\n        import keras\n\n        input1 = keras.layers.Input(shape=(16,))\n        x1 = keras.layers.Dense(8, activation='relu')(input1)\n        input2 = keras.layers.Input(shape=(32,))\n        x2 = keras.layers.Dense(8, activation='relu')(input2)\n        # Equivalent to subtracted = keras.layers.subtract([x1, x2])\n        subtracted = keras.layers.Subtract()([x1, x2])\n\n        out = keras.layers.Dense(4)(subtracted)\n        model = keras.models.Model(inputs=[input1, input2], outputs=out)\n    ```\n    ",
+    "file": "keras/layers/merge.py"
+  },
+  {
+    "name": "Multiply",
+    "base": "_Merge",
+    "arguments": [],
+    "abstract": false,
+    "docstring": "Layer that multiplies (element-wise) a list of inputs.\n\n    It takes as input a list of tensors,\n    all of the same shape, and returns\n    a single tensor (also of the same shape).\n    ",
+    "file": "keras/layers/merge.py"
+  },
+  {
+    "name": "Average",
+    "base": "_Merge",
+    "arguments": [],
+    "abstract": false,
+    "docstring": "Layer that averages a list of inputs.\n\n    It takes as input a list of tensors,\n    all of the same shape, and returns\n    a single tensor (also of the same shape).\n    ",
+    "file": "keras/layers/merge.py"
+  },
+  {
+    "name": "Maximum",
+    "base": "_Merge",
+    "arguments": [],
+    "abstract": false,
+    "docstring": "Layer that computes the maximum (element-wise) a list of inputs.\n\n    It takes as input a list of tensors,\n    all of the same shape, and returns\n    a single tensor (also of the same shape).\n    ",
+    "file": "keras/layers/merge.py"
+  },
+  {
+    "name": "Minimum",
+    "base": "_Merge",
+    "arguments": [],
+    "abstract": false,
+    "docstring": "Layer that computes the minimum (element-wise) a list of inputs.\n\n    It takes as input a list of tensors,\n    all of the same shape, and returns\n    a single tensor (also of the same shape).\n    ",
+    "file": "keras/layers/merge.py"
+  },
+  {
     "name": "Concatenate",
     "base": "_Merge",
     "arguments": [
@@ -1751,6 +1799,54 @@
     ],
     "abstract": false,
     "docstring": "Average pooling operation for 3D data (spatial or spatio-temporal).\n\n    # Arguments\n        pool_size: tuple of 3 integers,\n            factors by which to downscale (dim1, dim2, dim3).\n            (2, 2, 2) will halve the size of the 3D input in each dimension.\n        strides: tuple of 3 integers, or None. Strides values.\n        padding: One of `\"valid\"` or `\"same\"` (case-insensitive).\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n            while `channels_first` corresponds to inputs with shape\n            `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        - If `data_format='channels_last'`:\n            5D tensor with shape:\n            `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n        - If `data_format='channels_first'`:\n            5D tensor with shape:\n            `(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`\n\n    # Output shape\n        - If `data_format='channels_last'`:\n            5D tensor with shape:\n            `(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n        - If `data_format='channels_first'`:\n            5D tensor with shape:\n            `(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`\n    ",
+    "file": "keras/layers/pooling.py"
+  },
+  {
+    "name": "GlobalAveragePooling1D",
+    "base": "_GlobalPooling1D",
+    "arguments": [],
+    "abstract": false,
+    "docstring": "Global average pooling operation for temporal data.\n\n    # Input shape\n        3D tensor with shape: `(batch_size, steps, features)`.\n\n    # Output shape\n        2D tensor with shape:\n        `(batch_size, features)`\n    ",
+    "file": "keras/layers/pooling.py"
+  },
+  {
+    "name": "GlobalMaxPooling1D",
+    "base": "_GlobalPooling1D",
+    "arguments": [],
+    "abstract": false,
+    "docstring": "Global max pooling operation for temporal data.\n\n    # Input shape\n        3D tensor with shape: `(batch_size, steps, features)`.\n\n    # Output shape\n        2D tensor with shape:\n        `(batch_size, features)`\n    ",
+    "file": "keras/layers/pooling.py"
+  },
+  {
+    "name": "GlobalAveragePooling2D",
+    "base": "_GlobalPooling2D",
+    "arguments": [],
+    "abstract": false,
+    "docstring": "Global average pooling operation for spatial data.\n\n    # Arguments\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, height, width, channels)` while `channels_first`\n            corresponds to inputs with shape\n            `(batch, channels, height, width)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        - If `data_format='channels_last'`:\n            4D tensor with shape:\n            `(batch_size, rows, cols, channels)`\n        - If `data_format='channels_first'`:\n            4D tensor with shape:\n            `(batch_size, channels, rows, cols)`\n\n    # Output shape\n        2D tensor with shape:\n        `(batch_size, channels)`\n    ",
+    "file": "keras/layers/pooling.py"
+  },
+  {
+    "name": "GlobalMaxPooling2D",
+    "base": "_GlobalPooling2D",
+    "arguments": [],
+    "abstract": false,
+    "docstring": "Global max pooling operation for spatial data.\n\n    # Arguments\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, height, width, channels)` while `channels_first`\n            corresponds to inputs with shape\n            `(batch, channels, height, width)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        - If `data_format='channels_last'`:\n            4D tensor with shape:\n            `(batch_size, rows, cols, channels)`\n        - If `data_format='channels_first'`:\n            4D tensor with shape:\n            `(batch_size, channels, rows, cols)`\n\n    # Output shape\n        2D tensor with shape:\n        `(batch_size, channels)`\n    ",
+    "file": "keras/layers/pooling.py"
+  },
+  {
+    "name": "GlobalAveragePooling3D",
+    "base": "_GlobalPooling3D",
+    "arguments": [],
+    "abstract": false,
+    "docstring": "Global Average pooling operation for 3D data.\n\n    # Arguments\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n            while `channels_first` corresponds to inputs with shape\n            `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        - If `data_format='channels_last'`:\n            5D tensor with shape:\n            `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n        - If `data_format='channels_first'`:\n            5D tensor with shape:\n            `(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`\n\n    # Output shape\n        2D tensor with shape:\n        `(batch_size, channels)`\n    ",
+    "file": "keras/layers/pooling.py"
+  },
+  {
+    "name": "GlobalMaxPooling3D",
+    "base": "_GlobalPooling3D",
+    "arguments": [],
+    "abstract": false,
+    "docstring": "Global Max pooling operation for 3D data.\n\n    # Arguments\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n            while `channels_first` corresponds to inputs with shape\n            `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        - If `data_format='channels_last'`:\n            5D tensor with shape:\n            `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n        - If `data_format='channels_first'`:\n            5D tensor with shape:\n            `(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`\n\n    # Output shape\n        2D tensor with shape:\n        `(batch_size, channels)`\n    ",
     "file": "keras/layers/pooling.py"
   },
   {
