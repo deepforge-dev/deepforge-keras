@@ -1,0 +1,75 @@
+[
+  {
+    "name": "lecun_uniform",
+    "arguments": [
+      {
+        "name": "seed",
+        "default": "None"
+      }
+    ],
+    "docstring": "LeCun uniform initializer.\n\n    It draws samples from a uniform distribution within [-limit, limit]\n    where `limit` is `sqrt(3 / fan_in)`\n    where `fan_in` is the number of input units in the weight tensor.\n\n    # Arguments\n        seed: A Python integer. Used to seed the random generator.\n\n    # Returns\n        An initializer.\n\n    # References\n        LeCun 98, Efficient Backprop,\n        http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf\n    "
+  },
+  {
+    "name": "glorot_normal",
+    "arguments": [
+      {
+        "name": "seed",
+        "default": "None"
+      }
+    ],
+    "docstring": "Glorot normal initializer, also called Xavier normal initializer.\n\n    It draws samples from a truncated normal distribution centered on 0\n    with `stddev = sqrt(2 / (fan_in + fan_out))`\n    where `fan_in` is the number of input units in the weight tensor\n    and `fan_out` is the number of output units in the weight tensor.\n\n    # Arguments\n        seed: A Python integer. Used to seed the random generator.\n\n    # Returns\n        An initializer.\n\n    # References\n        Glorot & Bengio, AISTATS 2010\n        http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf\n    "
+  },
+  {
+    "name": "glorot_uniform",
+    "arguments": [
+      {
+        "name": "seed",
+        "default": "None"
+      }
+    ],
+    "docstring": "Glorot uniform initializer, also called Xavier uniform initializer.\n\n    It draws samples from a uniform distribution within [-limit, limit]\n    where `limit` is `sqrt(6 / (fan_in + fan_out))`\n    where `fan_in` is the number of input units in the weight tensor\n    and `fan_out` is the number of output units in the weight tensor.\n\n    # Arguments\n        seed: A Python integer. Used to seed the random generator.\n\n    # Returns\n        An initializer.\n\n    # References\n        Glorot & Bengio, AISTATS 2010\n        http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf\n    "
+  },
+  {
+    "name": "he_normal",
+    "arguments": [
+      {
+        "name": "seed",
+        "default": "None"
+      }
+    ],
+    "docstring": "He normal initializer.\n\n    It draws samples from a truncated normal distribution centered on 0\n    with `stddev = sqrt(2 / fan_in)`\n    where `fan_in` is the number of input units in the weight tensor.\n\n    # Arguments\n        seed: A Python integer. Used to seed the random generator.\n\n    # Returns\n        An initializer.\n\n    # References\n        He et al., http://arxiv.org/abs/1502.01852\n    "
+  },
+  {
+    "name": "lecun_normal",
+    "arguments": [
+      {
+        "name": "seed",
+        "default": "None"
+      }
+    ],
+    "docstring": "LeCun normal initializer.\n\n    It draws samples from a truncated normal distribution centered on 0\n    with `stddev = sqrt(1 / fan_in)`\n    where `fan_in` is the number of input units in the weight tensor.\n\n    # Arguments\n        seed: A Python integer. Used to seed the random generator.\n\n    # Returns\n        An initializer.\n\n    # References\n        - [Self-Normalizing Neural Networks](https://arxiv.org/abs/1706.02515)\n        - [Efficient Backprop](http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf)\n    "
+  },
+  {
+    "name": "he_uniform",
+    "arguments": [
+      {
+        "name": "seed",
+        "default": "None"
+      }
+    ],
+    "docstring": "He uniform variance scaling initializer.\n\n    It draws samples from a uniform distribution within [-limit, limit]\n    where `limit` is `sqrt(6 / fan_in)`\n    where `fan_in` is the number of input units in the weight tensor.\n\n    # Arguments\n        seed: A Python integer. Used to seed the random generator.\n\n    # Returns\n        An initializer.\n\n    # References\n        He et al., http://arxiv.org/abs/1502.01852\n    "
+  },
+  {
+    "name": "_compute_fans",
+    "arguments": [
+      {
+        "name": "shape",
+        "default": null
+      },
+      {
+        "name": "data_format"
+      }
+    ],
+    "docstring": "Computes the number of input and output units for a weight shape.\n\n    # Arguments\n        shape: Integer shape tuple.\n        data_format: Image data format to use for convolution kernels.\n            Note that all kernels in Keras are standardized on the\n            `channels_last` ordering (even when inputs are set\n            to `channels_first`).\n\n    # Returns\n        A tuple of scalars, `(fan_in, fan_out)`.\n\n    # Raises\n        ValueError: in case of invalid `data_format` argument.\n    "
+  }
+]

@@ -9,7 +9,7 @@
       },
       {
         "name": "alpha",
-        "default": null
+        "default": 0.3
       }
     ],
     "abstract": false,
@@ -25,8 +25,7 @@
         "default": null
       },
       {
-        "name": "alpha_initializer",
-        "default": null
+        "name": "alpha_initializer"
       },
       {
         "name": "alpha_regularizer",
@@ -55,7 +54,7 @@
       },
       {
         "name": "alpha",
-        "default": null
+        "default": 1
       }
     ],
     "abstract": false,
@@ -72,7 +71,7 @@
       },
       {
         "name": "theta",
-        "default": null
+        "default": 1
       }
     ],
     "abstract": false,
@@ -97,15 +96,14 @@
       },
       {
         "name": "strides",
-        "default": null
+        "default": 1
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "dilation_rate",
-        "default": null
+        "default": 1
       },
       {
         "name": "activation",
@@ -117,12 +115,10 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -166,20 +162,17 @@
         "default": null
       },
       {
-        "name": "strides",
-        "default": null
+        "name": "strides"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
         "default": "None"
       },
       {
-        "name": "dilation_rate",
-        "default": null
+        "name": "dilation_rate"
       },
       {
         "name": "activation",
@@ -191,12 +184,10 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -240,20 +231,17 @@
         "default": null
       },
       {
-        "name": "strides",
-        "default": null
+        "name": "strides"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
         "default": "None"
       },
       {
-        "name": "dilation_rate",
-        "default": null
+        "name": "dilation_rate"
       },
       {
         "name": "activation",
@@ -265,12 +253,10 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -314,12 +300,10 @@
         "default": null
       },
       {
-        "name": "strides",
-        "default": null
+        "name": "strides"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
@@ -335,12 +319,10 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -384,12 +366,10 @@
         "default": null
       },
       {
-        "name": "strides",
-        "default": null
+        "name": "strides"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
@@ -405,12 +385,10 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -454,12 +432,10 @@
         "default": null
       },
       {
-        "name": "strides",
-        "default": null
+        "name": "strides"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
@@ -467,7 +443,7 @@
       },
       {
         "name": "depth_multiplier",
-        "default": null
+        "default": 1
       },
       {
         "name": "activation",
@@ -479,16 +455,13 @@
         "default": "True"
       },
       {
-        "name": "depthwise_initializer",
-        "default": null
+        "name": "depthwise_initializer"
       },
       {
-        "name": "pointwise_initializer",
-        "default": null
+        "name": "pointwise_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "depthwise_regularizer",
@@ -533,7 +506,7 @@
       },
       {
         "name": "size",
-        "default": null
+        "default": 2
       }
     ],
     "abstract": false,
@@ -549,8 +522,7 @@
         "default": null
       },
       {
-        "name": "size",
-        "default": null
+        "name": "size"
       },
       {
         "name": "data_format",
@@ -570,8 +542,7 @@
         "default": null
       },
       {
-        "name": "size",
-        "default": null
+        "name": "size"
       },
       {
         "name": "data_format",
@@ -592,7 +563,7 @@
       },
       {
         "name": "padding",
-        "default": null
+        "default": 1
       }
     ],
     "abstract": false,
@@ -608,8 +579,7 @@
         "default": null
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
@@ -629,8 +599,7 @@
         "default": null
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
@@ -650,8 +619,7 @@
         "default": null
       },
       {
-        "name": "cropping",
-        "default": null
+        "name": "cropping"
       }
     ],
     "abstract": false,
@@ -667,8 +635,7 @@
         "default": null
       },
       {
-        "name": "cropping",
-        "default": null
+        "name": "cropping"
       },
       {
         "name": "data_format",
@@ -688,8 +655,7 @@
         "default": null
       },
       {
-        "name": "cropping",
-        "default": null
+        "name": "cropping"
       },
       {
         "name": "data_format",
@@ -717,20 +683,17 @@
         "default": null
       },
       {
-        "name": "strides",
-        "default": null
+        "name": "strides"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
         "default": "None"
       },
       {
-        "name": "dilation_rate",
-        "default": null
+        "name": "dilation_rate"
       },
       {
         "name": "return_sequences",
@@ -769,30 +732,25 @@
         "default": null
       },
       {
-        "name": "strides",
-        "default": null
+        "name": "strides"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
         "default": "None"
       },
       {
-        "name": "dilation_rate",
-        "default": null
+        "name": "dilation_rate"
       },
       {
         "name": "activation",
-        "type": "activation",
-        "default": null
+        "type": "activation"
       },
       {
         "name": "recurrent_activation",
-        "type": "activation",
-        "default": null
+        "type": "activation"
       },
       {
         "name": "use_bias",
@@ -800,16 +758,13 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "recurrent_initializer",
-        "default": null
+        "name": "recurrent_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "unit_forget_bias",
@@ -861,11 +816,11 @@
       },
       {
         "name": "dropout",
-        "default": null
+        "default": 0
       },
       {
         "name": "recurrent_dropout",
-        "default": null
+        "default": 0
       }
     ],
     "abstract": false,
@@ -882,7 +837,7 @@
       },
       {
         "name": "mask_value",
-        "default": null
+        "default": 0
       }
     ],
     "abstract": false,
@@ -1107,12 +1062,10 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -1149,11 +1102,11 @@
       },
       {
         "name": "l1",
-        "default": null
+        "default": 0
       },
       {
         "name": "l2",
-        "default": null
+        "default": 0
       }
     ],
     "abstract": false,
@@ -1173,16 +1126,13 @@
         "default": null
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "recurrent_initializer",
-        "default": null
+        "name": "recurrent_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -1245,16 +1195,13 @@
         "default": null
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "recurrent_initializer",
-        "default": null
+        "name": "recurrent_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "unit_forget_bias",
@@ -1326,8 +1273,7 @@
         "default": null
       },
       {
-        "name": "embeddings_initializer",
-        "default": null
+        "name": "embeddings_initializer"
       },
       {
         "name": "embeddings_regularizer",
@@ -1373,11 +1319,10 @@
       },
       {
         "name": "strides",
-        "default": null
+        "default": 1
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
@@ -1394,12 +1339,10 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -1443,12 +1386,10 @@
         "default": null
       },
       {
-        "name": "strides",
-        "default": null
+        "name": "strides"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
@@ -1465,12 +1406,10 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -1507,7 +1446,7 @@
       },
       {
         "name": "axis",
-        "default": null
+        "default": -1
       }
     ],
     "abstract": false,
@@ -1605,15 +1544,15 @@
       },
       {
         "name": "axis",
-        "default": null
+        "default": -1
       },
       {
         "name": "momentum",
-        "default": null
+        "default": 0.99
       },
       {
         "name": "epsilon",
-        "default": null
+        "default": 0.001
       },
       {
         "name": "center",
@@ -1626,20 +1565,16 @@
         "default": "True"
       },
       {
-        "name": "beta_initializer",
-        "default": null
+        "name": "beta_initializer"
       },
       {
-        "name": "gamma_initializer",
-        "default": null
+        "name": "gamma_initializer"
       },
       {
-        "name": "moving_mean_initializer",
-        "default": null
+        "name": "moving_mean_initializer"
       },
       {
-        "name": "moving_variance_initializer",
-        "default": null
+        "name": "moving_variance_initializer"
       },
       {
         "name": "beta_regularizer",
@@ -1672,15 +1607,14 @@
       },
       {
         "name": "pool_size",
-        "default": null
+        "default": 2
       },
       {
         "name": "strides",
         "default": "None"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       }
     ],
     "abstract": false,
@@ -1697,15 +1631,14 @@
       },
       {
         "name": "pool_size",
-        "default": null
+        "default": 2
       },
       {
         "name": "strides",
         "default": "None"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       }
     ],
     "abstract": false,
@@ -1721,16 +1654,14 @@
         "default": null
       },
       {
-        "name": "pool_size",
-        "default": null
+        "name": "pool_size"
       },
       {
         "name": "strides",
         "default": "None"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
@@ -1750,16 +1681,14 @@
         "default": null
       },
       {
-        "name": "pool_size",
-        "default": null
+        "name": "pool_size"
       },
       {
         "name": "strides",
         "default": "None"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
@@ -1779,16 +1708,14 @@
         "default": null
       },
       {
-        "name": "pool_size",
-        "default": null
+        "name": "pool_size"
       },
       {
         "name": "strides",
         "default": "None"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
@@ -1808,16 +1735,14 @@
         "default": null
       },
       {
-        "name": "pool_size",
-        "default": null
+        "name": "pool_size"
       },
       {
         "name": "strides",
         "default": "None"
       },
       {
-        "name": "padding",
-        "default": null
+        "name": "padding"
       },
       {
         "name": "data_format",
@@ -1901,8 +1826,7 @@
       },
       {
         "name": "activation",
-        "type": "activation",
-        "default": null
+        "type": "activation"
       },
       {
         "name": "use_bias",
@@ -1910,16 +1834,13 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "recurrent_initializer",
-        "default": null
+        "name": "recurrent_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -1947,11 +1868,11 @@
       },
       {
         "name": "dropout",
-        "default": null
+        "default": 0
       },
       {
         "name": "recurrent_dropout",
-        "default": null
+        "default": 0
       }
     ],
     "abstract": false,
@@ -1971,8 +1892,7 @@
         "default": null
       },
       {
-        "name": "activation",
-        "default": null
+        "name": "activation"
       },
       {
         "name": "use_bias",
@@ -1980,16 +1900,13 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "recurrent_initializer",
-        "default": null
+        "name": "recurrent_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -2021,11 +1938,11 @@
       },
       {
         "name": "dropout",
-        "default": null
+        "default": 0
       },
       {
         "name": "recurrent_dropout",
-        "default": null
+        "default": 0
       },
       {
         "name": "return_sequences",
@@ -2071,13 +1988,11 @@
       },
       {
         "name": "activation",
-        "type": "activation",
-        "default": null
+        "type": "activation"
       },
       {
         "name": "recurrent_activation",
-        "type": "activation",
-        "default": null
+        "type": "activation"
       },
       {
         "name": "use_bias",
@@ -2085,16 +2000,13 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "recurrent_initializer",
-        "default": null
+        "name": "recurrent_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -2122,15 +2034,15 @@
       },
       {
         "name": "dropout",
-        "default": null
+        "default": 0
       },
       {
         "name": "recurrent_dropout",
-        "default": null
+        "default": 0
       },
       {
         "name": "implementation",
-        "default": null
+        "default": 1
       }
     ],
     "abstract": false,
@@ -2150,12 +2062,10 @@
         "default": null
       },
       {
-        "name": "activation",
-        "default": null
+        "name": "activation"
       },
       {
-        "name": "recurrent_activation",
-        "default": null
+        "name": "recurrent_activation"
       },
       {
         "name": "use_bias",
@@ -2163,16 +2073,13 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "recurrent_initializer",
-        "default": null
+        "name": "recurrent_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "kernel_regularizer",
@@ -2204,15 +2111,15 @@
       },
       {
         "name": "dropout",
-        "default": null
+        "default": 0
       },
       {
         "name": "recurrent_dropout",
-        "default": null
+        "default": 0
       },
       {
         "name": "implementation",
-        "default": null
+        "default": 1
       },
       {
         "name": "return_sequences",
@@ -2258,13 +2165,11 @@
       },
       {
         "name": "activation",
-        "type": "activation",
-        "default": null
+        "type": "activation"
       },
       {
         "name": "recurrent_activation",
-        "type": "activation",
-        "default": null
+        "type": "activation"
       },
       {
         "name": "use_bias",
@@ -2272,16 +2177,13 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "recurrent_initializer",
-        "default": null
+        "name": "recurrent_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "unit_forget_bias",
@@ -2314,15 +2216,15 @@
       },
       {
         "name": "dropout",
-        "default": null
+        "default": 0
       },
       {
         "name": "recurrent_dropout",
-        "default": null
+        "default": 0
       },
       {
         "name": "implementation",
-        "default": null
+        "default": 1
       }
     ],
     "abstract": false,
@@ -2342,12 +2244,10 @@
         "default": null
       },
       {
-        "name": "activation",
-        "default": null
+        "name": "activation"
       },
       {
-        "name": "recurrent_activation",
-        "default": null
+        "name": "recurrent_activation"
       },
       {
         "name": "use_bias",
@@ -2355,16 +2255,13 @@
         "default": "True"
       },
       {
-        "name": "kernel_initializer",
-        "default": null
+        "name": "kernel_initializer"
       },
       {
-        "name": "recurrent_initializer",
-        "default": null
+        "name": "recurrent_initializer"
       },
       {
-        "name": "bias_initializer",
-        "default": null
+        "name": "bias_initializer"
       },
       {
         "name": "unit_forget_bias",
@@ -2401,15 +2298,15 @@
       },
       {
         "name": "dropout",
-        "default": null
+        "default": 0
       },
       {
         "name": "recurrent_dropout",
-        "default": null
+        "default": 0
       },
       {
         "name": "implementation",
-        "default": null
+        "default": 1
       },
       {
         "name": "return_sequences",
@@ -2488,8 +2385,7 @@
         "default": null
       },
       {
-        "name": "merge_mode",
-        "default": null
+        "name": "merge_mode"
       },
       {
         "name": "weights",
