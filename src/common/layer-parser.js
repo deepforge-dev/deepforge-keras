@@ -43,7 +43,7 @@ function parseLayers(text, filename) {
     return schemas.filter(schema => schema.name[0] !== '_');
 }
 
-function parseLayer(def, rawText) {
+function parseLayer(def) {
     // Get the name, base info
     let name = def.name.v;
     let base = def.bases[0] && def.bases[0].id.v;
@@ -228,9 +228,37 @@ function parseRegularizerTypes(text, filename) {
         .filter(schema => !REGULARIZER_HELPERS.includes(schema.name));
 }
 
+function parseInitializersTypes(text, filename) {
+    var cst = skulpt.parse(filename, text).cst;
+    var ast = skulpt.astFromParse(cst, filename);
+
+    // Get the class initializers
+    let classInits = ast.body
+        .filter(node => isNodeType(node, NODE_TYPE.CLASS))
+        .map(node => parseLayer(node))
+        .filter(node => !!node);
+
+    let fnInits = parseTypes(text, filename)
+        .filter(schema => !TYPE_HELPERS.includes(schema.name))
+        .filter(schema => schema.name[0] !== '_');
+
+    // Use the compatibility aliases to provide consistent convention
+    ast.body.filter(node => isNodeType(node, NODE_TYPE.ASSIGN))
+        .forEach(node => {
+            let init = classInits.find(init => init.name === node.value.id.v);
+            let alias = node.targets[0].id.v;
+            if (init) {
+                init.name = alias;
+            }
+        });
+
+    return classInits.concat(fnInits);
+}
+
 module.exports = {
     parseLayers: parseLayers,
     parseFnLayers: parseFnLayers,
-    parseActivationTypes: parseActivationTypes,
-    parseRegularizerTypes: parseRegularizerTypes
+    initializers: {parse: parseInitializersTypes},
+    activations: {parse: parseActivationTypes},
+    regularizers: {parse: parseRegularizerTypes}
 };

@@ -10,32 +10,9 @@ const path = require('path');
 const fs = require('fs');
 const layerParser = require('../src/common/layer-parser');
 
-// Parse the activation types
-let outputDir = 'src/common/activations.json';
-let sourceFile = path.join(process.argv[2], 'keras', 'activations.py');
-let activationTypes = layerParser.parseActivationTypes(fs.readFileSync(sourceFile, 'utf8'), `keras/activations.py`);
-
-saveJson(activationTypes, outputDir);
-console.log(`Detected ${activationTypes.length} activation functions. Saved to ${outputDir}`);
-
-// Parse the activation types
-outputDir = 'src/common/regularizers.json';
-sourceFile = path.join(process.argv[2], 'keras', 'regularizers.py');
-let regularizerTypes = layerParser.parseActivationTypes(fs.readFileSync(sourceFile, 'utf8'), `keras/regularizers.py`);
-
-saveJson(regularizerTypes, outputDir);
-console.log(`Detected ${regularizerTypes.length} regularizer functions. Saved to ${outputDir}`);
-
-
-// Parse the initializer types
-outputDir = 'src/common/initializers.json';
-sourceFile = path.join(process.argv[2], 'keras', 'initializers.py');
-let initTypes = layerParser.parseActivationTypes(fs.readFileSync(sourceFile, 'utf8'), `keras/initializers.py`);
-
-saveJson(initTypes, outputDir);
-console.log(`Detected ${initTypes.length} initializer functions. Saved to ${outputDir}`);
-
-// TODO
+saveTypes('activations');
+saveTypes('regularizers');
+saveTypes('initializers');
 
 // Parse the main layer definitions
 let layersDir = path.join(process.argv[2], 'keras', 'layers');
@@ -58,9 +35,18 @@ let inputLayer = layerParser.parseFnLayers(fs.readFileSync(topologyFile, 'utf8')
 
 schemas.push(inputLayer);
 
-outputDir = 'src/plugins/UpdateMeta/schema.json';
+let outputDir = 'src/plugins/UpdateMeta/schema.json';
 saveJson(schemas, outputDir);
 console.log(`Found ${schemas.length} layers. Saved schema to ${outputDir}`);
+
+function saveTypes(typeName) {
+    let outputDir = `src/common/schemas/${typeName}.json`;
+    let sourceFile = path.join(process.argv[2], 'keras', `${typeName}.py`);
+    let initTypes = layerParser[typeName].parse(fs.readFileSync(sourceFile, 'utf8'), `keras/${typeName}.py`);
+
+    saveJson(initTypes, outputDir);
+    console.log(`Detected ${initTypes.length} ${typeName}. Saved to ${outputDir}`);
+}
 
 function saveJson(json, unixPath) {
     let content = JSON.stringify(json, null, 2);
