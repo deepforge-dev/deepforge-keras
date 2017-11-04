@@ -7,6 +7,7 @@ NODE_TYPE.FUNCTION = 'FunctionDef';
 NODE_TYPE.CLASS = 'ClassDef';
 NODE_TYPE.EXPRESSION = 'Expr';
 NODE_TYPE.STRING = 'Str';
+NODE_TYPE.NUMBER = 'Num';
 NODE_TYPE.ASSIGN = 'Assign';
 NODE_TYPE.IF = 'If_';
 NODE_TYPE.BOOL = 'BoolOp';
@@ -55,7 +56,7 @@ function parseLayer(def, rawText) {
         // TODO: inherit?
         return;
     }
-    let args = parseLayerCtor(ctor);
+    let args = parseFnArguments(ctor);
 
     // get the docstring
     let docstring = getDocString(def);
@@ -75,7 +76,18 @@ function parseLayer(def, rawText) {
     };
 }
 
-function parseLayerCtor(def) {
+function getValue(node) {
+    let type = getNodeType(node);
+
+    if (getValue[type]) {
+        return getValue[type](node);
+    }
+}
+
+getValue[NODE_TYPE.NAME] = node => node.id.v;
+getValue[NODE_TYPE.NUMBER] = node => node.n.v;
+
+function parseFnArguments(def) {
     let argsLen = def.args.args.length;
     let defsLen = def.args.defaults.length;
     // FIXME: not detecting the defaults consistently...
@@ -86,8 +98,8 @@ function parseLayerCtor(def) {
         let value = null;
         let type;
 
-        if (defIndex > -1 && def.args.defaults[defIndex].id) {
-            value = def.args.defaults[defIndex].id.v;
+        if (defIndex > -1 && def.args.defaults[defIndex]) {
+            value = getValue(def.args.defaults[defIndex]);
         }
         type = inferArgumentType(name, value, def);
 
@@ -163,7 +175,7 @@ function parseFnLayers(text, filename) {
 
 function parseFnLayer(def) {
     let name = def.name.v;
-    let args = parseLayerCtor(def);
+    let args = parseFnArguments(def);
 
     // get the docstring
     let docstring = getDocString(def);
@@ -182,9 +194,9 @@ function parseFnLayer(def) {
     };
 }
 
-// Parsing activation, regularization, etc
-const ACTIVATION_HELPERS = ['serialize', 'deserialize', 'get'];
-function parseActivationTypes(text, filename) {
+//////////////// activations, regularization, initializers... ////////////////
+const TYPE_HELPERS = ['serialize', 'deserialize', 'get'];
+function parseTypes(text, filename) {
     var cst = skulpt.parse(filename, text).cst;
     var ast = skulpt.astFromParse(cst, filename);
 
@@ -198,15 +210,27 @@ function parseActivationTypes(text, filename) {
         .map(def => {
             return {
                 name: def.name.v,
-                args: parseLayerCtor(def),
+                arguments: parseFnArguments(def),
                 docstring: getDocString(def)
             };
-        })
+        });
+}
+
+const ACTIVATION_HELPERS = TYPE_HELPERS;
+function parseActivationTypes(text, filename) {
+    return parseTypes(text, filename)
         .filter(schema => !ACTIVATION_HELPERS.includes(schema.name));
+}
+
+const REGULARIZER_HELPERS = ['Regularizer', 'L1L2'].concat(TYPE_HELPERS);
+function parseRegularizerTypes(text, filename) {
+    return parseTypes(text, filename)
+        .filter(schema => !REGULARIZER_HELPERS.includes(schema.name));
 }
 
 module.exports = {
     parseLayers: parseLayers,
     parseFnLayers: parseFnLayers,
-    parseActivationTypes: parseActivationTypes
+    parseActivationTypes: parseActivationTypes,
+    parseRegularizerTypes: parseRegularizerTypes
 };

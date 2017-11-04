@@ -1,34 +1,34 @@
 [
   {
     "name": "softmax",
-    "args": [
+    "arguments": [
       {
         "name": "x",
         "default": null
       },
       {
         "name": "axis",
-        "default": null
+        "default": -1
       }
     ],
     "docstring": "Softmax activation function.\n\n    # Arguments\n        x : Tensor.\n        axis: Integer, axis along which the softmax normalization is applied.\n\n    # Returns\n        Tensor, output of softmax transformation.\n\n    # Raises\n        ValueError: In case `dim(x) == 1`.\n    "
   },
   {
     "name": "elu",
-    "args": [
+    "arguments": [
       {
         "name": "x",
         "default": null
       },
       {
         "name": "alpha",
-        "default": null
+        "default": 1
       }
     ]
   },
   {
     "name": "selu",
-    "args": [
+    "arguments": [
       {
         "name": "x",
         "default": null
@@ -38,7 +38,7 @@
   },
   {
     "name": "softplus",
-    "args": [
+    "arguments": [
       {
         "name": "x",
         "default": null
@@ -47,7 +47,7 @@
   },
   {
     "name": "softsign",
-    "args": [
+    "arguments": [
       {
         "name": "x",
         "default": null
@@ -56,14 +56,14 @@
   },
   {
     "name": "relu",
-    "args": [
+    "arguments": [
       {
         "name": "x",
         "default": null
       },
       {
         "name": "alpha",
-        "default": null
+        "default": 0
       },
       {
         "name": "max_value",
@@ -73,7 +73,7 @@
   },
   {
     "name": "tanh",
-    "args": [
+    "arguments": [
       {
         "name": "x",
         "default": null
@@ -82,7 +82,7 @@
   },
   {
     "name": "sigmoid",
-    "args": [
+    "arguments": [
       {
         "name": "x",
         "default": null
@@ -91,7 +91,7 @@
   },
   {
     "name": "hard_sigmoid",
-    "args": [
+    "arguments": [
       {
         "name": "x",
         "default": null
@@ -100,7 +100,7 @@
   },
   {
     "name": "linear",
-    "args": [
+    "arguments": [
       {
         "name": "x",
         "default": null

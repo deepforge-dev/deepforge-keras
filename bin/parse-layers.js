@@ -8,15 +8,34 @@ if (!process.argv[2]) {
 
 const path = require('path');
 const fs = require('fs');
-const layerParser = require('../src/layer-parser');
+const layerParser = require('../src/common/layer-parser');
 
 // Parse the activation types
 let outputDir = 'src/common/activations.json';
-let activationsFile = path.join(process.argv[2], 'keras', 'activations.py');
-let activationTypes = layerParser.parseActivationTypes(fs.readFileSync(activationsFile, 'utf8'), `keras/activations.py`);
+let sourceFile = path.join(process.argv[2], 'keras', 'activations.py');
+let activationTypes = layerParser.parseActivationTypes(fs.readFileSync(sourceFile, 'utf8'), `keras/activations.py`);
 
 saveJson(activationTypes, outputDir);
 console.log(`Detected ${activationTypes.length} activation functions. Saved to ${outputDir}`);
+
+// Parse the activation types
+outputDir = 'src/common/regularizers.json';
+sourceFile = path.join(process.argv[2], 'keras', 'regularizers.py');
+let regularizerTypes = layerParser.parseActivationTypes(fs.readFileSync(sourceFile, 'utf8'), `keras/regularizers.py`);
+
+saveJson(regularizerTypes, outputDir);
+console.log(`Detected ${regularizerTypes.length} regularizer functions. Saved to ${outputDir}`);
+
+
+// Parse the initializer types
+outputDir = 'src/common/initializers.json';
+sourceFile = path.join(process.argv[2], 'keras', 'initializers.py');
+let initTypes = layerParser.parseActivationTypes(fs.readFileSync(sourceFile, 'utf8'), `keras/initializers.py`);
+
+saveJson(initTypes, outputDir);
+console.log(`Detected ${initTypes.length} initializer functions. Saved to ${outputDir}`);
+
+// TODO
 
 // Parse the main layer definitions
 let layersDir = path.join(process.argv[2], 'keras', 'layers');
