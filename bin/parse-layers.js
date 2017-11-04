@@ -13,6 +13,7 @@ const layerParser = require('../src/common/layer-parser');
 saveTypes('activations');
 saveTypes('regularizers');
 saveTypes('initializers');
+saveTypes('constraints');
 
 // Parse the main layer definitions
 let layersDir = path.join(process.argv[2], 'keras', 'layers');

@@ -51,19 +51,20 @@ function parseLayer(def) {
     // Get the arguments for the layer
     let ctor = def.body.find(node => isNodeType(node, NODE_TYPE.FUNCTION) && node.name.v === '__init__');
 
-    if (!ctor) {
-        console.log(`Skipping ${name}: Missing constructor`);
-        // TODO: inherit?
-        return;
+    let args = [];
+    if (ctor) {
+        args = parseFnArguments(ctor);
+        //console.log(`Skipping ${name}: Missing constructor`);
+        //// TODO: inherit?
+        //return;
     }
-    let args = parseFnArguments(ctor);
 
     // get the docstring
     let docstring = getDocString(def);
 
     // Check if marked as abstract in the docstring
     let isAbstract = false;
-    if (docstring.indexOf('Abstract') === 0) {
+    if (docstring && docstring.indexOf('Abstract') === 0) {
         isAbstract = true;
     }
 
@@ -228,37 +229,26 @@ function parseRegularizerTypes(text, filename) {
         .filter(schema => !REGULARIZER_HELPERS.includes(schema.name));
 }
 
+const INITIALIZER_HELPERS = ['Initializer'].concat(TYPE_HELPERS);
 function parseInitializersTypes(text, filename) {
-    var cst = skulpt.parse(filename, text).cst;
-    var ast = skulpt.astFromParse(cst, filename);
-
-    // Get the class initializers
-    let classInits = ast.body
-        .filter(node => isNodeType(node, NODE_TYPE.CLASS))
-        .map(node => parseLayer(node))
-        .filter(node => !!node);
-
-    let fnInits = parseTypes(text, filename)
-        .filter(schema => !TYPE_HELPERS.includes(schema.name))
+    return parseLayers(text, filename)
+        .concat(parseTypes(text, filename))
+        .filter(schema => !!schema)
+        .filter(schema => !INITIALIZER_HELPERS.includes(schema.name))
         .filter(schema => schema.name[0] !== '_');
+}
 
-    // Use the compatibility aliases to provide consistent convention
-    ast.body.filter(node => isNodeType(node, NODE_TYPE.ASSIGN))
-        .forEach(node => {
-            let init = classInits.find(init => init.name === node.value.id.v);
-            let alias = node.targets[0].id.v;
-            if (init) {
-                init.name = alias;
-            }
-        });
-
-    return classInits.concat(fnInits);
+const CONSTRAINT_HELPERS = ['Constraint'].concat(TYPE_HELPERS);
+function parseConstraintTypes(text, filename) {
+    return parseLayers(text, filename)
+        .filter(schema => !CONSTRAINT_HELPERS.includes(schema.name));
 }
 
 module.exports = {
     parseLayers: parseLayers,
     parseFnLayers: parseFnLayers,
-    initializers: {parse: parseInitializersTypes},
     activations: {parse: parseActivationTypes},
+    constraints: {parse: parseConstraintTypes},
+    initializers: {parse: parseInitializersTypes},
     regularizers: {parse: parseRegularizerTypes}
 };
