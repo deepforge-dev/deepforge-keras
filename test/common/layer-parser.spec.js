@@ -10,7 +10,7 @@ describe('layer-parser', function() {
 
         before(() => {
             content = fs.readFileSync(path.join(__dirname, '..', 'test-cases', 'activations.py'), 'utf8');
-            acts = LayerParser.parseRegularizerTypes(content);
+            acts = LayerParser.regularizers.parse(content);
         });
 
         it('should parse the activations', () => {
@@ -39,7 +39,7 @@ describe('layer-parser', function() {
 
         before(() => {
             content = fs.readFileSync(path.join(__dirname, '..', 'test-cases', 'regularizers.py'), 'utf8');
-            regs = LayerParser.parseRegularizerTypes(content);
+            regs = LayerParser.regularizers.parse(content);
         });
 
         it('should parse the regularizers', () => {
@@ -59,6 +59,43 @@ describe('layer-parser', function() {
             let l1 = regs.find(info => info.name === 'l1');
             let l = l1.arguments.find(arg => arg.name === 'l');
             assert.equal(l.default, 0.01);
+        });
+    });
+
+    describe('initializers', function () {
+        let content = null;
+        let inits = null;
+
+        before(() => {
+            content = fs.readFileSync(path.join(__dirname, '..', 'test-cases', 'initializers.py'), 'utf8');
+            inits = LayerParser.initializers.parse(content);
+        });
+
+        it('should parse the initializers', () => {
+            assert.equal(inits.length, 13);
+        });
+
+        it('should parse initializer w/ name "he_normal"', () => {
+            assert(inits.find(info => info.name === 'he_normal'));
+        });
+
+        it('should filter out the private fns', () => {
+            assert(!inits.find(info => info.name === '_compute_fans'));
+        });
+
+        it('should use compatibility aliases', () => {
+            assert(inits.find(info => info.name === 'normal'));
+        });
+
+        it('should parse the arguments (normal)', () => {
+            let normal = inits.find(info => info.name === 'normal');
+            assert(normal.arguments.find(arg => arg.name === 'stddev'));
+        });
+
+        it('should parse the argument defaults (normal, l)', () => {
+            let normal = inits.find(info => info.name === 'normal');
+            let l = normal.arguments.find(arg => arg.name === 'stddev');
+            assert.equal(l.default, 0.05);
         });
     });
 });
