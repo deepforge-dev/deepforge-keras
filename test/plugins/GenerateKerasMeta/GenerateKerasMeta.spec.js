@@ -66,6 +66,12 @@ describe('GenerateKerasMeta', function () {
             .nodeify(done);
     });
 
+    const getMetaNode = name => {
+        let meta = plugin.core.getAllMetaNodes(plugin.rootNode);
+        let nodes = Object.keys(meta).map(k => meta[k]);
+        return nodes.find(node => plugin.core.getAttribute(node, 'name') === name);
+    };
+
     describe('execution', function() {
         let pluginResult = null;
         before(done => {
@@ -91,13 +97,31 @@ describe('GenerateKerasMeta', function () {
             assert(sheets.length > 1);
         });
 
-        it.skip('should add ctor_arg_order attribute', function () {
-            let sheets = plugin.core.getRegistry(plugin.rootNode, 'MetaSheets');
+        it('should create nodes for activation fns', function () {
+            let node = getMetaNode('softmax');
+            assert(node);
+        });
+
+        it('should create nodes for constraint fns', function () {
+            let node = getMetaNode('MaxNorm');
+            assert(node);
+        });
+
+        it('should create nodes for initializer fns', function () {
+            let node = getMetaNode('RandomNormal');
+            assert(node);
+        });
+
+        it('should create nodes for regularizer fns', function () {
+            let node = getMetaNode('l1');
+            assert(node);
+        });
+
+        it('should add ctor_arg_order attribute', function () {
             let meta = plugin.core.getAllMetaNodes(plugin.rootNode);
             let nodes = Object.keys(meta).map(k => meta[k]);
-            let dense = nodes.find(node => plugin.core.getAttribute(node, 'name'));
+            let dense = nodes.find(node => plugin.core.getAttribute(node, 'name') === 'Dense');
 
-            let names = nodes.map(n => plugin.core.getAttribute(n, 'name'));
             let attrs = plugin.core.getAttributeNames(dense);
             assert(attrs.length > 1, 'No attributes loaded for the "dense" layer');
             assert(attrs.includes('ctor_arg_order'));
