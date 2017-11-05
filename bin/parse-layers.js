@@ -36,7 +36,7 @@ let inputLayer = layerParser.parseFnLayers(fs.readFileSync(topologyFile, 'utf8')
 
 schemas.push(inputLayer);
 
-let outputDir = 'src/plugins/UpdateMeta/schema.json';
+let outputDir = 'src/common/schemas/layers.json';
 saveJson(schemas, outputDir);
 console.log(`Found ${schemas.length} layers. Saved schema to ${outputDir}`);
 
