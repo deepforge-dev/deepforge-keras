@@ -220,7 +220,8 @@ function parseTypes(text, filename) {
             return {
                 name: def.name.v,
                 arguments: parseFnArguments(def),
-                docstring: getDocString(def)
+                docstring: getDocString(def),
+                file: filename
             };
         });
 }
