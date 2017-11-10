@@ -117,6 +117,19 @@ describe('GenerateKerasMeta', function () {
             assert(node);
         });
 
+        it('should create ptrs for layer activation params', function () {
+            let node = getMetaNode('Dense');
+            assert(plugin.core.getValidPointerNames(node).includes('activation'));
+        });
+
+        it('should create `activation` ptr to activation fn for "Dense"', function () {
+            let node = getMetaNode('Dense');
+            let fn = getMetaNode('ActivationFunction');
+            let fnId = plugin.core.getPath(fn);
+            let meta = plugin.core.getPointerMeta(node, 'activation');
+            assert(meta[fnId]);
+        });
+
         it('should add ctor_arg_order attribute', function () {
             let meta = plugin.core.getAllMetaNodes(plugin.rootNode);
             let nodes = Object.keys(meta).map(k => meta[k]);

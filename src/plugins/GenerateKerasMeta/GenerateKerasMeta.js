@@ -33,12 +33,11 @@ define([
 
     pluginMetadata = JSON.parse(pluginMetadata);
     const LAYERS = JSON.parse(LayerTxt).filter(schema => !schema.abstract);
-    const ACTIVATIONS = JSON.parse(ActivationsTxt);
     const TYPES = {
-        Activation: JSON.parse(ActivationsTxt),
-        Constraint: JSON.parse(ConstraintsTxt),
-        Regularizer: JSON.parse(RegularizersTxt),
-        Initializer: JSON.parse(InitializersTxt)
+        activation: JSON.parse(ActivationsTxt),
+        constraint: JSON.parse(ConstraintsTxt),
+        regularizer: JSON.parse(RegularizersTxt),
+        initializer: JSON.parse(InitializersTxt)
     };
     const DEFAULT_META_TAB = 'META';
 
@@ -119,6 +118,15 @@ define([
         return Q();
     };
 
+    GenerateKerasMeta.prototype.getSpecialTypeNames = function () {
+        return Object.keys(TYPES).map(GenerateKerasMeta.capitalize);
+    };
+
+    GenerateKerasMeta.prototype.getSpecialTypeBaseName = function (type) {
+        type = GenerateKerasMeta.capitalize(type);
+        return `${type}Function`;
+    };
+
     GenerateKerasMeta.prototype.getCategories = function (schemas) {
         let content = {};
 
@@ -129,18 +137,21 @@ define([
         });
 
         // Add activation, constraint, etc, functions
-        let specialTypes = Object.keys(TYPES);
-        specialTypes.forEach(type => content[`${type}Function`] = true);
+        let specialTypes = this.getSpecialTypeNames();
+        specialTypes
+            .map(type => this.getSpecialTypeBaseName(type))
+            .forEach(baseName => content[baseName] = true);
         return Object.keys(content);
     };
 
     GenerateKerasMeta.prototype.createFunctionNodes = function () {
-        let specialTypes = Object.keys(TYPES);
+        let specialTypes = this.getSpecialTypeNames();
         // Activation functions nodes
         specialTypes.forEach(type => {
-            TYPES[type].forEach(schema => {
+            TYPES[type.toLowerCase()].forEach(schema => {
                 this.logger.debug(`adding "${schema.name}" layer`);
-                let node = this.createMetaLayer(schema, `${type}Function`, `${type}Function`);
+                let baseName = this.getSpecialTypeBaseName(type);
+                let node = this.createMetaLayer(schema, baseName, baseName);
 
                 // Make the node non-abstract
                 if (node) {
@@ -259,7 +270,7 @@ define([
         var argNames = layer.arguments.map(arg => arg.name);
 
         layer.arguments.forEach(arg => {
-            this.addAttribute(arg.name, node, {type: arg.type}, arg.default);
+            this.addParameter(node, arg.name, {type: arg.type}, arg.default);
         });
 
         // Add ctor args
@@ -358,21 +369,23 @@ define([
         this.core.setPointerMetaLimits(node, name, 1, 1);
     };
 
-    GenerateKerasMeta.prototype.addAttribute = function (name, node, schema, defVal) {
+    GenerateKerasMeta.prototype.addParameter = function (node, name, schema, defVal) {
+        var type = schema.type;
+
+        // Check if it should be a pointer or an attribute
+        if (TYPES[type]) {  // should be ptr to another node
+            // What about default values? Can they be deleted if they are a contained node?
+            // TODO
+            let baseName = this.getSpecialTypeBaseName(type);
+            this.core.setPointerMetaTarget(node, name, this.META[baseName], 1, 1);
+            this.core.setPointerMetaLimits(node, name, 1, 1);
+        } else {
+            return this.addAttribute(node, name, schema, defVal);
+        }
+    };
+
+    GenerateKerasMeta.prototype.addAttribute = function (node, name, schema, defVal) {
         schema.type = schema.type || 'string';
-        if (schema.type === 'list') {  // FIXME: add support for lists
-            schema.type = 'string';
-        }
-
-        ///////// Activation Types /////////
-        // TODO: Create the pointer
-        if (schema.type === 'activation') {
-            // Create the enum
-            schema.enum = ACTIVATIONS.map(info => info.name).concat('None');
-
-            // Set the type
-            schema.type = 'string';
-        }
 
         if (schema.min !== undefined) {
             schema.min = +schema.min;
@@ -399,6 +412,10 @@ define([
     // Helpers for testing
     GenerateKerasMeta.prototype.getSchemas = function () {
         return LAYERS;
+    };
+
+    GenerateKerasMeta.capitalize = function (str) {
+        return str[0].toUpperCase() + str.slice(1);
     };
 
     return GenerateKerasMeta;
