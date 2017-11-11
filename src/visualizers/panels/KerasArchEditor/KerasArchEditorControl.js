@@ -302,5 +302,28 @@ define([
             .fail(err => this._logger.warn(`Validation failed: ${err}`));
     };
 
+    ////////////////////////////// Event Handlers ////////////////////////////// 
+    KerasArchEditorControl.prototype._getValidTargetsFor = function(id, ptr) {
+        // Get all the meta nodes matching the given type...
+        let typeIds = this._client.getPointerMeta(id, ptr).items.map(item => item.id);
+        let metanodes = this._client.getAllMetaNodes();
+        let targets = [];
+
+        for (let i = metanodes.length; i--;) {
+            for (let t = typeIds.length; t--;) {
+                if (metanodes[i].isTypeOf(typeIds[t])) {
+                    targets.push(metanodes[i].getId());
+                    break;
+                }
+            }
+        }
+
+        return targets.map(id => {
+            return {
+                node: this._getObjectDescriptor(id)
+            };
+        });
+    };
+
     return KerasArchEditorControl;
 });

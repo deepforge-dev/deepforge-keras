@@ -49,18 +49,20 @@ define([
             // Update the event handlers
             ptr = this.fields[i].name;
             // TODO: This should be changed in EasyDAG
-            this.fields[i].selectTarget = this.getValidNestedLayers.bind(this, ptr);
+            this.fields[i].selectTarget = this.editPointerField.bind(this, ptr);
             i++;
         }
         return y;
     };
 
-    LayerDecorator.prototype.getValidNestedLayers = function(ptr) {
+    LayerDecorator.prototype.editPointerField = function(ptr) {
         var tgtId = this._node.pointers[ptr];
         if (tgtId) {
-            WebGMEGlobal.State.registerActiveObject(tgtId);
+            // TODO: Change this to open the peek editor
+            //WebGMEGlobal.State.registerActiveObject(tgtId);
+            console.log('opening editor for', ptr);
         } else {
-            this.createLayerArg(ptr);
+            this.selectTargetFor(ptr);
         }
     };
 
@@ -72,40 +74,53 @@ define([
             msg = `Creating layers for "${ptr}" of ${this._node.name}`,
             tgtId;
 
+        // 
         if (!base) {
             return this.logger.error('Could not find "Architecture" type!');
         }
 
         // Create a nested "architecture" node and set the ptr target to it
-        baseId = base.getId();
-        this.client.startTransaction(msg);
-        tgtId = this.client.createNode({
-            parentId: this._node.id,
-            baseId: baseId
-        });
-        this.client.setAttribute(tgtId, 'name', `${ptr} (${this._node.name})`);
-        this.savePointer(ptr, tgtId);
-        this.client.completeTransaction();
-        WebGMEGlobal.State.registerActiveObject(tgtId);
+        //baseId = base.getId();
+        //this.client.startTransaction(msg);
+        //tgtId = this.client.createNode({
+            //parentId: this._node.id,
+            //baseId: baseId
+        //});
+        //this.client.setAttribute(tgtId, 'name', `${ptr} (${this._node.name})`);
+        //this.savePointer(ptr, tgtId);
+        //this.client.completeTransaction();
+        //WebGMEGlobal.State.registerActiveObject(tgtId);
     };
 
-    LayerDecorator.prototype.savePointer = function(ptr, to) {
-        if (!to) {  // delete the current target
-            var currentId = this._node.pointers[ptr],
-                name = this._node.name;
+    LayerDecorator.prototype.savePointer = function(ptr, typeId) {
+        // Create a child in the given node inheriting from the given ptr type
+        let nodeId = this._node.id;
+        let node = this.client.getNode(nodeId);
+        let name = node.getAttribute('name');
 
-            // If the target is contained in the current node, delete it!
-            if (currentId.indexOf(this._node.id) === 0) {
-                this.client.startTransaction(`Removing layer for ${ptr} of ${name}`);
-                this.client.deleteNode(currentId);
-                this.client.completeTransaction();
-                this.logger.info(`Removed ${ptr} and deleted target (${currentId})`);
-            } else {
-                this.logger.info(`Removed ${ptr} (external architecture)`);
-            }
-        } else {  // create and set the node
-            EllipseDecorator.prototype.savePointer.apply(this, arguments);
+        let msg = `Clearing "${ptr}" of ${name}`;
+        if (typeId) {
+            let typeNode = this.client.getNode(typeId);
+            let typeName = typeNode.getAttribute('name');
+            msg = `Setting "${ptr}" of ${name} to ${typeName}`;
         }
+
+        this.client.startTransaction(msg);
+        // Clean up the old pointer target
+        let oldTargetId = node.getOwnPointer(ptr).to;
+        if (oldTargetId && oldTargetId.indexOf(nodeId) === 0) {
+            this.client.deleteNode(oldTargetId);
+        }
+
+        // Create the new target
+        if (typeId) {
+            let targetId = this.client.createNode({
+                parentId: nodeId,
+                baseId: typeId
+            });
+            this.client.setPointer(nodeId, ptr, targetId);
+        }
+        this.client.completeTransaction();
     };
 
     return LayerDecorator;

@@ -1,4 +1,4 @@
-/* globals define, _, WebGMEGlobal */
+/* globals define, _ */
 define([
     'decorators/EllipseDecorator/EasyDAG/PointerField'
 ], function(
