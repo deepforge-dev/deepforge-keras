@@ -120,10 +120,12 @@
         "default": 1
       },
       {
-        "name": "mode"
+        "name": "mode",
+        "default": "fan_in"
       },
       {
-        "name": "distribution"
+        "name": "distribution",
+        "default": "normal"
       },
       {
         "name": "seed",

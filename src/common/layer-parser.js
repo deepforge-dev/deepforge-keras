@@ -86,6 +86,7 @@ function getValue(node) {
 }
 
 getValue[NODE_TYPE.NAME] = node => node.id.v;
+getValue[NODE_TYPE.STRING] = node => node.s.v;
 getValue[NODE_TYPE.NUMBER] = node => node.n.v;
 
 function parseFnArguments(def) {
@@ -101,6 +102,9 @@ function parseFnArguments(def) {
 
         if (defIndex > -1 && def.args.defaults[defIndex]) {
             value = getValue(def.args.defaults[defIndex]);
+        } else if (def.args.defaults[defIndex]) {
+            console.log('cannot get default for', name);
+            console.log(def.args.defaults[defIndex]);
         }
         type = inferArgumentType(name, value, def);
 

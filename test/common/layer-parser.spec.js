@@ -137,11 +137,12 @@ describe('layer-parser', function() {
     });
 
     describe('arguments', function () {
-        let content, dense;
+        let content, layers, dense;
 
         before(() => {
-            content = fs.readFileSync(path.join(__dirname, '..', 'test-cases', 'core.py'), 'utf8');
-            dense = LayerParser.parseLayers(content, `keras/layers/core.py`)[0];
+            content = fs.readFileSync(path.join(__dirname, '..', 'test-cases', 'layers.py'), 'utf8');
+            layers = LayerParser.parseLayers(content, `keras/layers/core.py`);
+            dense = layers.find(layer => layer.name === 'Dense');
         });
 
         it('should detect activation argument type', function() {
@@ -158,7 +159,14 @@ describe('layer-parser', function() {
             });
         });
 
+        it('should parse string defaults', function() {
+            let prelu = layers.find(layer => layer.name === 'PReLU');
+            let arg = prelu.arguments.find(arg => arg.name === 'alpha_initializer');
+            assert.equal(arg.default, 'zeros');
+        });
+
         // Defaults?
+        // Add tests checking for setting default functions from 'string' and from actual function
         // TODO
     });
 });
