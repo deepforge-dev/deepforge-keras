@@ -29,16 +29,22 @@ function parseLayers(text, filename) {
 
     // Check the functional definitions?
     var definitions = ast.body
-        .filter(node => {  // get the class nodes
-            var nodeType = node.constructor.name;
-            return nodeType === NODE_TYPE.CLASS;
-        });
+        .filter(node => isNodeType(node, NODE_TYPE.CLASS));
 
     let schemas = definitions
         .map(def => parseLayer(def, text))
         .filter(schema => !!schema);
 
     schemas.forEach(schema => schema.file = filename);
+
+    // Record any aliases
+    let assignments = ast.body.filter(node => isNodeType(node, NODE_TYPE.ASSIGN));
+    assignments.forEach(node => {
+        let schema = schemas.find(schema => schema.name === getValue(node.value));
+        if (schema) {
+            schema.aliases = node.targets.map(getValue);
+        }
+    });
 
     return schemas.filter(schema => schema.name[0] !== '_');
 }
@@ -73,6 +79,7 @@ function parseLayer(def) {
         base: base,
         arguments: args,
         abstract: isAbstract,
+        aliases: [],
         docstring: docstring
     };
 }

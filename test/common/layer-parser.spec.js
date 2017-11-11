@@ -122,6 +122,11 @@ describe('layer-parser', function() {
                 assert(!inits.find(info => info.name === 'normal'));
             });
 
+            it('should record aliases', () => {
+                let uniform = inits.find(info => info.name === 'RandomUniform');
+                assert(uniform.aliases.includes('uniform'));
+            });
+
             it('should parse the arguments (RandomNormal)', () => {
                 let normal = inits.find(info => info.name === 'RandomNormal');
                 assert(normal.arguments.find(arg => arg.name === 'stddev'));
@@ -159,14 +164,12 @@ describe('layer-parser', function() {
             });
         });
 
+        // Defaults
         it('should parse string defaults', function() {
             let prelu = layers.find(layer => layer.name === 'PReLU');
             let arg = prelu.arguments.find(arg => arg.name === 'alpha_initializer');
             assert.equal(arg.default, 'zeros');
         });
 
-        // Defaults?
-        // Add tests checking for setting default functions from 'string' and from actual function
-        // TODO
     });
 });
