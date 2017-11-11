@@ -232,6 +232,7 @@ function parseTypes(text, filename) {
                 name: def.name.v,
                 arguments: parseFnArguments(def),
                 docstring: getDocString(def),
+                aliases: [],
                 file: filename
             };
         });

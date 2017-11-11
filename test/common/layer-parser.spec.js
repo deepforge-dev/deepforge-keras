@@ -27,6 +27,11 @@ describe('layer-parser', function() {
                 assert(softmax.arguments.find(arg => arg.name === 'axis'));
             });
 
+            it('should record aliases', () => {
+                let softmax = acts.find(info => info.name === 'softmax');
+                assert(softmax.hasOwnProperty('aliases'));
+            });
+
             it('should parse the argument defaults (softmax, axis)', () => {
                 let softmax = acts.find(info => info.name === 'softmax');
                 let axis = softmax.arguments.find(arg => arg.name === 'axis');
