@@ -10,6 +10,9 @@ define([
     'q',
 
     'text!keras/schemas/activations.json',
+    'text!keras/schemas/initializers.json',
+    'text!keras/schemas/constraints.json',
+    'text!keras/schemas/regularizers.json',
     'text!keras/schemas/layers.json',
     'text!./metadata.json'
 ], function (
@@ -20,6 +23,9 @@ define([
     _,
     Q,
     ActivationsTxt,
+    InitializersTxt,
+    ConstraintsTxt,
+    RegularizersTxt,
     LayerTxt,
     pluginMetadata
 ) {
@@ -27,7 +33,12 @@ define([
 
     pluginMetadata = JSON.parse(pluginMetadata);
     const LAYERS = JSON.parse(LayerTxt).filter(schema => !schema.abstract);
-    const ACTIVATIONS = JSON.parse(ActivationsTxt).map(info => info.name);
+    const TYPES = {
+        activation: JSON.parse(ActivationsTxt),
+        constraint: JSON.parse(ConstraintsTxt),
+        regularizer: JSON.parse(RegularizersTxt),
+        initializer: JSON.parse(InitializersTxt)
+    };
     const DEFAULT_META_TAB = 'META';
 
     /**
@@ -70,6 +81,7 @@ define([
 
         return this.prepareMetaModel()
             .then(() => this.createCategories(LAYERS))
+            .then(() => this.createFunctionNodes())
             .then(() => this.updateNodes())
             .then(() => this.save('GenerateKerasMeta updated metamodel.'))
             .then(() => {
@@ -103,32 +115,16 @@ define([
             this.META.Layer = this.createMetaNode('Layer', this.META.FCO);
         }
 
-        //var isNewLayer = {},
-            //newLayers = schemas.map(layer => layer.name),
-            //oldLayers,
-            //oldNames;
-
-        //newLayers = newLayers.concat(this.getCategories());  // add the category nodes
-        //newLayers.forEach(name => isNewLayer[name] = true);
-
-        //// Set the newLayer nodes 'base' to 'Layer' so we don't accidentally
-        //// delete them
-        //newLayers
-            //.map(name => this.META[name])
-            //.filter(layer => !!layer)
-            //.forEach(layer => this.core.setBase(layer, this.META.Layer));
-
-        //oldLayers = Object.keys(this.META)
-                //.filter(name => name !== 'Layer')
-                //.map(name => this.META[name])
-                //.filter(node => this.isMetaTypeOf(node, this.META.Layer))
-                //.filter(node => !isNewLayer[this.core.getAttribute(node, 'name')]);
-
-        //oldNames = oldLayers.map(l => this.core.getAttribute(l, 'name'));
-        //// Get the old layer names
-        //this.logger.debug(`Removing layers: ${oldNames.join(', ')}`);
-        //oldLayers.forEach(layer => this.core.deleteNode(layer));
         return Q();
+    };
+
+    GenerateKerasMeta.prototype.getSpecialTypeNames = function () {
+        return Object.keys(TYPES).map(GenerateKerasMeta.capitalize);
+    };
+
+    GenerateKerasMeta.prototype.getSpecialTypeBaseName = function (type) {
+        type = GenerateKerasMeta.capitalize(type);
+        return `${type}Function`;
     };
 
     GenerateKerasMeta.prototype.getCategories = function (schemas) {
@@ -137,13 +133,36 @@ define([
         schemas = schemas || LAYERS;
         schemas.forEach(layer => {
             var type = this.getBaseName(layer.file);
-            if (!content[type]) {
-                content[type] = [];
-            }
-            content[type].push(layer);
+            content[type] = true;
         });
 
+        // Add activation, constraint, etc, functions
+        let specialTypes = this.getSpecialTypeNames();
+        specialTypes
+            .map(type => this.getSpecialTypeBaseName(type))
+            .forEach(baseName => content[baseName] = true);
         return Object.keys(content);
+    };
+
+    GenerateKerasMeta.prototype.createFunctionNodes = function () {
+        let specialTypes = this.getSpecialTypeNames();
+        // Activation functions nodes
+        specialTypes.forEach(type => {
+            TYPES[type.toLowerCase()].forEach(schema => {
+                this.logger.debug(`adding "${schema.name}" layer`);
+                let baseName = this.getSpecialTypeBaseName(type);
+                let node = this.createMetaLayer(schema, baseName, baseName);
+
+                // Make the node non-abstract
+                if (node) {
+                    this.core.setRegistry(node, 'isAbstract', false);
+                    this.nodes[schema.name] = node;
+                    // Record the node under any aliases
+                    if (!schema.aliases) throw new Error(`${schema.name} is missing "aliases" field`);
+                    schema.aliases.forEach(alias => this.nodes[alias] = node);
+                }
+            });
+        });
     };
 
     GenerateKerasMeta.prototype.createCategories = function (schemas) {
@@ -236,10 +255,14 @@ define([
     };
 
     // Some helper methods w/ attribute handling
-    GenerateKerasMeta.prototype.createMetaLayer = function (layer) {
+    GenerateKerasMeta.prototype.createMetaLayer = function (layer, baseName, category) {
         // create a meta node for the given layer
-        var category = this.getBaseName(layer.file);
-        var node = this.createMetaNode(layer.name, this.getBaseFor(layer), category);
+        category = category || this.getBaseName(layer.file);
+        baseName = baseName || this.getBaseName(layer.file);
+        if (!this.META[baseName]) baseName = 'Layer';
+
+        var base = this.META[baseName];
+        var node = this.createMetaNode(layer.name, base, category);
 
         // Clean the arguments
         if (layer.arguments[0] && layer.arguments[0].name === 'self') {
@@ -250,7 +273,7 @@ define([
         var argNames = layer.arguments.map(arg => arg.name);
 
         layer.arguments.forEach(arg => {
-            this.addAttribute(arg.name, node, {type: arg.type}, arg.default);
+            this.addParameter(node, arg.name, {type: arg.type}, arg.default);
         });
 
         // Add ctor args
@@ -349,20 +372,33 @@ define([
         this.core.setPointerMetaLimits(node, name, 1, 1);
     };
 
-    GenerateKerasMeta.prototype.addAttribute = function (name, node, schema, defVal) {
+    GenerateKerasMeta.prototype.addParameter = function (node, name, schema, defVal) {
+        var type = schema.type;
+
+        // Check if it should be a pointer or an attribute
+        if (TYPES[type]) {  // should be ptr to another node
+            let baseName = this.getSpecialTypeBaseName(type);
+            this.core.setPointerMetaTarget(node, name, this.META[baseName], 1, 1);
+            this.core.setPointerMetaLimits(node, name, 1, 1);
+
+            if (defVal && defVal !== 'None') {
+                // Look up the given meta node. May need to use an alias
+                let targetType = this.nodes[defVal];
+                if (!targetType) throw new Error(`Invalid ${type}: ${defVal}`);
+
+                let target = this.core.createNode({
+                    parent: node,
+                    base: targetType
+                });
+                this.core.setPointer(node, name, target);
+            }
+        } else {
+            return this.addAttribute(node, name, schema, defVal);
+        }
+    };
+
+    GenerateKerasMeta.prototype.addAttribute = function (node, name, schema, defVal) {
         schema.type = schema.type || 'string';
-        if (schema.type === 'list') {  // FIXME: add support for lists
-            schema.type = 'string';
-        }
-
-        ///////// Activation Types /////////
-        if (schema.type === 'activation') {
-            // Create the enum
-            schema.enum = ACTIVATIONS.concat('None');
-
-            // Set the type
-            schema.type = 'string';
-        }
 
         if (schema.min !== undefined) {
             schema.min = +schema.min;
@@ -381,7 +417,7 @@ define([
         // Create the attribute and set the schema
         this.core.setAttributeMeta(node, name, schema);
 
-        if (defVal) {
+        if (defVal !== undefined && defVal !== null) {
             this.core.setAttribute(node, name, defVal);
         }
     };
@@ -389,6 +425,10 @@ define([
     // Helpers for testing
     GenerateKerasMeta.prototype.getSchemas = function () {
         return LAYERS;
+    };
+
+    GenerateKerasMeta.capitalize = function (str) {
+        return str[0].toUpperCase() + str.slice(1);
     };
 
     return GenerateKerasMeta;

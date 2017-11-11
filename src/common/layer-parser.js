@@ -29,16 +29,22 @@ function parseLayers(text, filename) {
 
     // Check the functional definitions?
     var definitions = ast.body
-        .filter(node => {  // get the class nodes
-            var nodeType = node.constructor.name;
-            return nodeType === NODE_TYPE.CLASS;
-        });
+        .filter(node => isNodeType(node, NODE_TYPE.CLASS));
 
     let schemas = definitions
         .map(def => parseLayer(def, text))
         .filter(schema => !!schema);
 
     schemas.forEach(schema => schema.file = filename);
+
+    // Record any aliases
+    let assignments = ast.body.filter(node => isNodeType(node, NODE_TYPE.ASSIGN));
+    assignments.forEach(node => {
+        let schema = schemas.find(schema => schema.name === getValue(node.value));
+        if (schema) {
+            schema.aliases = node.targets.map(getValue);
+        }
+    });
 
     return schemas.filter(schema => schema.name[0] !== '_');
 }
@@ -73,6 +79,7 @@ function parseLayer(def) {
         base: base,
         arguments: args,
         abstract: isAbstract,
+        aliases: [],
         docstring: docstring
     };
 }
@@ -86,6 +93,7 @@ function getValue(node) {
 }
 
 getValue[NODE_TYPE.NAME] = node => node.id.v;
+getValue[NODE_TYPE.STRING] = node => node.s.v;
 getValue[NODE_TYPE.NUMBER] = node => node.n.v;
 
 function parseFnArguments(def) {
@@ -101,6 +109,9 @@ function parseFnArguments(def) {
 
         if (defIndex > -1 && def.args.defaults[defIndex]) {
             value = getValue(def.args.defaults[defIndex]);
+        } else if (def.args.defaults[defIndex]) {
+            console.log('cannot get default for', name);
+            console.log(def.args.defaults[defIndex]);
         }
         type = inferArgumentType(name, value, def);
 
@@ -220,7 +231,9 @@ function parseTypes(text, filename) {
             return {
                 name: def.name.v,
                 arguments: parseFnArguments(def),
-                docstring: getDocString(def)
+                docstring: getDocString(def),
+                aliases: [],
+                file: filename
             };
         });
 }
