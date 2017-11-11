@@ -120,6 +120,12 @@ describe('GenerateKerasMeta', function () {
                 assert.equal(value, 0);
             });
 
+            it('should set default pointer values for Dense', function () {
+                let node = getMetaNode('Dense');
+                let target = plugin.core.getPointerPath(node, 'kernel_initializer');
+                assert(target);
+            });
+
             it('should create nodes for constraint fns', function () {
                 let node = getMetaNode('MaxNorm');
                 assert(node);

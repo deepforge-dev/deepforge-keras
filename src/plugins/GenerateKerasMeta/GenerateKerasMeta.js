@@ -157,6 +157,9 @@ define([
                 if (node) {
                     this.core.setRegistry(node, 'isAbstract', false);
                     this.nodes[schema.name] = node;
+                    // Record the node under any aliases
+                    if (!schema.aliases) throw new Error(`${schema.name} is missing "aliases" field`);
+                    schema.aliases.forEach(alias => this.nodes[alias] = node);
                 }
             });
         });
@@ -374,11 +377,21 @@ define([
 
         // Check if it should be a pointer or an attribute
         if (TYPES[type]) {  // should be ptr to another node
-            // What about default values? Can they be deleted if they are a contained node?
-            // TODO
             let baseName = this.getSpecialTypeBaseName(type);
             this.core.setPointerMetaTarget(node, name, this.META[baseName], 1, 1);
             this.core.setPointerMetaLimits(node, name, 1, 1);
+
+            if (defVal && defVal !== 'None') {
+                // Look up the given meta node. May need to use an alias
+                let targetType = this.nodes[defVal];
+                if (!targetType) throw new Error(`Invalid ${type}: ${defVal}`);
+
+                let target = this.core.createNode({
+                    parent: node,
+                    base: targetType
+                });
+                this.core.setPointer(node, name, target);
+            }
         } else {
             return this.addAttribute(node, name, schema, defVal);
         }
