@@ -11,7 +11,9 @@
         "default": -1
       }
     ],
-    "docstring": "Softmax activation function.\n\n    # Arguments\n        x : Tensor.\n        axis: Integer, axis along which the softmax normalization is applied.\n\n    # Returns\n        Tensor, output of softmax transformation.\n\n    # Raises\n        ValueError: In case `dim(x) == 1`.\n    "
+    "docstring": "Softmax activation function.\n\n    # Arguments\n        x : Tensor.\n        axis: Integer, axis along which the softmax normalization is applied.\n\n    # Returns\n        Tensor, output of softmax transformation.\n\n    # Raises\n        ValueError: In case `dim(x) == 1`.\n    ",
+    "aliases": [],
+    "file": "keras/activations.py"
   },
   {
     "name": "elu",
@@ -24,7 +26,9 @@
         "name": "alpha",
         "default": 1
       }
-    ]
+    ],
+    "aliases": [],
+    "file": "keras/activations.py"
   },
   {
     "name": "selu",
@@ -34,7 +38,9 @@
         "default": null
       }
     ],
-    "docstring": "Scaled Exponential Linear Unit. (Klambauer et al., 2017)\n\n    # Arguments\n        x: A tensor or variable to compute the activation function for.\n\n    # References\n        - [Self-Normalizing Neural Networks](https://arxiv.org/abs/1706.02515)\n    "
+    "docstring": "Scaled Exponential Linear Unit. (Klambauer et al., 2017)\n\n    # Arguments\n        x: A tensor or variable to compute the activation function for.\n\n    # References\n        - [Self-Normalizing Neural Networks](https://arxiv.org/abs/1706.02515)\n    ",
+    "aliases": [],
+    "file": "keras/activations.py"
   },
   {
     "name": "softplus",
@@ -43,7 +49,9 @@
         "name": "x",
         "default": null
       }
-    ]
+    ],
+    "aliases": [],
+    "file": "keras/activations.py"
   },
   {
     "name": "softsign",
@@ -52,7 +60,9 @@
         "name": "x",
         "default": null
       }
-    ]
+    ],
+    "aliases": [],
+    "file": "keras/activations.py"
   },
   {
     "name": "relu",
@@ -69,7 +79,9 @@
         "name": "max_value",
         "default": "None"
       }
-    ]
+    ],
+    "aliases": [],
+    "file": "keras/activations.py"
   },
   {
     "name": "tanh",
@@ -78,7 +90,9 @@
         "name": "x",
         "default": null
       }
-    ]
+    ],
+    "aliases": [],
+    "file": "keras/activations.py"
   },
   {
     "name": "sigmoid",
@@ -87,7 +101,9 @@
         "name": "x",
         "default": null
       }
-    ]
+    ],
+    "aliases": [],
+    "file": "keras/activations.py"
   },
   {
     "name": "hard_sigmoid",
@@ -96,7 +112,9 @@
         "name": "x",
         "default": null
       }
-    ]
+    ],
+    "aliases": [],
+    "file": "keras/activations.py"
   },
   {
     "name": "linear",
@@ -105,6 +123,8 @@
         "name": "x",
         "default": null
       }
-    ]
+    ],
+    "aliases": [],
+    "file": "keras/activations.py"
   }
 ]

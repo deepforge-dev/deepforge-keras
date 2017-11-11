@@ -6,7 +6,9 @@
         "name": "l",
         "default": 0.01
       }
-    ]
+    ],
+    "aliases": [],
+    "file": "keras/regularizers.py"
   },
   {
     "name": "l2",
@@ -15,7 +17,9 @@
         "name": "l",
         "default": 0.01
       }
-    ]
+    ],
+    "aliases": [],
+    "file": "keras/regularizers.py"
   },
   {
     "name": "l1_l2",
@@ -28,6 +32,8 @@
         "name": "l2",
         "default": 0.01
       }
-    ]
+    ],
+    "aliases": [],
+    "file": "keras/regularizers.py"
   }
 ]

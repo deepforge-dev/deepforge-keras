@@ -27,6 +27,11 @@ describe('layer-parser', function() {
                 assert(softmax.arguments.find(arg => arg.name === 'axis'));
             });
 
+            it('should record aliases', () => {
+                let softmax = acts.find(info => info.name === 'softmax');
+                assert(softmax.hasOwnProperty('aliases'));
+            });
+
             it('should parse the argument defaults (softmax, axis)', () => {
                 let softmax = acts.find(info => info.name === 'softmax');
                 let axis = softmax.arguments.find(arg => arg.name === 'axis');
@@ -122,6 +127,11 @@ describe('layer-parser', function() {
                 assert(!inits.find(info => info.name === 'normal'));
             });
 
+            it('should record aliases', () => {
+                let uniform = inits.find(info => info.name === 'RandomUniform');
+                assert(uniform.aliases.includes('uniform'));
+            });
+
             it('should parse the arguments (RandomNormal)', () => {
                 let normal = inits.find(info => info.name === 'RandomNormal');
                 assert(normal.arguments.find(arg => arg.name === 'stddev'));
@@ -137,11 +147,12 @@ describe('layer-parser', function() {
     });
 
     describe('arguments', function () {
-        let content, dense;
+        let content, layers, dense;
 
         before(() => {
-            content = fs.readFileSync(path.join(__dirname, '..', 'test-cases', 'core.py'), 'utf8');
-            dense = LayerParser.parseLayers(content, `keras/layers/core.py`)[0];
+            content = fs.readFileSync(path.join(__dirname, '..', 'test-cases', 'layers.py'), 'utf8');
+            layers = LayerParser.parseLayers(content, `keras/layers/core.py`);
+            dense = layers.find(layer => layer.name === 'Dense');
         });
 
         it('should detect activation argument type', function() {
@@ -158,7 +169,12 @@ describe('layer-parser', function() {
             });
         });
 
-        // Defaults?
-        // TODO
+        // Defaults
+        it('should parse string defaults', function() {
+            let prelu = layers.find(layer => layer.name === 'PReLU');
+            let arg = prelu.arguments.find(arg => arg.name === 'alpha_initializer');
+            assert.equal(arg.default, 'zeros');
+        });
+
     });
 });
