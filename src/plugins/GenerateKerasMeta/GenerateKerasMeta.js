@@ -404,7 +404,7 @@ define([
         // Create the attribute and set the schema
         this.core.setAttributeMeta(node, name, schema);
 
-        if (defVal) {
+        if (defVal !== undefined && defVal !== null) {
             this.core.setAttribute(node, name, defVal);
         }
     };
