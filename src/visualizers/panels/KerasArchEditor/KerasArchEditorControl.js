@@ -311,7 +311,7 @@ define([
 
         for (let i = metanodes.length; i--;) {
             for (let t = typeIds.length; t--;) {
-                if (metanodes[i].isTypeOf(typeIds[t])) {
+                if (metanodes[i].isTypeOf(typeIds[t]) && !metanodes[i].isAbstract()) {
                     targets.push(metanodes[i].getId());
                     break;
                 }
