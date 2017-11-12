@@ -3,10 +3,12 @@
 
 define([
     'decorators/EllipseDecorator/EasyDAG/EllipseDecorator.EasyDAGWidget',
+    'widgets/KerasArchEditor/FloatingEditor',
     'keras/Constants',
     './LayerField'
 ], function (
     EllipseDecorator,
+    FloatingEditor,
     Constants,
     LayerField
 ) {
@@ -23,6 +25,7 @@ define([
     //     - report the location of specific ports
     LayerDecorator = function (options) {
         options.skipAttributes = {name: true};
+        this.editor = null;
 
         var skipAttrs = Object.keys(Constants.ATTR).map(key => Constants.ATTR[key]);
         skipAttrs.forEach(attr => options.skipAttributes[attr] = true);
@@ -57,13 +60,29 @@ define([
 
     LayerDecorator.prototype.editPointerField = function(ptr) {
         var tgtId = this._node.pointers[ptr];
-        if (tgtId) {
-            // TODO: Change this to open the peek editor
-            //WebGMEGlobal.State.registerActiveObject(tgtId);
-            console.log('opening editor for', ptr);
+        if (tgtId) {  // open a floating window viewing the given node
+            let field = this.pointers[ptr];
+            let position = field.$content[0][0].getBoundingClientRect();
+            if (this.editor) this.editor.destroy();
+            this.editor = FloatingEditor.open(tgtId, position.right, position.top, 400, 400);
         } else {
             this.selectTargetFor(ptr);
         }
+    };
+
+    LayerDecorator.prototype.condense = function() {
+        this.closeEditor();
+        return EllipseDecorator.prototype.condense.apply(this, arguments);
+    };
+
+    LayerDecorator.prototype.closeEditor = function() {
+        if (this.editor) this.editor.destroy();
+        this.editor = null;
+    };
+
+    LayerDecorator.prototype.destroy = function() {
+        this.closeEditor();
+        return EllipseDecorator.prototype.destroy.apply(this, arguments);
     };
 
     LayerDecorator.prototype.createLayerArg = function(ptr) {

@@ -4,5 +4,11 @@
     "title": "KerasArchEditor",
     "panel": "panels/KerasArchEditor/KerasArchEditorPanel",
     "DEBUG_ONLY": false
+  },
+  {
+    "id": "AutoViz",
+    "title": "AutoViz",
+    "panel": "panels/AutoViz/AutoVizPanel",
+    "DEBUG_ONLY": false
   }
 ]
