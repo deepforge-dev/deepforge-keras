@@ -26,7 +26,7 @@ define([
         this.$el.css('width', this.width);
         this.$el.css('height', this.height);
 
-        this.$el.css('border', '1px dashed');
+        this.$el.css('border', '1px solid lightgrey');
 
         // Load the autoviz and set the active node
         let params = {
@@ -46,7 +46,6 @@ define([
     };
 
     FloatingEditor.prototype.destroy = function() {
-        // TODO: destroy the child panel
         this.panel.destroy();
         this.$el.remove();
     };
