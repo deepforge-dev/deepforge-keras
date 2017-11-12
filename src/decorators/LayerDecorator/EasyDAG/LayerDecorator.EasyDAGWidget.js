@@ -64,7 +64,7 @@ define([
             let field = this.pointers[ptr];
             let position = field.$content[0][0].getBoundingClientRect();
             if (this.editor) this.editor.destroy();
-            this.editor = FloatingEditor.open(tgtId, position.right, position.top, 400, 400);
+            this.editor = FloatingEditor.open(tgtId, position.right, position.top, 300, 300);
         } else {
             this.selectTargetFor(ptr);
         }
