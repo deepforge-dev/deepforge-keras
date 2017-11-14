@@ -1,6 +1,7 @@
 /*globals define, $, WebGMEGlobal*/
 define([
-    'panels/AutoViz/AutoVizPanel'
+    'panels/AutoViz/AutoVizPanel',
+    'css!./FloatingEditor.css'
 ], function(
     AutoVizPanel
 ) {
@@ -11,22 +12,16 @@ define([
     //   editor.destroy();
     //
     function FloatingEditor(nodeId, x, y, w, h) {
-        this.$el = $('<div>');
-        $('body').append(this.$el);
 
         // Add a thin border or shadow...
         // TODO: use vuejs?
         this.width = w;
         this.height = h;
-        this.$el.addClass('floating-editor');
-        this.$el.css('position', 'absolute');
-        this.$el.css('z-index', 10);
-        this.$el.css('left', x);
-        this.$el.css('top', y);
-        this.$el.css('width', this.width);
-        this.$el.css('height', this.height);
+        this.position = {left: x, top: y};
 
-        this.$el.css('border', '1px solid lightgrey');
+        // add titlebar
+        // TODO
+        this.initialize();
 
         // Load the autoviz and set the active node
         let params = {
@@ -37,10 +32,45 @@ define([
 
         this.panel.currentNode = nodeId;
         this.panel.selectedObjectChanged(nodeId);
+
+        $('body').append(this.$el);
     }
 
+    FloatingEditor.prototype.initialize = function() {
+        let titlebarHeight = 20;
+
+        this.$el = $('<div>');
+        this.$el.addClass('floating-editor');
+        this.$el.css('left', this.position.left);
+        this.$el.css('top', this.position.top-titlebarHeight);
+        this.$el.css('width', this.width);
+        this.$el.css('height', this.height+titlebarHeight);
+
+
+        this.$titlebar = $('<div>');
+        this.$titlebar.addClass('titlebar');
+        this.$titlebar.css('height', titlebarHeight);
+        this.$titlebar.css('width', this.width-2);
+        this.$el.append(this.$titlebar);
+
+        this.$title = $('<span>');
+        this.$titlebar.append(this.$title);
+
+        // TODO: Add close button
+
+        this.$body = $('<div>');
+        this.$body.addClass('body');
+        this.$body.css('height', this.height);
+        this.$body.css('top', titlebarHeight);
+        this.$el.append(this.$body);
+    };
+
+    FloatingEditor.prototype.setTitle = function(title) {
+        this.$title.text(title);
+    };
+
     FloatingEditor.prototype.addPanel = function(name, panel) {
-        this.$el.append(panel.$pEl);
+        this.$body.append(panel.$pEl);
         panel.setSize(this.width-2, this.height-1);
         panel.afterAppend();
     };

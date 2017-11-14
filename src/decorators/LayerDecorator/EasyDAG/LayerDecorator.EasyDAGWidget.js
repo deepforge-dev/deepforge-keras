@@ -1,4 +1,4 @@
-/*globals define, _, WebGMEGlobal*/
+/*globals define, _, WebGMEGlobal, $*/
 /*jshint browser: true, camelcase: false*/
 
 define([
@@ -61,13 +61,73 @@ define([
     LayerDecorator.prototype.editPointerField = function(ptr) {
         var tgtId = this._node.pointers[ptr];
         if (tgtId) {  // open a floating window viewing the given node
-            let field = this.pointers[ptr];
-            let position = field.$content[0][0].getBoundingClientRect();
-            if (this.editor) this.editor.destroy();
-            this.editor = FloatingEditor.open(tgtId, position.right, position.top, 300, 300);
+            let content = this.pointers[ptr].$content[0][0];
+            this.createPointerEditor(ptr, content);
         } else {
             this.selectTargetFor(ptr);
         }
+    };
+
+    LayerDecorator.prototype.createPointerEditor = function(ptr, content) {
+        let field = this.pointers[ptr];
+        let tgtId = this._node.pointers[ptr];
+        let position = content.getBoundingClientRect();
+        if (this.editor) this.editor.destroy();
+        // TODO: "activation for Dense: ReLU"
+        // TODO: Add the back/close icons
+        // TODO: Subclass the floating editor to also select the pointer type
+        // TODO: Move this api to the widget so it can automatically close them on resize...
+        // OR I could just attach the editor to an html element and then update it on page resize...
+        this.editor = FloatingEditor.open(tgtId, position.right, position.top, 300, 300);
+        let ptrName = ptr.split('_')
+            .map(name => name[0].toUpperCase() + name.slice(1))
+            .join(' ');
+
+        // TODO: Make the field value clickable
+        // TODO: Show a dropdown of options
+        this.editor.setTitle(`${ptrName} for ${this.getDisplayName()}: `);
+        this.editor.$value = $('<span>');
+        this.editor.$titlebar.append(this.editor.$value);
+        this.editor.$value.text(field.value);
+
+        // TODO: Get the options
+        let options = [field.value];
+        this.editor.$value.on('click',
+            () => this.createDropdown(this.editor.$value[0], field.value, options));
+    };
+
+    LayerDecorator.prototype.createDropdown = function(element, current, options) {
+        let position = element.getBoundingClientRect();
+        let container = $('<div>');
+
+        container.css('position', 'absolute');
+        container.css('top', position.top);
+        container.css('left', position.left);
+        container.css('width', position.width);
+        container.css('z-index', 15);
+
+        // make the dropdown
+        let dropdown = $('<select>');
+        options.forEach(name => {
+            let item = $('<option>');
+            item.attr('value', name);
+            item.html(name);
+            if (name === current) item.attr('selected', 'selected');
+            dropdown.append(item);
+        });
+
+        container.append(dropdown);
+
+        dropdown.focus();
+        dropdown.on('blur', function() {
+            let value = this.value;
+            console.log('selected', value);
+            // TODO: set the pointer to the given type
+            container.remove();
+        });
+        $('body').append(container);
+
+        return container;
     };
 
     LayerDecorator.prototype.condense = function() {
@@ -83,32 +143,6 @@ define([
     LayerDecorator.prototype.destroy = function() {
         this.closeEditor();
         return EllipseDecorator.prototype.destroy.apply(this, arguments);
-    };
-
-    LayerDecorator.prototype.createLayerArg = function(ptr) {
-        // Find the Architecture node type
-        var metanodes = this.client.getAllMetaNodes(),
-            base = metanodes.find(node => node.getAttribute('name') === 'Architecture'),
-            baseId,
-            msg = `Creating layers for "${ptr}" of ${this._node.name}`,
-            tgtId;
-
-        // 
-        if (!base) {
-            return this.logger.error('Could not find "Architecture" type!');
-        }
-
-        // Create a nested "architecture" node and set the ptr target to it
-        //baseId = base.getId();
-        //this.client.startTransaction(msg);
-        //tgtId = this.client.createNode({
-            //parentId: this._node.id,
-            //baseId: baseId
-        //});
-        //this.client.setAttribute(tgtId, 'name', `${ptr} (${this._node.name})`);
-        //this.savePointer(ptr, tgtId);
-        //this.client.completeTransaction();
-        //WebGMEGlobal.State.registerActiveObject(tgtId);
     };
 
     LayerDecorator.prototype.savePointer = function(ptr, typeId) {
