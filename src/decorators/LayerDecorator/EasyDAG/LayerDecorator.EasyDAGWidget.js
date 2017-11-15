@@ -73,7 +73,6 @@ define([
         let tgtId = this._node.pointers[ptr];
         let position = content.getBoundingClientRect();
         if (this.editor) this.editor.destroy();
-        // TODO: "activation for Dense: ReLU"
         // TODO: Add the back/close icons
         // TODO: Subclass the floating editor to also select the pointer type
         // TODO: Move this api to the widget so it can automatically close them on resize...
@@ -83,22 +82,24 @@ define([
             .map(name => name[0].toUpperCase() + name.slice(1))
             .join(' ');
 
-        // TODO: Make the field value clickable
-        // TODO: Show a dropdown of options
+        // Show a dropdown of options
         this.editor.setTitle(`${ptrName} for ${this.getDisplayName()}: `);
         this.editor.$value = $('<span>');
+        this.editor.$value.addClass('target');
         this.editor.$titlebar.append(this.editor.$value);
         this.editor.$value.text(field.value);
+        // TODO: update the field value and target on ptr value change
 
-        // TODO: Get the options
-        let options = this.getValidTargetsFor(ptr).map(target => target.node.name);
+        // Get the options
+        let options = this.getValidTargetsFor(ptr).map(target => target.node);
         this.editor.$value.on('click',
-            () => this.createDropdown(this.editor.$value[0], field.value, options));
+            () => this.createDropdown(this.editor.$value[0], field, options));
     };
 
-    LayerDecorator.prototype.createDropdown = function(element, current, options) {
+    LayerDecorator.prototype.createDropdown = function(element, field, options) {
         let position = element.getBoundingClientRect();
         let container = $('<div>');
+        let self = this;
 
         container.css('position', 'absolute');
         container.css('top', position.top);
@@ -108,22 +109,26 @@ define([
 
         // make the dropdown
         let dropdown = $('<select>');
-        options.forEach(name => {
+        options.forEach(option => {
+            let name = option.name;
             let item = $('<option>');
             item.attr('value', name);
             item.html(name);
-            if (name === current) item.attr('selected', 'selected');
+            if (name === field.value) item.attr('selected', 'selected');
             dropdown.append(item);
         });
 
         container.append(dropdown);
 
         dropdown.focus();
-        dropdown.on('blur', function() {
+        dropdown.on('blur', () => container.remove());
+        dropdown.on('change', function() {
             let value = this.value;
-            console.log('selected', value);
-            // TODO: set the pointer to the given type
-            container.remove();
+            let tgtId = null;
+            if (value) {
+                tgtId = options.find(option => option.name === value).id;
+            }
+            self.savePointer(field.name, tgtId);
         });
         $('body').append(container);
 
