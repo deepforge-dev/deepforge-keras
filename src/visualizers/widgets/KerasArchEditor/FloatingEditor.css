@@ -10,6 +10,10 @@
     vertical-align: middle;
 }
 
+.floating-editor .titlebar .target {
+    font-weight: bold;
+}
+
 .floating-editor .titlebar span {
     font-size: 14px;
     font-style: italic;
