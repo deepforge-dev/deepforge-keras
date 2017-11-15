@@ -26,6 +26,7 @@ define([
             parentEl: this.$el
         });
         this.decorator.promptLayer = this.promptInitialLayer.bind(this);
+        this.decorator.getValidTargetsFor  = this.getValidTargetsFor.bind(this);
 
         this.width = this.decorator.width;
         this.height = this.decorator.height;

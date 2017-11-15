@@ -79,6 +79,10 @@ define([
                     .then(selected => selected.node.id);
             }
         };
+
+        this.ItemClass.prototype.getValidTargetsFor = function(ptr) {
+            return this._widget.getValidTargetsFor(this.id, ptr);
+        };
     };
 
     ArchEditorWidget.prototype.showHoverButtons = function(layer) {

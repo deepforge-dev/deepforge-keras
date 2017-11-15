@@ -91,7 +91,7 @@ define([
         this.editor.$value.text(field.value);
 
         // TODO: Get the options
-        let options = [field.value];
+        let options = this.getValidTargetsFor(ptr).map(target => target.node.name);
         this.editor.$value.on('click',
             () => this.createDropdown(this.editor.$value[0], field.value, options));
     };
