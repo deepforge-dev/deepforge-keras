@@ -139,6 +139,7 @@ define([
             self.savePointer(field.name, tgtId);
         });
         $('body').append(container);
+        this.$dropdown = container;
 
         return container;
     };
@@ -150,6 +151,7 @@ define([
 
     LayerDecorator.prototype.closeEditor = function() {
         if (this.editor) this.editor.destroy();
+        if (this.$dropdown) this.$dropdown.remove();
         this.editor = null;
     };
 
