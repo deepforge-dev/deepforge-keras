@@ -71,11 +71,29 @@ define([
     LayerDecorator.prototype.update = function() {
         let result =  EllipseDecorator.prototype.update.apply(this, arguments);
         if (this.editor) {
-            //let content = this.pointers[ptr].$content[0][0];
             let ptr = this.editor.ptrName;
             let tgtId = this._node.pointers[ptr];
+
             this.editor.setNode(tgtId);
+
+            let field = this.pointers[ptr];
+            this.editor.setTitle(field.value);
         }
+        return result;
+    };
+
+    LayerDecorator.prototype.updateTargetName = function(id) {
+        let result = EllipseDecorator.prototype.updateTargetName.apply(this, arguments);
+
+        if (this.editor) {
+            let ptr = this.editor.ptrName;
+            let tgtId = this._node.pointers[ptr];
+            if (tgtId === id) {
+                let field = this.pointers[ptr];
+                this.editor.setTitle(field.value);
+            }
+        }
+
         return result;
     };
 
