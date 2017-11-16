@@ -30,8 +30,7 @@ define([
         };
         this.panel = new AutoVizPanel(this, params);
 
-        this.panel.currentNode = nodeId;
-        this.panel.selectedObjectChanged(nodeId);
+        this.setNode(nodeId);
 
         $('body').append(this.$el);
     }
@@ -53,16 +52,30 @@ define([
         this.$titlebar.css('width', this.width-2);
         this.$el.append(this.$titlebar);
 
+        this.$titlePrefix = $('<span>');
+        this.$titlebar.append(this.$titlePrefix);
+
         this.$title = $('<span>');
+        this.$title.addClass('target');
         this.$titlebar.append(this.$title);
 
         // TODO: Add close button
-
         this.$body = $('<div>');
         this.$body.addClass('body');
         this.$body.css('height', this.height);
         this.$body.css('top', titlebarHeight);
         this.$el.append(this.$body);
+
+    };
+
+    FloatingEditor.prototype.setNode = function(nodeId) {
+        this.currentNodeId = null;
+        this.panel.currentNode = nodeId;
+        this.panel.selectedObjectChanged(nodeId);
+    };
+
+    FloatingEditor.prototype.setTitlePrefix = function(title) {
+        this.$titlePrefix.text(title);
     };
 
     FloatingEditor.prototype.setTitle = function(title) {

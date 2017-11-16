@@ -68,6 +68,17 @@ define([
         }
     };
 
+    LayerDecorator.prototype.update = function() {
+        let result =  EllipseDecorator.prototype.update.apply(this, arguments);
+        if (this.editor) {
+            //let content = this.pointers[ptr].$content[0][0];
+            let ptr = this.editor.ptrName;
+            let tgtId = this._node.pointers[ptr];
+            this.editor.setNode(tgtId);
+        }
+        return result;
+    };
+
     LayerDecorator.prototype.createPointerEditor = function(ptr, content) {
         let field = this.pointers[ptr];
         let tgtId = this._node.pointers[ptr];
@@ -77,23 +88,20 @@ define([
         // TODO: Subclass the floating editor to also select the pointer type
         // TODO: Move this api to the widget so it can automatically close them on resize...
         // OR I could just attach the editor to an html element and then update it on page resize...
-        this.editor = FloatingEditor.open(tgtId, position.right, position.top, 300, 300);
+
         let ptrName = ptr.split('_')
             .map(name => name[0].toUpperCase() + name.slice(1))
             .join(' ');
 
-        // Show a dropdown of options
-        this.editor.setTitle(`${ptrName} for ${this.getDisplayName()}: `);
-        this.editor.$value = $('<span>');
-        this.editor.$value.addClass('target');
-        this.editor.$titlebar.append(this.editor.$value);
-        this.editor.$value.text(field.value);
-        // TODO: update the field value and target on ptr value change
+        this.editor = FloatingEditor.open(tgtId, position.right, position.top, 300, 300);
+        this.editor.setTitlePrefix(`${ptrName} for ${this.getDisplayName()}: `);
+        this.editor.setTitle(field.value);
+        this.editor.ptrName = ptr;
 
         // Get the options
         let options = this.getValidTargetsFor(ptr).map(target => target.node);
-        this.editor.$value.on('click',
-            () => this.createDropdown(this.editor.$value[0], field, options));
+        this.editor.$title.on('click',
+            () => this.createDropdown(this.editor.$title[0], field, options));
     };
 
     LayerDecorator.prototype.createDropdown = function(element, field, options) {
