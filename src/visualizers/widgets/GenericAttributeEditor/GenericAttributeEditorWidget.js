@@ -17,12 +17,13 @@ define([
 
         this.$el = container;
         this.$table = $('<table>');
-        //this.$header = $('<thead>');
         this.$content = $('<tbody>');
 
+        this.$table.addClass('table table-hover');
         this.$el.append(this.$table);
         this.$table.append(this.$content);
 
+        this.currentNode = null;
         this._initialize();
 
         this._logger.debug('ctor finished');
@@ -44,11 +45,12 @@ define([
         // Render the attributes in a table
         // TODO:
 
+        this.currentNode = desc;
         // Add "edit in place" stuff for the attribute values
         // TODO:
         var names = Object.keys(desc.attributes);
         names.forEach(name => {
-            var value = desc.attributes[name];
+            var value = desc.attributes[name].value;
             var row = $('<tr>');
             var data = $('<td>');
             data.text(name);
@@ -58,7 +60,6 @@ define([
             data.text(value);
             row.append(data.text(value));
             this.$content.append(row);
-            // TODO: add attribute meta info
         });
 
         // TODO: add 'no attributes' msg if needed

@@ -6,11 +6,11 @@
 
 define([
     'js/Constants',
-    'js/Utils/GMEConcepts',
+    'keras/Constants',
     'js/NodePropertyNames'
 ], function (
-    CONSTANTS,
-    GMEConcepts,
+    GME_CONCEPTS,
+    Constants,
     nodePropertyNames
 ) {
 
@@ -88,8 +88,13 @@ define([
             };
 
             node.getAttributeNames().forEach(name => {
-                desc.attributes[name] = node.getAttribute(name);
+                var info = node.getAttributeMeta(name);
+                info.value = node.getAttribute(name);
+                desc.attributes[name] = info;
             });
+            var hiddenAttrs = Object.keys(Constants.ATTR).map(key => Constants.ATTR[key]);
+            hiddenAttrs.forEach(name => delete desc.attributes[name]);
+            delete desc.attributes.name;
         }
 
         return desc;
@@ -106,13 +111,13 @@ define([
             event = events[i];
             switch (event.etype) {
 
-            case CONSTANTS.TERRITORY_EVENT_LOAD:
+            case GME_CONCEPTS.TERRITORY_EVENT_LOAD:
                 this._onLoad(event.eid);
                 break;
-            case CONSTANTS.TERRITORY_EVENT_UPDATE:
+            case GME_CONCEPTS.TERRITORY_EVENT_UPDATE:
                 this._onUpdate(event.eid);
                 break;
-            case CONSTANTS.TERRITORY_EVENT_UNLOAD:
+            case GME_CONCEPTS.TERRITORY_EVENT_UNLOAD:
                 this._onUnload(event.eid);
                 break;
             default:
@@ -150,11 +155,11 @@ define([
 
     GenericAttributeEditorControl.prototype._attachClientEventListeners = function () {
         this._detachClientEventListeners();
-        WebGMEGlobal.State.on('change:' + CONSTANTS.STATE_ACTIVE_OBJECT, this._stateActiveObjectChanged, this);
+        WebGMEGlobal.State.on('change:' + GME_CONCEPTS.STATE_ACTIVE_OBJECT, this._stateActiveObjectChanged, this);
     };
 
     GenericAttributeEditorControl.prototype._detachClientEventListeners = function () {
-        WebGMEGlobal.State.off('change:' + CONSTANTS.STATE_ACTIVE_OBJECT, this._stateActiveObjectChanged);
+        WebGMEGlobal.State.off('change:' + GME_CONCEPTS.STATE_ACTIVE_OBJECT, this._stateActiveObjectChanged);
     };
 
     GenericAttributeEditorControl.prototype.onActivate = function () {
