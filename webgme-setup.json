@@ -17,6 +17,13 @@
         "panel": "src/visualizers/panels/KerasArchEditor",
         "secondary": false,
         "widget": "src/visualizers/widgets/KerasArchEditor"
+      },
+      "GenericAttributeEditor": {
+        "src": "panels/GenericAttributeEditor/GenericAttributeEditorPanel",
+        "title": "GenericAttributeEditor",
+        "panel": "src/visualizers/panels/GenericAttributeEditor",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/GenericAttributeEditor"
       }
     },
     "decorators": {

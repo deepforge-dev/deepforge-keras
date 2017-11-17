@@ -10,5 +10,11 @@
     "title": "AutoViz",
     "panel": "panels/AutoViz/AutoVizPanel",
     "DEBUG_ONLY": false
+  },
+  {
+    "id": "GenericAttributeEditor",
+    "title": "GenericAttributeEditor",
+    "panel": "panels/GenericAttributeEditor/GenericAttributeEditorPanel",
+    "DEBUG_ONLY": false
   }
 ]
