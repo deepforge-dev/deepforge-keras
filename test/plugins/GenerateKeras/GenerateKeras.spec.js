@@ -65,7 +65,7 @@ describe('GenerateKeras', function () {
                     project: project,
                     commitHash: commitHash,
                     branchName: 'test',
-                    activeNode: '/v',
+                    activeNode: '/V',
                 };
 
             manager.executePlugin(pluginName, pluginConfig, context, function (err, pluginResult) {
@@ -97,5 +97,10 @@ describe('GenerateKeras', function () {
             assert(code.includes('import Model'));
         });
 
+        it('should resolve activation pointers', function() {
+            assert(!code.includes('[object Object]'));
+        });
     });
+
+    // TODO: test that we can run the given python code?
 });
