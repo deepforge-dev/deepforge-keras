@@ -102,8 +102,6 @@ define([
         let tgtId = this._node.pointers[ptr];
         let position = content.getBoundingClientRect();
         if (this.editor) this.editor.destroy();
-        // TODO: Add the back/close icons
-        // TODO: Subclass the floating editor to also select the pointer type
         // TODO: Move this api to the widget so it can automatically close them on resize...
         // OR I could just attach the editor to an html element and then update it on page resize...
 
@@ -111,7 +109,7 @@ define([
             .map(name => name[0].toUpperCase() + name.slice(1))
             .join(' ');
 
-        this.editor = FloatingEditor.open(tgtId, position.right, position.top, 300, 300);
+        this.editor = FloatingEditor.open(tgtId, position.right, position.top, 300, 130);
         this.editor.setTitlePrefix(`${ptrName} for ${this.getDisplayName()}: `);
         this.editor.setTitle(field.value);
         this.editor.ptrName = ptr;
@@ -153,8 +151,10 @@ define([
             let tgtId = null;
             if (value) {
                 tgtId = options.find(option => option.name === value).id;
+                field.value = value;
             }
             self.savePointer(field.name, tgtId);
+            container.remove();
         });
         $('body').append(container);
         this.$dropdown = container;

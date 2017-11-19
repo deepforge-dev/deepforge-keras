@@ -35,8 +35,9 @@ define([
         $('body').append(this.$el);
     }
 
+    FloatingEditor.TITLEBAR_HEIGHT = 20;
     FloatingEditor.prototype.initialize = function() {
-        let titlebarHeight = 20;
+        let titlebarHeight = FloatingEditor.TITLEBAR_HEIGHT;
 
         this.$el = $('<div>');
         this.$el.addClass('floating-editor');
