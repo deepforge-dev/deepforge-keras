@@ -35,15 +35,12 @@ define([
     };
 
     GenericAttributeEditorControl.prototype._initWidgetEventHandlers = function () {
-        this._widget.setAttribute = (id, attr, value) => {
-            this._client.setAttribute(id, attr, value);
+        this._widget.setAttribute = (attr, value) => {
+            this._client.setAttribute(this._currentNodeId, attr, value);
         };
     };
 
     /* * * * * * * * Visualizer content update callbacks * * * * * * * */
-    // One major concept here is with managing the territory. The territory
-    // defines the parts of the project that the visualizer is interested in
-    // (this allows the browser to then only load those relevant parts).
     GenericAttributeEditorControl.prototype.selectedObjectChanged = function (nodeId) {
         var desc = this._getObjectDescriptor(nodeId),
             self = this;

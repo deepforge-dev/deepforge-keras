@@ -21,7 +21,6 @@ define([
         this.$el.append(this.$table);
         this.$table.append(this.$content);
 
-        this.currentNode = null;
         this._initialize();
 
         this._logger.debug('ctor finished');
@@ -65,8 +64,7 @@ define([
                 'xmlns': 'http://www.w3.org/1999/xhtml'
             },
             onChange: (oldValue, newValue) => {
-                var id = this.currentNode.id;
-                this.setAttribute(id, attr, newValue);
+                this.setAttribute(attr, newValue);
             }
         });
 
@@ -77,9 +75,6 @@ define([
     GenericAttributeEditorWidget.prototype.updateNode = function (desc) {
         this.$content.empty();
 
-        this.currentNode = desc;
-        // Add "edit in place" stuff for the attribute values
-        // TODO:
         // Render the attributes in a table
         var names = Object.keys(desc.attributes);
         names.forEach(name => {
@@ -87,7 +82,7 @@ define([
             this.addRow(name, value);
         });
 
-        // TODO: add 'no attributes' msg if needed
+        // add 'no attributes' msg if needed
         if (names.length === 0) {
             var row = this.addRow('no configurable attributes');
             row.addClass('empty-msg');
@@ -96,6 +91,8 @@ define([
 
     GenericAttributeEditorWidget.prototype.removeNode = function () {
         this.$content.empty();
+        var row = this.addRow('The current node has been deleted');
+        row.addClass('empty-msg');
     };
 
     /* * * * * * * * Visualizer life cycle callbacks * * * * * * * */
