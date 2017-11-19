@@ -7,4 +7,10 @@
  */
 
 .generic-attribute-editor {
-  outline: none; }
+  outline: none;
+}
+
+.generic-attribute-editor .empty-msg {
+  font-style: italic;
+  color: grey;
+}
