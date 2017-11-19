@@ -46,7 +46,30 @@ define([
         data.text(content);
         row.append(data.text(content));
         this.$content.append(row);
+
+        // Add click listener
+        data.on('click', () => this.editValue(name, content, data));
         return row;
+    };
+
+    GenericAttributeEditorWidget.prototype.editValue = function (attr, value, html) {
+        var position = html[0].getBoundingClientRect();
+        var width = Math.max(position.right-position.left, 20);
+
+        html.editInPlace({
+            enableEmpty: true,
+            value: value,
+            css: {
+                'z-index': 10000,
+                'width': width,
+                'xmlns': 'http://www.w3.org/1999/xhtml'
+            },
+            onChange: (oldValue, newValue) => {
+                var id = this.currentNode.id;
+                this.setAttribute(id, attr, newValue);
+            }
+        });
+
     };
 
     // Adding/Removing/Updating items

@@ -35,11 +35,8 @@ define([
     };
 
     GenericAttributeEditorControl.prototype._initWidgetEventHandlers = function () {
-        // Set attributes
-        // TODO:
-        this._widget.onNodeClick = function (id) {
-            // Change the current active object
-            WebGMEGlobal.State.registerActiveObject(id);
+        this._widget.setAttribute = (id, attr, value) => {
+            this._client.setAttribute(id, attr, value);
         };
     };
 
