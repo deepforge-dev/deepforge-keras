@@ -31,10 +31,6 @@ define([
         this.$el.addClass(WIDGET_CLASS);
     };
 
-    GenericAttributeEditorWidget.prototype.onWidgetContainerResize = function (width, height) {
-        this._logger.debug('Widget is resizing...');
-    };
-
     GenericAttributeEditorWidget.prototype.addRow = function (name, content) {
         var row = $('<tr>');
         var data = $('<td>');

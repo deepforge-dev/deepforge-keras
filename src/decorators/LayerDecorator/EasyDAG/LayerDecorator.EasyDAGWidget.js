@@ -102,8 +102,9 @@ define([
         let tgtId = this._node.pointers[ptr];
         let position = content.getBoundingClientRect();
         if (this.editor) this.editor.destroy();
-        // TODO: Move this api to the widget so it can automatically close them on resize...
-        // OR I could just attach the editor to an html element and then update it on page resize...
+        // I should attach the editor to the html element and then update it on page resize...
+        // TODO
+        // How would I get the resize event?
 
         let ptrName = ptr.split('_')
             .map(name => name[0].toUpperCase() + name.slice(1))

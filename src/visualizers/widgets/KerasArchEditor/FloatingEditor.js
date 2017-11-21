@@ -13,14 +13,10 @@ define([
     //
     function FloatingEditor(nodeId, x, y, w, h) {
 
-        // Add a thin border or shadow...
-        // TODO: use vuejs?
         this.width = w;
         this.height = h;
         this.position = {left: x, top: y};
 
-        // add titlebar
-        // TODO
         this.initialize();
 
         // Load the autoviz and set the active node
@@ -60,7 +56,6 @@ define([
         this.$title.addClass('target');
         this.$titlebar.append(this.$title);
 
-        // TODO: Add close button
         this.$body = $('<div>');
         this.$body.addClass('body');
         this.$body.css('height', this.height);
