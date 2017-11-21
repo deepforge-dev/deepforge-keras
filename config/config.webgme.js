@@ -19,6 +19,7 @@ config.seedProjects.basePaths.push(__dirname + '/../src/seeds/tests');
 
 
 config.visualization.panelPaths.push(__dirname + '/../node_modules/webgme-easydag/src/visualizers/panels');
+config.visualization.panelPaths.push(__dirname + '/../node_modules/webgme-autoviz/src/visualizers/panels');
 config.visualization.panelPaths.push(__dirname + '/../src/visualizers/panels');
 
 
@@ -29,10 +30,13 @@ config.visualization.visualizerDescriptors.push(__dirname + '/../src/visualizers
 // Add requirejs paths
 config.requirejsPaths = {
   'EllipseDecorator': 'node_modules/webgme-easydag/src/decorators/EllipseDecorator',
+  'AutoViz': 'panels/AutoViz/AutoVizPanel',
   'EasyDAG': 'panels/EasyDAG/EasyDAGPanel',
   'SimpleNodes': 'node_modules/webgme-simple-nodes/src/plugins/SimpleNodes',
   'panels': './src/visualizers/panels',
   'widgets': './src/visualizers/widgets',
+  'panels/AutoViz': './node_modules/webgme-autoviz/src/visualizers/panels/AutoViz',
+  'widgets/AutoViz': './node_modules/webgme-autoviz/src/visualizers/widgets/AutoViz',
   'panels/EasyDAG': './node_modules/webgme-easydag/src/visualizers/panels/EasyDAG',
   'widgets/EasyDAG': './node_modules/webgme-easydag/src/visualizers/widgets/EasyDAG'
 };

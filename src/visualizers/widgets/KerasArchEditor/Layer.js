@@ -26,6 +26,7 @@ define([
             parentEl: this.$el
         });
         this.decorator.promptLayer = this.promptInitialLayer.bind(this);
+        this.decorator.getValidTargetsFor  = this.getValidTargetsFor.bind(this);
 
         this.width = this.decorator.width;
         this.height = this.decorator.height;
@@ -51,6 +52,10 @@ define([
     Layer.prototype.onUnhover = function() {
         this._hovering = false;
         this.hideHoverButtons();
+    };
+
+    Layer.prototype.onClick = function(selected) {
+        this.decorator.onClick(selected);
     };
 
     Layer.prototype.onSelect = function() {

@@ -1,0 +1,25 @@
+.floating-editor {
+    position: absolute;
+    z-index: 10;
+    border: 1px solid lightgrey;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.floating-editor .titlebar {
+    background-color: white;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.floating-editor .titlebar .target {
+    font-weight: bold;
+}
+
+.floating-editor .titlebar span {
+    font-size: 14px;
+    font-style: italic;
+}
+
+.floating-editor .floating-title {
+    display: none;
+}

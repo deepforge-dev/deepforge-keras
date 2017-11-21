@@ -4,5 +4,17 @@
     "title": "KerasArchEditor",
     "panel": "panels/KerasArchEditor/KerasArchEditorPanel",
     "DEBUG_ONLY": false
+  },
+  {
+    "id": "AutoViz",
+    "title": "AutoViz",
+    "panel": "panels/AutoViz/AutoVizPanel",
+    "DEBUG_ONLY": false
+  },
+  {
+    "id": "GenericAttributeEditor",
+    "title": "GenericAttributeEditor",
+    "panel": "panels/GenericAttributeEditor/GenericAttributeEditorPanel",
+    "DEBUG_ONLY": false
   }
 ]

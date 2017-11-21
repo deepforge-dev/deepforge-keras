@@ -17,6 +17,13 @@
         "panel": "src/visualizers/panels/KerasArchEditor",
         "secondary": false,
         "widget": "src/visualizers/widgets/KerasArchEditor"
+      },
+      "GenericAttributeEditor": {
+        "src": "panels/GenericAttributeEditor/GenericAttributeEditorPanel",
+        "title": "GenericAttributeEditor",
+        "panel": "src/visualizers/panels/GenericAttributeEditor",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/GenericAttributeEditor"
       }
     },
     "decorators": {
@@ -57,6 +64,14 @@
         "secondary": false,
         "widget": "src/visualizers/widgets/EasyDAG",
         "project": "webgme-easydag"
+      },
+      "AutoViz": {
+        "src": "panels/AutoViz/AutoVizPanel",
+        "title": "AutoViz",
+        "panel": "src/visualizers/panels/AutoViz",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/AutoViz",
+        "project": "webgme-autoviz"
       }
     },
     "decorators": {

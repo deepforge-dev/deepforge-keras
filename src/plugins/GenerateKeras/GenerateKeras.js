@@ -65,6 +65,7 @@ define([
         code.unshift('');
         code.unshift('from keras.layers import *');
         code.unshift('from keras.models import Model');
+        code.unshift('import keras');
 
         // Return the model
         var inputs = layers
@@ -123,10 +124,32 @@ define([
         var argNames = layer[Constants.ATTR.CTOR_ARGS].split(',');
         var argString = argNames
             .filter(arg => layer[arg] !== undefined)
-            .map(arg => `${arg}=${layer[arg]}`).join(', ');
+            .map(arg => `${arg}=${this.getArgumentValue(layer[arg])}`).join(', ');
 
         this.logger.debug(`getting arguments for ${layer.variableName} (${layer.name}): ${argString}`);
         return argString;
+    };
+
+    GenerateKeras.prototype.getArgumentValue = function(value) {
+        if (typeof value === 'object') {  // pointer
+            let target = value;
+            let args = this.getArguments(target);
+            let type = this.getFunctionType(target);
+
+            // activation fns need to be wrapped in a lambda
+            if (type === 'keras.activations') {
+                return `lambda x: ${type}.${target.name}(x, ${args})`;
+            }
+            return `${type}.${target.name}(${args})`;
+        }
+        return value;
+    };
+
+    GenerateKeras.prototype.getFunctionType = function(fn) {
+        let base = fn.base.base.name;
+        let fnType = base.replace(/Function$/, '').toLowerCase();
+
+        return `keras.${fnType}s`;
     };
 
     return GenerateKeras;
