@@ -54,6 +54,10 @@ define([
         this.hideHoverButtons();
     };
 
+    Layer.prototype.onClick = function(selected) {
+        this.decorator.onClick(selected);
+    };
+
     Layer.prototype.onSelect = function() {
         DAGItem.prototype.onSelect.apply(this, arguments);
         if (this._hovering) {

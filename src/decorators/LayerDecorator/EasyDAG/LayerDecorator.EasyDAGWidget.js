@@ -1,4 +1,4 @@
-/*globals define, _, WebGMEGlobal, $*/
+/*globals define, _, $, d3*/
 /*jshint browser: true, camelcase: false*/
 
 define([
@@ -207,6 +207,17 @@ define([
             this.client.setPointer(nodeId, ptr, targetId);
         }
         this.client.completeTransaction();
+    };
+
+    LayerDecorator.prototype.onClick = function(selected) {
+        if (selected && this.editor) {
+            // Ignore if clicking on the pointer field
+            let ptrField = this.pointers[this.editor.ptrName].$content[0][0];
+            let clickedPtrField = d3.event.target === ptrField;
+            if (!clickedPtrField) {
+                this.closeEditor();
+            }
+        }
     };
 
     return LayerDecorator;
