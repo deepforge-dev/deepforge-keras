@@ -9,6 +9,7 @@ define([
     'widgets/EasyDAG/AddNodeDialog',
     './SelectionManager',
     './Layer',
+    './Connection',
     'q',
     'underscore',
     'css!./styles/ArchEditorWidget.css'
@@ -19,6 +20,7 @@ define([
     AddNodeDialog,
     SelectionManager,
     Layer,
+    Connection,
     Q,
     _
 ) {
@@ -48,6 +50,7 @@ define([
     _.extend(ArchEditorWidget.prototype, ThumbnailWidget.prototype);
 
     ArchEditorWidget.prototype.ItemClass = Layer;
+    ArchEditorWidget.prototype.Connection = Connection;
     ArchEditorWidget.prototype.SelectionManager = SelectionManager;
 
     ArchEditorWidget.prototype.getComponentId = function() {
