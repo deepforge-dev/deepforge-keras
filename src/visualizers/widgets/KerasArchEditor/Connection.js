@@ -1,7 +1,10 @@
+/*globals define*/
 define([
-    'widgets/EasyDAG/Connection'
+    'widgets/EasyDAG/Connection',
+    'underscore'
 ], function(
-    BaseConnection
+    BaseConnection,
+    _
 ) {
     var Connection = function() {
         BaseConnection.apply(this, arguments);
