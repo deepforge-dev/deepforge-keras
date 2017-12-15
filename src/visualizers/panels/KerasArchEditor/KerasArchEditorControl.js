@@ -290,16 +290,16 @@ define([
 
         this._logger.info('about to validate arch');
         // Run the plugin in the browser (set namespace)
-        context.managerConfig.namespace = 'nn';
-        context.pluginConfig = {};
-        Q.ninvoke(this._client, 'runServerPlugin', pluginId, context)
-            .then(res => {
-                var results = res.messages[0].message;
-                if (results.errors !== null) {
-                    this._widget.displayErrors(results.errors);
-                }
-            })
-            .fail(err => this._logger.warn(`Validation failed: ${err}`));
+        //context.managerConfig.namespace = 'keras';
+        //context.pluginConfig = {};
+        //Q.ninvoke(this._client, 'runServerPlugin', pluginId, context)
+            //.then(res => {
+                //var results = res.messages[0].message;
+                //if (results.errors !== null) {
+                    //this._widget.displayErrors(results.errors);
+                //}
+            //})
+            //.fail(err => this._logger.warn(`Validation failed: ${err}`));
     };
 
     ////////////////////////////// Event Handlers ////////////////////////////// 
