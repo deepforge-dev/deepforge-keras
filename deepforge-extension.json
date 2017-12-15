@@ -1,0 +1,9 @@
+{
+    "type": "Library",
+    "name": "keras",
+    "description": "Neural Network library using Keras with a TensorFlow backend",
+    "seed": "keras",
+    "nodeTypes": [
+        "Architecture"
+    ]
+}
