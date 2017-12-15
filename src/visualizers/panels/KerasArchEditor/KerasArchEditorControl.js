@@ -2,7 +2,7 @@
 /*jshint browser: true*/
 
 define([
-    'keras/Constants',
+    'deepforge-keras/Constants',
     'panels/EasyDAG/EasyDAGControl',
     'js/NodePropertyNames',
     'js/Utils/ComponentSettings',

@@ -38,7 +38,11 @@ config.requirejsPaths = {
   'panels/AutoViz': './node_modules/webgme-autoviz/src/visualizers/panels/AutoViz',
   'widgets/AutoViz': './node_modules/webgme-autoviz/src/visualizers/widgets/AutoViz',
   'panels/EasyDAG': './node_modules/webgme-easydag/src/visualizers/panels/EasyDAG',
-  'widgets/EasyDAG': './node_modules/webgme-easydag/src/visualizers/widgets/EasyDAG'
+  'widgets/EasyDAG': './node_modules/webgme-easydag/src/visualizers/widgets/EasyDAG',
+  'webgme-simple-nodes': './node_modules/webgme-simple-nodes/src/common',
+  'webgme-easydag': './node_modules/webgme-easydag/src/common',
+  'webgme-autoviz': './node_modules/webgme-autoviz/src/common',
+  'deepforge-keras': './src/common'
 };
 
 

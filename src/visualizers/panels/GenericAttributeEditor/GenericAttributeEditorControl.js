@@ -6,7 +6,7 @@
 
 define([
     'js/Constants',
-    'keras/Constants',
+    'deepforge-keras/Constants',
     'js/NodePropertyNames'
 ], function (
     GME_CONCEPTS,

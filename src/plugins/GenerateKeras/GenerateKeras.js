@@ -2,7 +2,7 @@
 /*jshint node:true, browser:true*/
 
 define([
-    'keras/Constants',
+    'deepforge-keras/Constants',
     'SimpleNodes/SimpleNodes',
     'SimpleNodes/Constants',
     'text!./metadata.json'
