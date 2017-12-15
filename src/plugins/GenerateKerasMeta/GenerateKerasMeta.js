@@ -3,17 +3,17 @@
 
 define([
     'plugin/PluginConfig',
-    'keras/Constants',
+    'deepforge-keras/Constants',
     'plugin/PluginBase',
     'common/util/guid',
     'underscore',
     'q',
 
-    'text!keras/schemas/activations.json',
-    'text!keras/schemas/initializers.json',
-    'text!keras/schemas/constraints.json',
-    'text!keras/schemas/regularizers.json',
-    'text!keras/schemas/layers.json',
+    'text!deepforge-keras/schemas/activations.json',
+    'text!deepforge-keras/schemas/initializers.json',
+    'text!deepforge-keras/schemas/constraints.json',
+    'text!deepforge-keras/schemas/regularizers.json',
+    'text!deepforge-keras/schemas/layers.json',
     'text!./metadata.json'
 ], function (
     PluginConfig,

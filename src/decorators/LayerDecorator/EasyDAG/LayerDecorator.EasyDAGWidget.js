@@ -4,7 +4,7 @@
 define([
     'decorators/EllipseDecorator/EasyDAG/EllipseDecorator.EasyDAGWidget',
     'widgets/KerasArchEditor/FloatingEditor',
-    'keras/Constants',
+    'deepforge-keras/Constants',
     './LayerField'
 ], function (
     EllipseDecorator,
