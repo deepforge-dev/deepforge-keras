@@ -1,11 +1,7 @@
 {
-    "type": "Domain",
+    "type": "Library",
     "name": "keras",
     "description": "Neural Network library using Keras with a TensorFlow backend",
-    "main": "build/waffle-api-export.js",
-
-    "displayName": "REST API",
-
     "seed": "keras",
     "nodeTypes": [
         "Architecture"
