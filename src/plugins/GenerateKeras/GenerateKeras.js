@@ -58,6 +58,7 @@ define([
         this.variableNames = {};
 
         // Add the inputs with the dimensions
+        var resultName = this.generateVariableName('result');
         var modelName = this.generateVariableName('model');
         code = layers.map(layer => this.generateLayerCode(layer));
 
@@ -80,6 +81,7 @@ define([
 
         code.push('');
         code.push(`${modelName} = Model(inputs=[${inputs}], outputs=[${outputs}])`);
+        code.push(`${resultName} = ${modelName}`);
 
         outputFiles['output.py'] = code.join('\n');
 
