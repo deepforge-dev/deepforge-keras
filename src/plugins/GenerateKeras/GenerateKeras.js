@@ -58,7 +58,7 @@ define([
         this.variableNames = {};
 
         // Add the inputs with the dimensions
-        var modelName = this.generateVariableName('model');
+        var modelName = this.generateVariableName('result');
         code = layers.map(layer => this.generateLayerCode(layer));
 
         // Import the layers
