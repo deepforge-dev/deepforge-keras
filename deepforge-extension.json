@@ -3,6 +3,7 @@
     "name": "keras",
     "description": "Neural Network library using Keras with a TensorFlow backend",
     "seed": "keras",
+    "initCode": "./init_code.py",
     "nodeTypes": [
         "Architecture"
     ]
