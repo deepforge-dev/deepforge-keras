@@ -4,7 +4,10 @@
 import deepforge
 import keras
 
-def serialize_model(model, filename):
-    model.save(filename)
+def dump_model(model, outfile):
+    model.save(outfile.name)
 
-deepforge.serialize.register_serialization(keras.models.Model, serialize_model, keras.models.load_model)
+def load_model(infile):
+    return keras.models.load_model(infile.name)
+
+deepforge.serialization.register(keras.models.Model, dump_model, load_model)
