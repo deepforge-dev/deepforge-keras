@@ -2,7 +2,6 @@
 /*jshint node:true, browser:true*/
 
 define([
-    'plugin/PluginConfig',
     'deepforge-keras/Constants',
     'plugin/PluginBase',
     'common/util/guid',
@@ -16,7 +15,6 @@ define([
     'text!deepforge-keras/schemas/layers.json',
     'text!./metadata.json'
 ], function (
-    PluginConfig,
     Constants,
     PluginBase,
     generateGuid,
@@ -105,6 +103,7 @@ define([
             });
             this.core.setAttribute(node, 'name', 'Language');
             this.META.Language = node;
+            this.addNodeToMeta(node);
         }
 
         if (!this.META.Architecture) {
@@ -287,19 +286,9 @@ define([
 
     GenerateKerasMeta.prototype.createMetaNode = function (name, base, tabName) {
         var node = this.META[name],
-            nodeId = node && this.core.getPath(node),
-            position,
-            tabId;
+            nodeId = node && this.core.getPath(node);
 
         tabName = tabName || DEFAULT_META_TAB;
-        tabId = this.metaSheets[tabName];
-        position = this.getPositionFor(name, tabName);
-
-        if (!tabId) {
-            var err = `No meta sheet for ${tabName}`;
-            this.logger.error(err);
-            throw err;
-        }
 
         if (!node) {
             // Create a node
@@ -309,8 +298,6 @@ define([
             });
             this.core.setAttribute(node, 'name', name);
             this.META[name] = node;
-
-            nodeId = this.core.getPath(node);
         } else {
             // Remove from meta
             this.removeFromMeta(nodeId);
@@ -318,9 +305,25 @@ define([
         }
 
         // Add it to the meta sheet
+        this.addNodeToMeta(node, tabName);
+        return node;
+    };
+
+    GenerateKerasMeta.prototype.addNodeToMeta = function(node, tabName) {
+        tabName = tabName || DEFAULT_META_TAB;
+        let tabId = this.metaSheets[tabName];
+        let position = this.getNextPositionFor(tabName);
+
+        if (!tabId) {
+            var err = `No meta sheet for ${tabName}`;
+            this.logger.error(err);
+            throw err;
+        }
+
         this.core.addMember(this.rootNode, Constants.META_ASPECT_SET_NAME, node);
         this.core.addMember(this.rootNode, tabId, node);
 
+        const nodeId = this.core.getPath(node);
         this.core.setMemberRegistry(
             this.rootNode,
             Constants.META_ASPECT_SET_NAME,
@@ -336,12 +339,11 @@ define([
             position
         );
 
+        const name = this.core.getAttribute(node, 'name');
         this.logger.debug(`added ${name} to the meta`);
-
-        return node;
     };
 
-    GenerateKerasMeta.prototype.getPositionFor = function(name, tabName) {
+    GenerateKerasMeta.prototype.getNextPositionFor = function(tabName) {
         var index = this.sheetCounts[tabName] || 0,
             position,
             dx = 140,

@@ -92,6 +92,11 @@ describe('GenerateKerasMeta', function () {
                 .nodeify(done);
         });
 
+        it('should add language node to meta', function () {
+            let node = getMetaNode('Language');
+            assert(node);
+        });
+
         it('should add tabs to the meta', function () {
             let sheets = plugin.core.getRegistry(plugin.rootNode, 'MetaSheets');
             assert(sheets.length > 1);
