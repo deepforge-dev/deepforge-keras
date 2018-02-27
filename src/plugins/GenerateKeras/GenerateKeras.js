@@ -133,7 +133,8 @@ define([
     };
 
     GenerateKeras.prototype.getArgumentValue = function(value) {
-        if (typeof value === 'object') {  // pointer
+        const rawArgType = typeof value;
+        if (rawArgType === 'object') {  // pointer
             let target = value;
             let args = this.getArguments(target);
             let type = this.getFunctionType(target);
@@ -143,6 +144,18 @@ define([
                 return `lambda x: ${type}.${target.name}(x, ${args})`;
             }
             return `${type}.${target.name}(${args})`;
+        } else if (rawArgType === 'string'){
+            // Trim whitespace
+            value = value.replace(/^\s*/, '').replace(/\s*$/, '');
+            const isBool = /^(True|False)$/;
+            const isNumber = /^\d*\.?(e|e-)?\d*$/;
+            const isTuple = /^\(/;
+            const isString = text => !isTuple.test(text) && !isBool.test(text) &&
+                !isNumber.test(text) && text !== 'None';
+
+            if (isString(value)) {
+                value = `"${value.replace(/"/g, '\\"')}"`;
+            }
         }
         return value;
     };
