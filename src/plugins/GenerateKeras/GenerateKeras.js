@@ -92,13 +92,17 @@ define([
         var name = this.generateLayerName(layer);
         var ctor = layer[SimpleConstants.BASE].name;
         var args = this.getArguments(layer);
-        var prevs;
 
-        prevs = layer[SimpleConstants.PREV].map(node => node.variableName).join(',');
         if (layer[SimpleConstants.BASE].name === 'Input') {
             return `${name} = ${ctor}(${args})`;
         } else {
-            return `${name} = ${ctor}(${args})(${prevs})`;
+            let inputs = layer[SimpleConstants.PREV].map(node => node.variableName);
+            let inputCode = inputs.join(', ');
+            if (inputs.length > 1) {
+                inputCode = `[${inputCode}]`;
+            }
+
+            return `${name} = ${ctor}(${args})(${inputCode})`;
         }
     };
 

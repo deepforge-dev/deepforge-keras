@@ -125,8 +125,7 @@ describe('GenerateKeras', function () {
         ];
 
         testCases.forEach(pairs => {
-            let [testCase, shouldBeQuoted] = pairs;
-            shouldBeQuoted = shouldBeQuoted || false;
+            const [testCase, shouldBeQuoted=false] = pairs;
             it(`should ${shouldBeQuoted ? '' : 'not '}quote arg: "${testCase}"`, function() {
                 const isQuoted = plugin.getArgumentValue(testCase)[0] === '"';
                 assert.equal(isQuoted, shouldBeQuoted);
