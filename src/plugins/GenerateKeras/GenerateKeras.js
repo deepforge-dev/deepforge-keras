@@ -143,6 +143,19 @@ define([
                 return `lambda x: ${type}.${target.name}(x, ${args})`;
             }
             return `${type}.${target.name}(${args})`;
+        } else {
+            // Trim whitespace
+
+            value = value.replace(/^\s*/, '').replace(/\s*$/, '');
+            const isBool = /^(True|False)$/;
+            const isNumber = /^\d*\.?(e|e-)?\d*$/;
+            const isTuple = /^\(/;
+            const isString = text => !isTuple.test(text) && !isBool.test(text) &&
+                !isNumber.test(text) && text !== 'None';
+
+            if (isString(value)) {
+                value = `"${value.replace(/"/g, '\\"')}"`;
+            }
         }
         return value;
     };

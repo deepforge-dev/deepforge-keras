@@ -15,6 +15,7 @@ describe('GenerateKeras', function () {
         SEED_DIR = path.join(__dirname, '..', '..', '..', 'src', 'seeds', 'tests'),
         projectName = 'testProject',
         pluginName = 'GenerateKeras',
+        manager = new PluginCliManager(null, logger, gmeConfig),
         project,
         gmeAuth,
         storage,
@@ -58,8 +59,7 @@ describe('GenerateKeras', function () {
     describe('code', function() {
         let code;
         before(function(done) {  // run the plugin and get the generated code
-            var manager = new PluginCliManager(null, logger, gmeConfig),
-                pluginConfig = {
+            let pluginConfig = {
                 },
                 context = {
                     project: project,
@@ -99,6 +99,38 @@ describe('GenerateKeras', function () {
 
         it('should resolve activation pointers', function() {
             assert(!code.includes('[object Object]'));
+        });
+    });
+
+    describe('layer args', function() {
+
+        let plugin = null;
+
+        before(done => {
+            return manager.initializePlugin(pluginName)
+                .then(plugin_ => plugin = plugin_)
+                .nodeify(done);
+        });
+
+        const testCases = [  // [string, shouldBeQuoted]
+            ['valid', true],
+            ['same', true],
+            ['(10, 128)'],
+            ['((10, 1), (12, 128))'],
+            ['20e12'],
+            ['20e-12'],
+            ['None'],
+            ['True'],
+            ['False']
+        ];
+
+        testCases.forEach(pairs => {
+            let [testCase, shouldBeQuoted] = pairs;
+            shouldBeQuoted = shouldBeQuoted || false;
+            it(`should ${shouldBeQuoted ? '' : 'not '}quote arg: "${testCase}"`, function() {
+                const isQuoted = plugin.getArgumentValue(testCase)[0] === '"';
+                assert.equal(isQuoted, shouldBeQuoted);
+            });
         });
     });
 
