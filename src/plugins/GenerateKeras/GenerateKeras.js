@@ -5,11 +5,13 @@ define([
     'deepforge-keras/Constants',
     'SimpleNodes/SimpleNodes',
     'SimpleNodes/Constants',
+    './keywords',
     'text!./metadata.json'
 ], function (
     Constants,
     PluginBase,
     SimpleConstants,
+    PythonKeywords,
     pluginMetadata
 ) {
     'use strict';
@@ -27,7 +29,7 @@ define([
         // Call base class' constructor.
         PluginBase.call(this);
         this.pluginMetadata = pluginMetadata;
-        this.variableNames = null;
+        this.variableNames = {};
     };
 
     /**
@@ -110,7 +112,7 @@ define([
         var count = 2;
         var name = basename;
 
-        while (this.variableNames[name]) {
+        while (this.variableNames[name] || PythonKeywords.includes(name)) {
             name = `${basename}${count}`;
             count++;
         }
