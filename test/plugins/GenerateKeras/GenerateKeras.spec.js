@@ -19,6 +19,7 @@ describe('GenerateKeras', function () {
         project,
         gmeAuth,
         storage,
+        plugin = null,
         commitHash;
 
     before(function (done) {
@@ -44,6 +45,10 @@ describe('GenerateKeras', function () {
                 project = importResult.project;
                 commitHash = importResult.commitHash;
                 return project.createBranch('test', commitHash);
+            })
+            .then(() => {
+                return manager.initializePlugin(pluginName)
+                    .then(plugin_ => plugin = plugin_);
             })
             .nodeify(done);
     });
@@ -103,15 +108,6 @@ describe('GenerateKeras', function () {
     });
 
     describe('layer args', function() {
-
-        let plugin = null;
-
-        before(done => {
-            return manager.initializePlugin(pluginName)
-                .then(plugin_ => plugin = plugin_)
-                .nodeify(done);
-        });
-
         const testCases = [  // [string, shouldBeQuoted]
             ['valid', true],
             ['same', true],
@@ -130,6 +126,13 @@ describe('GenerateKeras', function () {
                 const isQuoted = plugin.getArgumentValue(testCase)[0] === '"';
                 assert.equal(isQuoted, shouldBeQuoted);
             });
+        });
+    });
+
+    describe('variable names', function() {
+        it('should not use python keywords', function() {
+            const name = plugin.generateVariableName('lambda');
+            assert.notEqual(name, 'lambda');
         });
     });
 
