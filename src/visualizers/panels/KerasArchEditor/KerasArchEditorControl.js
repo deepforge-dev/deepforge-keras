@@ -138,10 +138,6 @@ define([
         var metanodes = this._client.getAllMetaNodes(),
             layerId,
             name,
-            connId,
-            layers = [],
-            tgts,
-            j,
             i;
 
         for (i = metanodes.length; i--;) {
@@ -152,26 +148,21 @@ define([
         }
 
         if (!layerId) {
-            this._logger.warn('Could not find layer connector');
+            this._logger.warn('Could not find base layer type');
             return [];
         }
 
         for (i = metanodes.length; i--;) {
             name = metanodes[i].getAttribute('name');
             if (name === 'Input' && metanodes[i].isTypeOf(layerId)) {
-                layers.push(metanodes[i]);
-            } else if (!connId && name === 'Connection') {  // Detect the layer connection type...
-                tgts = this._client.getPointerMeta(metanodes[i].getId(), 'src').items;
-                for (j = tgts.length; j--;) {
-                    if (tgts[j].id === layerId) {
-                        connId = metanodes[i].getId();
-                    }
-                }
-
+                return [{
+                    node: this._getObjectDescriptor(metanodes[i].getId()),
+                    conn: null
+                }];
             }
         }
 
-        return this._getLayerConnDescs(layers, connId);
+        return [];
     };
 
     KerasArchEditorControl.prototype.getValidSuccessors =
