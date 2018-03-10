@@ -16,6 +16,8 @@
         "default": 0
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "max_norm"
@@ -26,7 +28,9 @@
   {
     "name": "NonNeg",
     "base": "Constraint",
-    "arguments": [],
+    "arguments": null,
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "non_neg"
@@ -47,6 +51,8 @@
         "default": 0
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "unit_norm"
@@ -79,6 +85,8 @@
         "default": 0
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "min_max_norm"

@@ -2,7 +2,9 @@
   {
     "name": "Zeros",
     "base": "Initializer",
-    "arguments": [],
+    "arguments": null,
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "zero",
@@ -14,7 +16,9 @@
   {
     "name": "Ones",
     "base": "Initializer",
-    "arguments": [],
+    "arguments": null,
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "one",
@@ -36,6 +40,8 @@
         "default": 0
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "constant"
@@ -64,6 +70,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "normal",
@@ -93,6 +101,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "uniform",
@@ -122,6 +132,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "truncated_normal"
@@ -154,6 +166,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Initializer capable of adapting its scale to the shape of weights.\n\n    With `distribution=\"normal\"`, samples are drawn from a truncated normal\n    distribution centered on zero, with `stddev = sqrt(scale / n)` where n is:\n\n        - number of input units in the weight tensor, if mode = \"fan_in\"\n        - number of output units, if mode = \"fan_out\"\n        - average of the numbers of input and output units, if mode = \"fan_avg\"\n\n    With `distribution=\"uniform\"`,\n    samples are drawn from a uniform distribution\n    within [-limit, limit], with `limit = sqrt(3 * scale / n)`.\n\n    # Arguments\n        scale: Scaling factor (positive float).\n        mode: One of \"fan_in\", \"fan_out\", \"fan_avg\".\n        distribution: Random distribution to use. One of \"normal\", \"uniform\".\n        seed: A Python integer. Used to seed the random generator.\n\n    # Raises\n        ValueError: In case of an invalid value for the \"scale\", mode\" or\n          \"distribution\" arguments.\n    ",
@@ -176,6 +190,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "orthogonal"
@@ -196,6 +212,8 @@
         "default": 1
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "identity"

@@ -166,5 +166,14 @@ describe('GenerateKerasMeta', function () {
             var abs = plugin.getSchemas().find(schema => schema.abstract);
             expect(abs).to.equal(undefined);
         });
+
+        it('should look up inherited layer props', function () {
+            const mockLayer = {
+                name: 'TestLayer',
+                base: 'Dense'
+            };
+            const inputs = plugin.getLayerProperty(mockLayer, 'inputs');
+            assert(inputs);
+        });
     });
 });

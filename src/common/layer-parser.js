@@ -46,7 +46,7 @@ function parseLayers(text, filename) {
         }
     });
 
-    return schemas.filter(schema => schema.name[0] !== '_');
+    return schemas;
 }
 
 function parseLayer(def) {
@@ -55,9 +55,10 @@ function parseLayer(def) {
     let base = def.bases[0] && def.bases[0].id.v;
 
     // Get the arguments for the layer
-    let ctor = def.body.find(node => isNodeType(node, NODE_TYPE.FUNCTION) && node.name.v === '__init__');
+    let fns = def.body.filter(node => isNodeType(node, NODE_TYPE.FUNCTION));
+    let ctor = fns.find(node => node.name.v === '__init__');
 
-    let args = [];
+    let args = null;
     if (ctor) {
         args = parseFnArguments(ctor);
         //console.log(`Skipping ${name}: Missing constructor`);
@@ -65,11 +66,20 @@ function parseLayer(def) {
         //return;
     }
 
+    // Get the inputs/outputs
+    const forwardFn = fns.find(node => node.name.v === 'call');
+    let inputs = null;
+    let outputs = null;
+    if (forwardFn) {
+        inputs = parseFnArguments(forwardFn);
+        outputs = parseFnOutputs(forwardFn);
+    }
+
     // get the docstring
     let docstring = getDocString(def);
 
     // Check if marked as abstract in the docstring
-    let isAbstract = false;
+    let isAbstract = name[0] === '_';
     if (docstring && docstring.indexOf('Abstract') === 0) {
         isAbstract = true;
     }
@@ -78,10 +88,17 @@ function parseLayer(def) {
         name: name,
         base: base,
         arguments: args,
+        inputs: inputs,
+        outputs: outputs,
         abstract: isAbstract,
         aliases: [],
         docstring: docstring
     };
+}
+
+function parseFnOutputs(fn) {
+    // TODO: parse the return values
+    return [];
 }
 
 function getValue(node) {
