@@ -75,5 +75,13 @@ define([
         method.call(this.decorator);
     };
 
+    Layer.prototype.getInputs = function() {
+        return this.desc.inputs;
+    };
+
+    Layer.prototype.getOutputs = function() {
+        return this.desc.outputs;
+    };
+
     return Layer;
 });

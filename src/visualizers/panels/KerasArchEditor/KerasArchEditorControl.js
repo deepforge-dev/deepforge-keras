@@ -41,7 +41,7 @@ define([
 
     _.extend(KerasArchEditorControl.prototype, ThumbnailControl.prototype);
 
-    KerasArchEditorControl.prototype.TERRITORY_RULE = {children: 1};
+    KerasArchEditorControl.prototype.TERRITORY_RULE = {children: 2};
     KerasArchEditorControl.prototype.DEFAULT_DECORATOR = 'LayerDecorator';
     KerasArchEditorControl.prototype.getComponentId = function() {
         return 'KerasArchEditor';
@@ -70,6 +70,14 @@ define([
                 ctorAttrs = ctorInfo ? ctorInfo.value.split(','): [],
                 schema,
                 i;
+
+            // Add information about the LayerData inputs and outputs
+            desc.inputs = node.getMemberIds('inputs')
+                .map(id => this._client.getNode(id));
+
+            desc.outputs = node.getMemberIds('outputs')
+                .map(id => this._client.getNode(id))
+                .sort((a, b) => a.getAttribute('index') < b.getAttribute('index') ? -1 : 1);
 
             desc.attributes = {};
 
@@ -273,6 +281,13 @@ define([
     KerasArchEditorControl.prototype._eventCallback = function() {
         ThumbnailControl.prototype._eventCallback.apply(this, arguments);
         this.validateLayers();
+    };
+
+    KerasArchEditorControl.prototype._onLoad = function (gmeId) {
+        let node = this._client.getNode(gmeId);
+        if (node.getParentId() === this._currentNodeId) {
+            return ThumbnailControl.prototype._onLoad.call(this, gmeId);
+        }
     };
 
     KerasArchEditorControl.prototype.validateKerasArchitecture = function() {

@@ -101,21 +101,25 @@ define([
             .append('g')
             .attr('class', 'hover-container');
 
-        btn = new Buttons.Connect.From({
-            context: this,
-            $pEl: this.$hoverBtns,
-            item: layer,
-            x: cx,
-            y: height
-        });
+        if (layer.getOutputs().length) {
+            btn = new Buttons.Connect.From({
+                context: this,
+                $pEl: this.$hoverBtns,
+                item: layer,
+                x: cx,
+                y: height
+            });
+        }
 
-        btn = new Buttons.Connect.To({
-            context: this,
-            $pEl: this.$hoverBtns,
-            item: layer,
-            x: cx,
-            y: 0
-        });
+        if (layer.getInputs().length) {
+            btn = new Buttons.Connect.To({
+                context: this,
+                $pEl: this.$hoverBtns,
+                item: layer,
+                x: cx,
+                y: 0
+            });
+        }
 
         return btn;
     };
