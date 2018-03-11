@@ -293,12 +293,18 @@ define([
         return node;
     };
 
+    GenerateKerasMeta.prototype.createIOSet = function (node, name) {
+        this.core.setPointerMetaTarget(node, name, this.META.LayerData);
+        this.core.setPointerMetaLimits(node, name, -1, -1);
+        this.core.createSet(node, name);
+    };
+
     GenerateKerasMeta.prototype.addLayerInputs = function (node, layer) {
         if (!this.getLayerProperty(layer, 'inputs')) {
             console.log(`${layer.name} is missing inputs`);
         }
 
-        this.core.createSet(node, 'inputs');
+        this.createIOSet(node, 'inputs');
         const data = this.getLayerProperty(layer, 'inputs');
         if (data) {
             if (data[0].name === 'self') {
@@ -330,11 +336,11 @@ define([
             console.log(`${layer.name} is missing outputs`);
         }
 
-        this.core.createSet(node, 'outputs');
+        this.createIOSet(node, 'outputs');
         const data = this.getLayerProperty(layer, 'outputs') || [];
 
-        if (data.length > 1) {
-            data.push({name: 'all outputs'});
+        if (layer.name === 'Input') {
+            data.push({name: 'output'});
         }
 
         // Create a node in the current layer
