@@ -174,10 +174,31 @@ define([
     };
 
     KerasArchEditorControl.prototype.getPairDesc = function(node, conn) {
+        conn = conn || this.getConnectionNode();
         return {
             node: this._getObjectDescriptor(node.getId()),
             conn: this._getObjectDescriptor(conn.getId())
         };
+    };
+
+    KerasArchEditorControl.prototype.getValidExistingSuccessors = function() {
+        return this.getCurrentChildren()
+            .filter(node => node.getMemberIds('inputs').length)
+            .map(node => this.getPairDesc(node));
+    };
+
+    KerasArchEditorControl.prototype.getValidExistingPredecessors = function() {
+        // Get all the children with at least one output
+        return this.getCurrentChildren()
+            .filter(node => node.getMemberIds('outputs').length)
+            .map(node => this.getPairDesc(node));
+    };
+
+    KerasArchEditorControl.prototype.getCurrentChildren = function() {
+        var node = this._client.getNode(this._currentNodeId),
+            childrenIds = node.getChildrenIds();
+
+        return childrenIds.map(id => this._client.getNode(id));
     };
 
     KerasArchEditorControl.prototype.getValidSuccessors = function() {
@@ -306,6 +327,7 @@ define([
         }
     };
 
+    // TODO: Move this to a webhook...
     KerasArchEditorControl.prototype.validateKerasArchitecture = function() {
         var pluginId = 'ValidateKerasArchitecture',
             context = this._client.getCurrentPluginContext(pluginId);
@@ -345,6 +367,14 @@ define([
                 node: this._getObjectDescriptor(id)
             };
         });
+    };
+
+    KerasArchEditorControl.prototype.getSrcDstIdsForConn = function(srcId, nodeId, reverse) {
+        var node = this._client.getNode(nodeId),
+            ioSetName = reverse ? 'outputs' : 'inputs',
+            dstId = node.getMemberIds(ioSetName)[0];
+
+        return ThumbnailControl.prototype.getSrcDstIdsForConn.call(this, srcId, dstId, reverse);
     };
 
     return KerasArchEditorControl;
