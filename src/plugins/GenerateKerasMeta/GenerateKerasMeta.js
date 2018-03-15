@@ -281,6 +281,12 @@ define([
 
         this.logger.debug(`added attributes to ${layer.name}`);
 
+        // Add docstring
+        this.core.setAttributeMeta(node, Constants.ATTR.DOC, {type: 'string'});
+        if (layer.docstring) {
+            this.core.setAttribute(node, Constants.ATTR.DOC, layer.docstring);
+        }
+
         return node;
     };
 

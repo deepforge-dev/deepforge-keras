@@ -1,10 +1,14 @@
-/*globals define, WebGMEGlobal*/
+/*globals define, WebGMEGlobal, $*/
 define([
     'widgets/EasyDAG/Buttons',
-    'widgets/EasyDAG/Icons'
+    'widgets/EasyDAG/Icons',
+    'underscore',
+    './lib/showdown.min'
 ], function(
     Buttons,
-    Icons
+    Icons,
+    _,
+    showdown
 ) {
 
     var client = WebGMEGlobal.Client;
@@ -56,6 +60,68 @@ define([
     };
 
     Buttons.GoToBase = GoToBase;
+
+    const mdConverter = new showdown.Converter();
+    const ShowHelpDocs = function(params) {
+        Buttons.ButtonBase.call(this, params);
+    };
+
+    ShowHelpDocs.SIZE = 10;
+    ShowHelpDocs.BORDER = 1;
+    ShowHelpDocs.prototype.BTN_CLASS = 'show-help-docs';
+    ShowHelpDocs.prototype = new Buttons.ButtonBase();
+
+    ShowHelpDocs.prototype._render = function() {
+        var lineRadius = ShowHelpDocs.SIZE - ShowHelpDocs.BORDER,
+            btnColor = '#e3f2fd';
+
+        this.$el
+            .append('circle')
+            .attr('r', ShowHelpDocs.SIZE)
+            .attr('fill', btnColor);
+
+        // Show the 'code' icon
+        Icons.addIcon('question-mark', this.$el, {
+            radius: lineRadius
+        });
+    };
+
+    ShowHelpDocs.convertDocsToHtml = function(docs) {
+        // First preprocess the docstring to (nice) markdown
+        docs = docs
+            .replace(/^\s*/mg, '')  // default indentation creates code blocks
+            .replace(/^([a-zA-Z_]+):/mg, (match, argName) => `- ${argName}:`);
+
+        // Convert the arguments to a list
+        return mdConverter.makeHtml(docs);
+    };
+
+    ShowHelpDocs.prototype._onClick = function(item) {
+        const docs = ShowHelpDocs.convertDocsToHtml(item.desc.docs);
+
+        // Remove old docs dialogs
+        $('#show-docs').remove();
+
+        const docsDialog = $(modalTpl({desc: item.desc, docs: docs}));
+        docsDialog.modal('show');
+    };
+
+    const modalTpl = _.template(`
+    <div class="show-docs modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title"><%= desc.name %> Documentation</h3>
+                </div>
+                <div class="modal-body">
+                <%= docs %>
+                </div>
+            </div>
+        </div>
+    </div>
+    `);
+
+    Buttons.ShowDocs = ShowHelpDocs;
 
     return Buttons;
 });

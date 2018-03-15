@@ -1,4 +1,4 @@
-/*globals define*/
+/*globals define, d3*/
 /*jshint browser: true*/
 
 define([
