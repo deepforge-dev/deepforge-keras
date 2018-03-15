@@ -182,16 +182,40 @@ define([
     };
 
     KerasArchEditorControl.prototype.getValidExistingSuccessors = function() {
+        // Remove the predecessors
+        // TODO
+        const conn = this.getConnectionNode();
         return this.getCurrentChildren()
-            .filter(node => node.getMemberIds('inputs').length)
-            .map(node => this.getPairDesc(node));
+            //.filter(node => node.getMemberIds('inputs'))  // Remove predecessors
+            .map(node => {
+                return node.getMemberIds('inputs').map(id => {
+                    return {
+                        node: this._getObjectDescriptor(id),
+                        conn: this._getObjectDescriptor(conn.getId())
+                    };
+                });
+            })
+            .reduce((l1, l2) => l1.concat(l2));
     };
 
     KerasArchEditorControl.prototype.getValidExistingPredecessors = function() {
-        // Get all the children with at least one output
+        // Remove the successors
+        // TODO
+        const conn = this.getConnectionNode();
         return this.getCurrentChildren()
-            .filter(node => node.getMemberIds('outputs').length)
-            .map(node => this.getPairDesc(node));
+            //.filter(node => node.getMemberIds('inputs'))  // Remove predecessors
+            .map(node => {
+                return node.getMemberIds('outputs').map(id => {
+                    return {
+                        node: this._getObjectDescriptor(id),
+                        conn: this._getObjectDescriptor(conn.getId())
+                    };
+                });
+            })
+            .reduce((l1, l2) => l1.concat(l2));
+        //return this.getCurrentChildren()
+            //.filter(node => node.getMemberIds('outputs').length)
+            //.map(node => this.getPairDesc(node));
     };
 
     KerasArchEditorControl.prototype.getCurrentChildren = function() {
