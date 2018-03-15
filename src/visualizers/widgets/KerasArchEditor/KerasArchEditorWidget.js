@@ -111,15 +111,17 @@ define([
             });
         }
 
-        if (layer.getInputs().length) {
-            btn = new Buttons.Connect.To({
+        // TODO: Make a button for each input
+        layer.getInputs().forEach(input => {
+            const inputId = input.getId();
+            btn = new Buttons.ConnectToInput({
                 context: this,
                 $pEl: this.$hoverBtns,
-                item: layer,
+                item: inputId,
                 x: cx,
                 y: 0
             });
-        }
+        });
 
         return btn;
     };
@@ -133,7 +135,83 @@ define([
 
     ArchEditorWidget.prototype.startConnection = function () {
         this.hideHoverButtons();
+
+        // The first input will be an inputId instead of item
+        // TODO
+
         ThumbnailWidget.prototype.startConnection.apply(this, arguments);
+    };
+
+    ArchEditorWidget.prototype.getItemContaining = function (id) {
+        let itemId = id;
+        const chunks = id.split('/');
+
+        while (chunks.length) {
+            itemId = chunks.join('/');
+            if (this.items[itemId]) {
+                return this.items[itemId];
+            }
+            chunks.pop();
+        }
+        return null;
+    };
+
+    ArchEditorWidget.prototype.startConnectionFrom = function (dataId) {
+        const targets = this.getValidExistingSuccessors(dataId);
+        const item = this.getItemContaining(dataId);
+
+        this.startConnection(item, dataId, targets);
+    };
+
+    ArchEditorWidget.prototype.startConnectionTo = function (dataId) {
+        const targets = this.getValidExistingPredecessors(dataId);
+        const item = this.getItemContaining(dataId);
+
+        this.startConnection(item, dataId, targets, true);
+    };
+
+    ArchEditorWidget.prototype.startConnection = function (src, srcId, dsts, reverse) {
+        var onClick = (clicked, connId) => {
+                const startId = !reverse ? srcId : clicked.id;
+                const dstId = !reverse ? clicked.id : srcId;
+
+                d3.event.stopPropagation();
+                this.resetConnectingState();
+                this.connectNodes(startId, dstId, connId);
+            },
+            pairs = dsts.map(pair => [this.items[pair.node.id], pair.conn.id]);
+
+        this.resetConnectingState();
+        this._connectionOptions = pairs.map(pair => pair[0]);
+        this._connectionSrc = src;
+        pairs.map(pair => {
+            var item = pair[0],
+                connId = pair[1];
+
+            return [
+                item,
+                connId,
+                item.showIcon({
+                    x: 0.5,
+                    y: !reverse ? 0 : 1,
+                    icon: 'chevron-bottom'
+                })
+            ];
+        })
+        .forEach(pair => pair[2].on('click', () => onClick(pair[0], pair[1])));
+
+        // Create the 'create-new' icon for the src
+        src.showIcon({
+            x: 0.5,
+            y: !reverse ? 1 : 0,
+            icon: 'plus'
+        }).on('click', () => {
+            d3.event.stopPropagation();
+            this.resetConnectingState();
+            this.onAddButtonClicked(srcId, reverse);
+        });
+
+        this._connecting = true;
     };
 
     ArchEditorWidget.prototype.onCreateInitialNode = function() {
@@ -147,10 +225,20 @@ define([
     };
 
     ArchEditorWidget.prototype.onAddButtonClicked = function(item, reverse) {
+        // TODO: Should this accept the id of the input/output node, too?
         var nodes = this.getValidSuccessors(item.id);
 
         return this.promptLayer(nodes)
             .then(selected => this.onAddItemSelected(item, selected, reverse));
+    };
+
+    ArchEditorWidget.prototype.onAddItemSelected = function(item, selected, reverse) {
+        // For now, just connect to the first input/output
+        // FIXME
+        var inputsOrOutputs = reverse ? item.getInputs() : item.getOutputs(),
+            id = inputsOrOutputs[0].getId();
+
+        this.createConnectedNode(id, selected.conn.id, selected.node.id, reverse);
     };
 
     ArchEditorWidget.prototype.getLayerCategoryTabs = function(types) {
