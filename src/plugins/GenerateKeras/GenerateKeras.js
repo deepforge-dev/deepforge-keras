@@ -166,7 +166,7 @@ define([
 
             // activation fns need to be wrapped in a lambda
             if (type === 'keras.activations') {
-                let name = this.generateVariableName(target.name);
+                let name = this.generateVariableName(`custom_${target.name}`);
                 const code = `def ${name}(x):\n    return ${type}.${target.name}(x, ${args})`;
                 this.defineCustomObject(name, code);
 
