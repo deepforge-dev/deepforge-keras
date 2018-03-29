@@ -58,6 +58,42 @@ define([
         }
     };
 
+    KerasArchEditorControl.prototype.getCurrentDepth = function () {
+        return this.getDepthOf(this._currentNodeId);
+    };
+
+    KerasArchEditorControl.prototype.getDepthOf = function (id) {
+        return id.split('/').length;
+    };
+
+    KerasArchEditorControl.prototype.getParentAtDepth = function (id, depth) {
+        depth = depth !== undefined ? depth : (this.getCurrentDepth() + 1);
+        return id.split('/').slice(0, depth).join('/');
+    };
+
+    KerasArchEditorControl.prototype.isCurrentChild = function (gmeId) {
+        return (this.getCurrentDepth() + 1) === this.getDepthOf(gmeId);
+    };
+
+    KerasArchEditorControl.prototype._onLoad = function (gmeId) {
+        // Determine the id that actually needs updating...
+        if (this.isCurrentChild(gmeId)) {
+            return ThumbnailControl.prototype._onLoad.call(this, gmeId);
+        }
+    };
+
+    KerasArchEditorControl.prototype._onUpdate = function (gmeId) {
+        // Update the child containing the
+        const childId = this.getParentAtDepth(gmeId);
+        return ThumbnailControl.prototype._onUpdate.call(this, childId);
+    };
+
+    KerasArchEditorControl.prototype._onUnload = function (gmeId) {
+        if (this.isCurrentChild(gmeId)) {
+            return ThumbnailControl.prototype._onUnload.call(this, gmeId);
+        }
+    };
+
     KerasArchEditorControl.prototype._getObjectDescriptor = function(id) {
         var node = this._client.getNode(id),
             desc = ThumbnailControl.prototype._getObjectDescriptor.call(this, id);
@@ -72,12 +108,17 @@ define([
                 i;
 
             // Add information about the LayerData inputs and outputs
-            desc.inputs = node.getMemberIds('inputs')
-                .map(id => this._client.getNode(id));
-
-            desc.outputs = node.getMemberIds('outputs')
-                .map(id => this._client.getNode(id))
-                .sort((a, b) => a.getAttribute('index') < b.getAttribute('index') ? -1 : 1);
+            desc.inputs = [];
+            desc.outputs = [];
+            if (node.getSetNames().includes('inputs')) {
+                desc.inputs = node.getMemberIds('inputs')
+                    .map(id => this._client.getNode(id));
+            }
+            if (node.getSetNames().includes('outputs')) {
+                desc.outputs = node.getMemberIds('outputs')
+                    .map(id => this._client.getNode(id))
+                    .sort((a, b) => a.getAttribute('index') < b.getAttribute('index') ? -1 : 1);
+            }
 
             desc.attributes = {};
 
@@ -136,7 +177,12 @@ define([
                     }
                 }
             }
+        } else if (desc.isConnection) {  // TODO: Fix this once I can actually connect these ports wrt
+            // the auto-layout stuff...
+            desc.src = this.getParentAtDepth(desc.src);
+            desc.dst = this.getParentAtDepth(desc.dst);
         }
+
         return desc;
     };
 
@@ -220,9 +266,11 @@ define([
 
     KerasArchEditorControl.prototype.getCurrentChildren = function() {
         var node = this._client.getNode(this._currentNodeId),
-            childrenIds = node.getChildrenIds();
+            childrenIds = node.getChildrenIds(),
+            connId = this.getConnectionNode().getId();
 
-        return childrenIds.map(id => this._client.getNode(id));
+        return childrenIds.map(id => this._client.getNode(id))
+            .filter(node => !node.isTypeOf(connId));
     };
 
     KerasArchEditorControl.prototype.getValidSuccessors = function() {
@@ -230,6 +278,7 @@ define([
             layers = this.getAllLayers();
 
         // Get all nodes that have at least one input
+        // TODO: show options for each port
         return layers.filter(layer => layer.getMemberIds('inputs').length)
             .map(node => this.getPairDesc(node, conn));
     };
@@ -239,8 +288,42 @@ define([
             layers = this.getAllLayers();
 
         // Get all nodes that have at least one output
+        // TODO: show options for each port
         return layers.filter(layer => layer.getMemberIds('outputs').length)
             .map(node => this.getPairDesc(node, conn));
+    };
+
+    KerasArchEditorControl.prototype._createConnectedNode = function(srcId, connBaseId, dstBaseId, reverse, getTargetFn) {
+        var dstId,
+            connId,
+            parentId = this._currentNodeId,
+            newNodeId,
+            tmp;
+
+        this._client.startTransaction();
+
+        // create the nodes
+        newNodeId = this._client.createNode({parentId, baseId: dstBaseId});
+        this.onAddItem(newNodeId, dstBaseId, parentId);
+        connId = this._client.createNode({parentId, baseId: connBaseId});
+
+        if (getTargetFn) {
+            dstId = getTargetFn(newNodeId);
+        } else {
+            dstId = newNodeId;
+        }
+        // connect the connection to the node
+        if (reverse) {
+            tmp = srcId;
+            srcId = dstId;
+            dstId = tmp;
+        }
+
+        this._client.setPointer(connId, 'src', srcId);
+        this._client.setPointer(connId, 'dst', dstId);
+
+        this._client.completeTransaction();
+
     };
 
     KerasArchEditorControl.prototype.getConnectionNode = function() {

@@ -101,17 +101,17 @@ define([
             .append('g')
             .attr('class', 'hover-container');
 
-        if (layer.getOutputs().length) {
-            btn = new Buttons.Connect.From({
+        layer.getOutputs().forEach(output => {
+            const id = output.getId();
+            btn = new Buttons.ConnectToOutput({
                 context: this,
                 $pEl: this.$hoverBtns,
-                item: layer,
+                item: id,
                 x: cx,
                 y: height
             });
-        }
+        });
 
-        // TODO: Make a button for each input
         layer.getInputs().forEach(input => {
             const inputId = input.getId();
             btn = new Buttons.ConnectToInput({
@@ -224,21 +224,19 @@ define([
         }
     };
 
-    ArchEditorWidget.prototype.onAddButtonClicked = function(item, reverse) {
+    ArchEditorWidget.prototype.onAddButtonClicked = function(srcId, reverse) {
         // TODO: Should this accept the id of the input/output node, too?
-        var nodes = this.getValidSuccessors(item.id);
+        var nodes = this.getValidSuccessors(srcId);
 
         return this.promptLayer(nodes)
-            .then(selected => this.onAddItemSelected(item, selected, reverse));
+            .then(selected => this.onAddItemSelected(srcId, selected, reverse));
     };
 
-    ArchEditorWidget.prototype.onAddItemSelected = function(item, selected, reverse) {
+    ArchEditorWidget.prototype.onAddItemSelected = function(srcId, selected, reverse) {
         // For now, just connect to the first input/output
         // FIXME
-        var inputsOrOutputs = reverse ? item.getInputs() : item.getOutputs(),
-            id = inputsOrOutputs[0].getId();
-
-        this.createConnectedNode(id, selected.conn.id, selected.node.id, reverse);
+        console.log('onAddItemSelected');
+        this.createConnectedNode(srcId, selected.conn.id, selected.node.id, reverse);
     };
 
     ArchEditorWidget.prototype.getLayerCategoryTabs = function(types) {
