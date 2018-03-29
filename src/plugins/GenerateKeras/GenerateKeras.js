@@ -58,11 +58,23 @@ define([
         var code;
 
         this.variableNames = {};
+        this.customObjects = [];
 
         // Add the inputs with the dimensions
         var resultName = this.generateVariableName('result');
         var modelName = this.generateVariableName('model');
+        var customObjs = this.generateVariableName('custom_objects');
         code = layers.map(layer => this.generateLayerCode(layer));
+
+        // Define the custom_objects dict
+        code.push('');
+        code.push(`${customObjs} = {}`);
+        this.customObjects.forEach(pair => {
+            let [name, def] = pair;
+            code.unshift(def);  // prepend definition
+            code.push(`${customObjs}['${name}'] = ${name}`);
+        });
+        code.push('');
 
         // Import the layers
         code.unshift('');
@@ -84,10 +96,17 @@ define([
         code.push('');
         code.push(`${modelName} = Model(inputs=[${inputs}], outputs=[${outputs}])`);
         code.push(`${resultName} = ${modelName}`);
+        code.push(`${modelName}.custom_objects = ${customObjs}`);
 
         outputFiles['output.py'] = code.join('\n');
 
         return outputFiles;
+    };
+
+    GenerateKeras.prototype.defineCustomObject = function(name, def) {
+        // 'name' must be a valid variable name
+        this.customObjects.push([name, def]);
+        return name;
     };
 
     GenerateKeras.prototype.generateLayerCode = function(layer) {
@@ -147,7 +166,11 @@ define([
 
             // activation fns need to be wrapped in a lambda
             if (type === 'keras.activations') {
-                return `lambda x: ${type}.${target.name}(x, ${args})`;
+                let name = this.generateVariableName(target.name);
+                const code = `def ${name}(x):\n    return ${type}.${target.name}(x, ${args})`;
+                this.defineCustomObject(name, code);
+
+                return name;
             }
             return `${type}.${target.name}(${args})`;
         } else if (rawArgType === 'string'){
