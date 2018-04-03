@@ -1,12 +1,10 @@
 /*globals define, WebGMEGlobal, $, d3*/
 define([
     'widgets/EasyDAG/Buttons',
-    'widgets/EasyDAG/Icons',
-    'underscore'
+    'widgets/EasyDAG/Icons'
 ], function(
     Buttons,
-    Icons,
-    _
+    Icons
 ) {
 
     var client = WebGMEGlobal.Client;
@@ -41,7 +39,7 @@ define([
         if (d3.event.shiftKey) {
             this.onAddButtonClicked(inputId);
         } else {
-            this.startConnectionFrom(inputId);
+            this.startConnectionTo(inputId);
 
             if (this.selectionManager.selectedItem) {
                 const selectedId = this.selectionManager.selectedItem.id;
