@@ -1,4 +1,4 @@
-/*globals define*/
+/*globals define, d3*/
 /*jshint browser: true*/
 
 define([
@@ -12,7 +12,7 @@ define([
     './Connection',
     'q',
     'underscore',
-    'css!./styles/ArchEditorWidget.css'
+    'css!./styles/KerasArchEditorWidget.css'
 ], function (
     //DeepForge,
     Buttons,
@@ -26,7 +26,7 @@ define([
 ) {
     'use strict';
 
-    var ArchEditorWidget,
+    var KerasArchEditorWidget,
         WIDGET_CLASS = 'keras-arch-editor',
         LAYER_TAB_ORDER = [  // TODO: FIXME
             'Simple',
@@ -37,7 +37,7 @@ define([
             'Misc'
         ];
 
-    ArchEditorWidget = function () {
+    KerasArchEditorWidget = function () {
         var container = arguments[1];
         if (container) {
             container.addClass(WIDGET_CLASS);
@@ -47,17 +47,17 @@ define([
         this.hasError = {};
     };
 
-    _.extend(ArchEditorWidget.prototype, ThumbnailWidget.prototype);
+    _.extend(KerasArchEditorWidget.prototype, ThumbnailWidget.prototype);
 
-    ArchEditorWidget.prototype.ItemClass = Layer;
-    ArchEditorWidget.prototype.Connection = Connection;
-    ArchEditorWidget.prototype.SelectionManager = SelectionManager;
+    KerasArchEditorWidget.prototype.ItemClass = Layer;
+    KerasArchEditorWidget.prototype.Connection = Connection;
+    KerasArchEditorWidget.prototype.SelectionManager = SelectionManager;
 
-    ArchEditorWidget.prototype.getComponentId = function() {
+    KerasArchEditorWidget.prototype.getComponentId = function() {
         return 'ArchEditor';
     };
 
-    ArchEditorWidget.prototype.setupItemCallbacks = function() {
+    KerasArchEditorWidget.prototype.setupItemCallbacks = function() {
         ThumbnailWidget.prototype.setupItemCallbacks.apply(this, arguments);
         // Add the hover button functions
         this.ItemClass.prototype.showHoverButtons = function() {
@@ -88,7 +88,7 @@ define([
         };
     };
 
-    ArchEditorWidget.prototype.showHoverButtons = function(layer) {
+    KerasArchEditorWidget.prototype.showHoverButtons = function(layer) {
         var btn,
             height = layer.height,
             cx = layer.width/2;
@@ -126,14 +126,14 @@ define([
         return btn;
     };
 
-    ArchEditorWidget.prototype.hideHoverButtons = function() {
+    KerasArchEditorWidget.prototype.hideHoverButtons = function() {
         if (this.$hoverBtns) {
             this.$hoverBtns.remove();
             this.$hoverBtns = null;
         }
     };
 
-    ArchEditorWidget.prototype.startConnection = function () {
+    KerasArchEditorWidget.prototype.startConnection = function () {
         this.hideHoverButtons();
 
         // The first input will be an inputId instead of item
@@ -142,7 +142,7 @@ define([
         ThumbnailWidget.prototype.startConnection.apply(this, arguments);
     };
 
-    ArchEditorWidget.prototype.getItemContaining = function (id) {
+    KerasArchEditorWidget.prototype.getItemContaining = function (id) {
         let itemId = id;
         const chunks = id.split('/');
 
@@ -156,49 +156,46 @@ define([
         return null;
     };
 
-    ArchEditorWidget.prototype.startConnectionFrom = function (dataId) {
+    KerasArchEditorWidget.prototype.startConnectionFrom = function (dataId) {
         const targets = this.getValidExistingSuccessors(dataId);
         const item = this.getItemContaining(dataId);
 
         this.startConnection(item, dataId, targets);
     };
 
-    ArchEditorWidget.prototype.startConnectionTo = function (dataId) {
+    KerasArchEditorWidget.prototype.startConnectionTo = function (dataId) {
         const targets = this.getValidExistingPredecessors(dataId);
         const item = this.getItemContaining(dataId);
 
         this.startConnection(item, dataId, targets, true);
     };
 
-    ArchEditorWidget.prototype.startConnection = function (src, srcId, dsts, reverse) {
-        var onClick = (clicked, connId) => {
+    KerasArchEditorWidget.prototype.startConnection = function (src, srcId, dsts, reverse) {
+        var onClick = clicked => {
                 const startId = !reverse ? srcId : clicked.id;
                 const dstId = !reverse ? clicked.id : srcId;
 
                 d3.event.stopPropagation();
                 this.resetConnectingState();
-                this.connectNodes(startId, dstId, connId);
+                this.connectNodes(startId, dstId);
             },
-            pairs = dsts.map(pair => [this.items[pair.node.id], pair.conn.id]);
+            dstItems = dsts.map(pair => this.items[pair.node.id]);
 
         this.resetConnectingState();
-        this._connectionOptions = pairs.map(pair => pair[0]);
+        this._connectionOptions = dstItems;
         this._connectionSrc = src;
-        pairs.map(pair => {
-            var item = pair[0],
-                connId = pair[1];
-
-            return [
-                item,
-                connId,
-                item.showIcon({
-                    x: 0.5,
-                    y: !reverse ? 0 : 1,
-                    icon: 'chevron-bottom'
-                })
-            ];
-        })
-        .forEach(pair => pair[2].on('click', () => onClick(pair[0], pair[1])));
+        dstItems
+            .map(item => {
+                return [
+                    item,
+                    item.showIcon({
+                        x: 0.5,
+                        y: !reverse ? 0 : 1,
+                        icon: 'chevron-bottom'
+                    })
+                ];
+            })
+            .forEach(pair => pair[1].on('click', () => onClick(pair[0])));
 
         // Create the 'create-new' icon for the src
         src.showIcon({
@@ -214,7 +211,7 @@ define([
         this._connecting = true;
     };
 
-    ArchEditorWidget.prototype.onCreateInitialNode = function() {
+    KerasArchEditorWidget.prototype.onCreateInitialNode = function() {
         var nodes = this.getValidInitialNodes();
         if (nodes.length === 1) {
             this.createNode(nodes[0].node.id);
@@ -224,7 +221,7 @@ define([
         }
     };
 
-    ArchEditorWidget.prototype.onAddButtonClicked = function(srcId, reverse) {
+    KerasArchEditorWidget.prototype.onAddButtonClicked = function(srcId, reverse) {
         // TODO: Should this accept the id of the input/output node, too?
         var nodes = this.getValidSuccessors(srcId);
 
@@ -232,14 +229,14 @@ define([
             .then(selected => this.onAddItemSelected(srcId, selected, reverse));
     };
 
-    ArchEditorWidget.prototype.onAddItemSelected = function(srcId, selected, reverse) {
+    KerasArchEditorWidget.prototype.onAddItemSelected = function(srcId, selected, reverse) {
         // For now, just connect to the first input/output
         // FIXME
         console.log('onAddItemSelected');
-        this.createConnectedNode(srcId, selected.conn.id, selected.node.id, reverse);
+        this.createConnectedNode(srcId, selected.node.id, reverse);
     };
 
-    ArchEditorWidget.prototype.getLayerCategoryTabs = function(types) {
+    KerasArchEditorWidget.prototype.getLayerCategoryTabs = function(types) {
         var tabs = [],
             allTabs = {},
             tab,
@@ -263,7 +260,7 @@ define([
         return tabs;
     };
 
-    ArchEditorWidget.prototype.promptLayer = function(nodes) {
+    KerasArchEditorWidget.prototype.promptLayer = function(nodes) {
         var deferred = Q.defer(),
             types = {},
             opts = {};  // 'create new' nodes
@@ -284,13 +281,13 @@ define([
         return deferred.promise;
     };
 
-    ArchEditorWidget.prototype.updateNode = function(desc) {
+    KerasArchEditorWidget.prototype.updateNode = function(desc) {
         var item = this.items[desc.id];
         item.update(desc);
         this.refreshUI();
     };
 
-    ArchEditorWidget.prototype.expandAllNodes = function(reverse) {
+    KerasArchEditorWidget.prototype.expandAllNodes = function(reverse) {
         var itemIds = Object.keys(this.items),
             method = reverse ? 'condenseAll' : 'expandAll';
 
@@ -299,13 +296,13 @@ define([
         }
     };
 
-    ArchEditorWidget.prototype.onInsertButtonClicked = function(item) {
+    KerasArchEditorWidget.prototype.onInsertButtonClicked = function(item) {
         var nodes = this.getValidInitialNodes();
         return this.promptLayer(nodes)
             .then(selected => this.insertLayer(selected.node.id, item.id));
     };
 
-    ArchEditorWidget.prototype.displayErrors = function(errors) {
+    KerasArchEditorWidget.prototype.displayErrors = function(errors) {
         // For each of the errors, highlight the given nodes
         var oldErrored = Object.keys(this.hasError),
             currentErrored = errors.map(err => err.id),
@@ -328,5 +325,5 @@ define([
         });
     };
 
-    return ArchEditorWidget;
+    return KerasArchEditorWidget;
 });
