@@ -56,6 +56,7 @@ define([
             var name = this._client.getNode(id).getAttribute('name');
             this._widget.setTitle(name);
         }
+        this.connections = [];
     };
 
     KerasArchEditorControl.prototype.getCurrentDepth = function () {
