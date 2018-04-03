@@ -171,23 +171,26 @@ define([
     };
 
     KerasArchEditorWidget.prototype.startConnection = function (src, srcId, dsts, reverse) {
-        var onClick = clicked => {
-                const startId = !reverse ? srcId : clicked.id;
-                const dstId = !reverse ? clicked.id : srcId;
+        var onClick = arg => {
+                const startId = !reverse ? srcId : arg.id;
+                const dstId = !reverse ? arg.id : srcId;
 
                 d3.event.stopPropagation();
                 this.resetConnectingState();
+                console.log('connecting', startId, dstId);
                 this.connectNodes(startId, dstId);
             },
             dstItems = dsts.map(pair => this.items[pair.node.id]);
 
+        console.log('reverse', reverse);
         this.resetConnectingState();
         this._connectionOptions = dstItems;
         this._connectionSrc = src;
         dstItems
-            .map(item => {
+            .map((item, i) => {
+                let arg = dsts[i].arg;
                 return [
-                    item,
+                    arg,
                     item.showIcon({
                         x: 0.5,
                         y: !reverse ? 0 : 1,

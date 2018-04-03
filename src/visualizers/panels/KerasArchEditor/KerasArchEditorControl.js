@@ -390,6 +390,26 @@ define([
             .map(node => this.getPairDesc(node));
     };
 
+    KerasArchEditorControl.prototype._connectNodes = function(srcId, dstId) {
+        const [srcLayer, dstLayer] = [srcId, dstId].map(id => {
+            const layerId = this.getParentAtDepth(id);
+            const layer = this._client.getNode(layerId);
+            return layer.getAttribute('name');
+        });
+        const msg = `Connecting ${srcLayer} to ${dstLayer}`;
+
+        this._client.startTransaction(msg);
+        this._client.addMember(dstId, srcId, 'source');
+        this._client.setMemberRegistry(
+            dstId,
+            srcId,
+            'source',
+            'position',
+            {x: 100, y: 100}
+        );
+        this._client.completeTransaction();
+    };
+
     KerasArchEditorControl.prototype._createConnectedNode = function(srcId, dstBaseId, reverse) {
         const parentId = this._currentNodeId;
 
