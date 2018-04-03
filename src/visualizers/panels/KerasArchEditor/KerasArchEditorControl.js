@@ -6,13 +6,15 @@ define([
     'panels/EasyDAG/EasyDAGControl',
     'js/NodePropertyNames',
     'js/Utils/ComponentSettings',
-    'underscore'
+    'underscore',
+    'q'
 ], function (
     Constants,
     ThumbnailControl,
     nodePropertyNames,
     ComponentSettings,
-    _
+    _,
+    Q
 ) {
 
     'use strict';
@@ -391,41 +393,82 @@ define([
     KerasArchEditorControl.prototype._createConnectedNode = function(srcId, dstBaseId, reverse) {
         const parentId = this._currentNodeId;
 
-        this._client.startTransaction();
+        const type = this._client.getNode(dstBaseId).getAttribute('name');
+        const branchName = this._client.getActiveBranchName();
+        const msg = `Creating ${type} layer`;
 
-        // create the nodes
-        const newNodeId = this._client.createNode({parentId, baseId: dstBaseId});
+        let core,
+            rootNode,
+            project,
+            commitHash;
 
-        // If the input is not a list, remove existing members
-        // TODO
-        const newNode = this._client.getNode(newNodeId);
-        let inputId;
-        let outputId;
+        return Q.ninvoke(this._client, 'getCoreInstance', {logger: this._logger})
+            .then(result => {
+                core = result.core;
+                rootNode = result.rootNode;
+                project = result.project;
+                commitHash = result.commitHash;
 
-        // Add the input id to the 'source' set of outputId
-        if (!reverse) {  // srcId is the output and we created the new input
-            outputId = srcId;
-            inputId = newNode.getMemberIds('inputs')
-                .find(id => {  // get the first input
-                    const index = newNode.getMemberAttribute('inputs', id, 'index');
-                    return index === 0;
-                });
-        } else {
-            inputId = srcId;
-            outputId = newNode.getMemberIds('outputs')
-                .find(id => {  // get the first output
-                    const index = newNode.getMemberAttribute('outputs', id, 'index');
-                    return index === 0;
-                });
-        }
+                const nodes = [parentId, dstBaseId]
+                    .map(id => core.loadByPath(rootNode, id));
 
-        // Is this working?
-        // FIXME
-        console.log(`setting ${outputId} to the source of ${inputId}`);
-        this._client.addMember(inputId, 'source', outputId);
+                return Q.all(nodes);
+            })
+            .then(nodes => {
+                const [parent, base] = nodes;
+                const newNode = core.createNode({parent, base});
 
-        this._client.completeTransaction();
+                let inputId;
+                let outputId;
 
+                // Add the input id to the 'source' set of outputId
+                if (!reverse) {  // srcId is the output and we created the new input
+                    outputId = srcId;
+                    inputId = core.getMemberPaths(newNode, 'inputs')
+                        .find(id => {  // get the first input
+                            const index = core.getMemberAttribute(newNode, 'inputs', id, 'index');
+                            return index === 0;
+                        });
+                } else {
+                    inputId = srcId;
+                    outputId = core.getMemberPaths(newNode, 'outputs')
+                        .find(id => {  // get the first output
+                            const index = core.getMemberAttribute(newNode, 'outputs', id, 'index');
+                            return index === 0;
+                        });
+                }
+
+                // Set the reference from the input node to the output node
+                // TODO
+                let inputNode = null;
+                let outputNode = null;
+                return core.loadByPath(rootNode, inputId)
+                    .then(node => {
+                        inputNode = node;
+                        return core.loadByPath(rootNode, outputId);
+                    })
+                    .then(node => {
+                        outputNode = node;
+                        core.addMember(inputNode, 'source', outputNode);
+                        core.setMemberRegistry(
+                            inputNode,
+                            'source',
+                            outputId,
+                            'position',
+                            {x: 100, y: 100}
+                        );
+
+                        const persisted = core.persist(rootNode);
+                        return project.makeCommit(
+                            branchName,
+                            [ commitHash ],
+                            persisted.rootHash,
+                            persisted.objects,
+                            msg
+                        );
+                    });
+            })
+            .catch(err => console.error(err));
     };
 
     KerasArchEditorControl.prototype.getAllLayers = function() {
