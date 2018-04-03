@@ -32,6 +32,7 @@ define([
         // Add a help button?
         // TODO
     };
+
     SelectionManager.prototype.select = function(item) {
         let selected = item === this.selectedItem;
         item.onClick(selected);

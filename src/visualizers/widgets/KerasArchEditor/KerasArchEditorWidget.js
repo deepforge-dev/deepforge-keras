@@ -54,7 +54,7 @@ define([
     KerasArchEditorWidget.prototype.SelectionManager = SelectionManager;
 
     KerasArchEditorWidget.prototype.getComponentId = function() {
-        return 'ArchEditor';
+        return 'KerasArchEditor';
     };
 
     KerasArchEditorWidget.prototype.setupItemCallbacks = function() {
