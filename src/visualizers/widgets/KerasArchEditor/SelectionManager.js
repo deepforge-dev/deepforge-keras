@@ -14,13 +14,25 @@ define([
     _.extend(SelectionManager.prototype, ManagerBase.prototype);
 
     SelectionManager.prototype.createActionButtons = function(width, height, transition) {
+        var btn;
         // Check if the selected item can have successors
         if (!this.selectedItem.isConnection) {
             this.selectedItem.showHoverButtons();
+            btn = new Buttons.DeleteOne({
+                context: this._widget,
+                $pEl: this.$selection,
+                item: this.selectedItem,
+                transition: transition,
+                x: 0,
+                y: 0
+            });
+
+            // Add a help button?
+            // TODO
         }
 
         // Remove button
-        var btn = new Buttons.DeleteOne({
+        btn = new Buttons.DisconnectLayers({
             context: this._widget,
             $pEl: this.$selection,
             item: this.selectedItem,

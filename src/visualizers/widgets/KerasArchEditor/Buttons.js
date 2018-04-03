@@ -96,6 +96,20 @@ define([
     };
     Buttons.ConnectToOutput = ConnectToOutput;
 
+    var DisconnectLayers = function(params) {
+        Buttons.ButtonBase.call(this, params);
+    };
+    DisconnectLayers.SIZE = 10;
+    DisconnectLayers.BORDER = 1;
+    DisconnectLayers.prototype.BTN_CLASS = 'disconnect-layers';
+    DisconnectLayers.prototype = Object.create(Buttons.Delete.prototype);
+
+    DisconnectLayers.prototype._onClick = function(conn) {
+        const {srcArgId, dstArgId} = conn.desc;
+        this.disconnectNodes(srcArgId, dstArgId);
+        this.selectionManager.deselect();
+    };
+    Buttons.DisconnectLayers = DisconnectLayers;
 
     var GoToBase = function(params) {
         // Check if it should be disabled

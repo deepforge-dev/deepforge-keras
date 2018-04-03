@@ -97,17 +97,17 @@ define([
 
             return ids.map(srcId => [
                 this.getParentAtDepth(srcId),
-                this.getParentAtDepth(dstId)
+                this.getParentAtDepth(dstId),
+                srcId,
+                dstId
             ]);
         }).reduce((l1, l2) => l1.concat(l2), []);
 
         // For all pairs, remove them if they already exist
-        console.log(srcIdsForId);
         const newPairs = srcDstPairs.filter(pair => {
             const [src, dst] = pair;
 
             if (srcIdsForId[dst]) {
-                console.log('checking for', src);
                 const index = srcIdsForId[dst].indexOf(src);
 
                 if (index > -1) {  // exists
@@ -122,15 +122,16 @@ define([
         // Add the new connections
         newPairs
             .map(pair => {  // create the connection
-                const [src, dst] = pair;
+                const [src, dst, srcArgId, dstArgId] = pair;
                 return {
                     src,
                     dst,
+                    srcArgId,
+                    dstArgId,
                     id: `${src}-${dst}`
                 };
             })
             .forEach(conn => {  // add the connection
-                console.log('adding', conn);
                 this.connections.push(conn);
             });
 
@@ -390,6 +391,19 @@ define([
             .map(node => this.getPairDesc(node));
     };
 
+    KerasArchEditorControl.prototype._disconnectNodes = function(srcId, dstId) {
+        const [srcLayer, dstLayer] = [srcId, dstId].map(id => {
+            const layerId = this.getParentAtDepth(id);
+            const layer = this._client.getNode(layerId);
+            return layer.getAttribute('name');
+        });
+        const msg = `Disconnecting ${dstLayer} from ${srcLayer}`;
+
+        this._client.startTransaction(msg);
+        this._client.removeMember(dstId, srcId, 'source');
+        this._client.completeTransaction();
+    };
+
     KerasArchEditorControl.prototype._connectNodes = function(srcId, dstId) {
         const [srcLayer, dstLayer] = [srcId, dstId].map(id => {
             const layerId = this.getParentAtDepth(id);
@@ -525,6 +539,7 @@ define([
     KerasArchEditorControl.prototype._initWidgetEventHandlers = function() {
         ThumbnailControl.prototype._initWidgetEventHandlers.call(this);
         this._widget.insertLayer = this.insertLayer.bind(this);
+        this._widget.disconnectNodes = this._disconnectNodes.bind(this);
     };
 
     KerasArchEditorControl.prototype.insertLayer = function(layerBaseId, connId) {
