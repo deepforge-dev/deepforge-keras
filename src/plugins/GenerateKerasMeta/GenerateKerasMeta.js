@@ -315,7 +315,7 @@ define([
             data.forEach((input, i) => {
                 let dataNode = this.core.createNode({
                     parent: node,
-                    base: this.META.LayerData
+                    base: this.META.LayerInput
                 });
                 this.core.setAttribute(dataNode, 'name', input.name);
 
@@ -331,6 +331,11 @@ define([
         return data;
     };
 
+    GenerateKerasMeta.prototype.isRecurrentLayer = function (layer) {
+        const args = layer.arguments || [];
+        return !!args.find(arg => arg.name === 'return_state');
+    };
+
     GenerateKerasMeta.prototype.addLayerOutputs = function (node, layer) {
         if (!this.getLayerProperty(layer, 'outputs')) {
             console.log(`${layer.name} is missing outputs`);
@@ -339,15 +344,17 @@ define([
         this.createIOSet(node, 'outputs');
         const data = this.getLayerProperty(layer, 'outputs') || [];
 
-        if (layer.name === 'Input') {
-            data.push({name: 'output'});
+        data.push({name: 'output'});
+        if (this.isRecurrentLayer(layer)) {
+            data.push({name: 'hidden_state'});
+            data.push({name: 'cell_state'});
         }
 
         // Create a node in the current layer
         data.forEach((input, i) => {
             let dataNode = this.core.createNode({
                 parent: node,
-                base: this.META.LayerData
+                base: this.META.LayerOutput
             });
             this.core.setAttribute(dataNode, 'name', input.name);
 
