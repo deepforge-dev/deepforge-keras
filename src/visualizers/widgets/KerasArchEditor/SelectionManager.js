@@ -29,20 +29,17 @@ define([
 
             // Add a help button?
             // TODO
+        } else {
+            // Remove button
+            btn = new Buttons.DisconnectLayers({
+                context: this._widget,
+                $pEl: this.$selection,
+                item: this.selectedItem,
+                transition: transition,
+                x: 0,
+                y: 0
+            });
         }
-
-        // Remove button
-        btn = new Buttons.DisconnectLayers({
-            context: this._widget,
-            $pEl: this.$selection,
-            item: this.selectedItem,
-            transition: transition,
-            x: 0,
-            y: 0
-        });
-
-        // Add a help button?
-        // TODO
     };
 
     SelectionManager.prototype.select = function(item) {
