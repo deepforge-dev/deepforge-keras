@@ -581,12 +581,8 @@ define([
         const existingConnIds = this.connections.map(conn => conn.id);
         ThumbnailControl.prototype._eventCallback.apply(this, arguments);
 
-        console.log(existingConnIds);
-        console.log('this.connections', this.connections);
         this.connections.forEach(conn => {
-            console.log('checking', conn);
             if (!existingConnIds.includes(conn.id)) {
-                console.log('adding connection', conn);
                 this._widget.addConnection(conn);
             }
         });
