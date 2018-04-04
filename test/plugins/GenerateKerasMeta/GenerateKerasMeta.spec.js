@@ -6,10 +6,12 @@ var testFixture = require('../../globals');
 describe('GenerateKerasMeta', function () {
     var gmeConfig = testFixture.getGmeConfig(),
         expect = testFixture.expect,
+        path = testFixture.path,
         assert = require('assert'),
         logger = testFixture.logger.fork('GenerateKerasMeta'),
         PluginCliManager = testFixture.WebGME.PluginCliManager,
         manager = new PluginCliManager(null, logger, gmeConfig),
+        SEED_DIR = path.join(__dirname, '..', '..', '..', 'src', 'seeds'),
         projectName = 'testProject',
         pluginName = 'GenerateKerasMeta',
         project,
@@ -28,7 +30,7 @@ describe('GenerateKerasMeta', function () {
             })
             .then(function () {
                 var importParam = {
-                    projectSeed: testFixture.path.join(testFixture.SEED_DIR, 'EmptyProject.webgmex'),
+                    projectSeed: path.join(SEED_DIR, 'base', 'base.webgmex'),
                     projectName: projectName,
                     branchName: 'master',
                     logger: logger,
