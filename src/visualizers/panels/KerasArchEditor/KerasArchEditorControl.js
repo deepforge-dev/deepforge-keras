@@ -337,8 +337,10 @@ define([
         };
     };
 
-    KerasArchEditorControl.prototype.getValidExistingSuccessors = function() {
+    KerasArchEditorControl.prototype.getValidExistingSuccessors = function(id) {
+        id = this.getParentAtDepth(id);
         return this.getCurrentChildren()
+            .filter(node => node.getId() !== id)
             .map(node => {
                 return node.getMemberIds('inputs').map(id => {
                     return {
@@ -350,11 +352,10 @@ define([
             .reduce((l1, l2) => l1.concat(l2));
     };
 
-    KerasArchEditorControl.prototype.getValidExistingPredecessors = function() {
-        // Remove the successors
-        // TODO
+    KerasArchEditorControl.prototype.getValidExistingPredecessors = function(id) {
+        id = this.getParentAtDepth(id);
         return this.getCurrentChildren()
-            //.filter(node => node.getMemberIds('inputs'))  // Remove predecessors
+            .filter(node => node.getId() !== id)
             .map(node => {
                 return node.getMemberIds('outputs').map(id => {
                     return {
