@@ -301,7 +301,7 @@ define([
 
     GenerateKerasMeta.prototype.addLayerInputs = function (node, layer) {
         if (!this.getLayerProperty(layer, 'inputs')) {
-            console.log(`${layer.name} is missing inputs`);
+            this.logger.error(`${layer.name} is missing inputs`);
         }
 
         this.createIOSet(node, 'inputs');
@@ -338,7 +338,7 @@ define([
 
     GenerateKerasMeta.prototype.addLayerOutputs = function (node, layer) {
         if (!this.getLayerProperty(layer, 'outputs')) {
-            console.log(`${layer.name} is missing outputs`);
+            this.logger.error(`${layer.name} is missing outputs`);
         }
 
         this.createIOSet(node, 'outputs');

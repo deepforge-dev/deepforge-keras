@@ -1,4 +1,4 @@
-/*globals define, WebGMEGlobal, $, d3*/
+/*globals define, WebGMEGlobal, d3*/
 define([
     'widgets/EasyDAG/Buttons',
     'widgets/EasyDAG/Icons'

@@ -181,12 +181,10 @@ define([
 
                 d3.event.stopPropagation();
                 this.resetConnectingState();
-                console.log('connecting', startId, dstId);
                 this.connectNodes(startId, dstId);
             },
             dstItems = dsts.map(pair => this.items[pair.node.id]);
 
-        console.log('reverse', reverse);
         this.resetConnectingState();
         this._connectionOptions = dstItems;
         this._connectionSrc = src;
@@ -239,7 +237,6 @@ define([
     KerasArchEditorWidget.prototype.onAddItemSelected = function(srcId, selected, reverse) {
         // For now, just connect to the first input/output
         // FIXME
-        console.log('onAddItemSelected');
         this.createConnectedNode(srcId, selected.node.id, reverse);
     };
 

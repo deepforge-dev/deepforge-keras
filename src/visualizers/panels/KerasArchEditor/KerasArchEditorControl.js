@@ -137,7 +137,6 @@ define([
 
         // Remove any connections with the same dst but different source
         const ids = srcIdsForId[desc.id] || [];
-        console.log('removing', ids);
         ids.forEach(id => this.removeConnectionByEndpoints(id, desc.id));
     };
 
@@ -152,7 +151,6 @@ define([
     };
 
     KerasArchEditorControl.prototype.removeConnectionsInvolving = function (id) {
-        console.log('removing conns involving', id);
         id = this.getParentAtDepth(id);
         for (let i = this.connections.length; i--;) {
             const conn = this.connections[i];
@@ -167,7 +165,6 @@ define([
         // Determine the id that actually needs updating...
         if (this.isCurrentChild(gmeId)) {
             const desc = this._getObjectDescriptor(gmeId);
-            console.log('adding', desc);
             this._widget.addNode(desc);
             this.updateConnections(desc);
         }
@@ -178,7 +175,6 @@ define([
         const childId = this.getParentAtDepth(gmeId);
         const desc = this._getObjectDescriptor(childId);
 
-        console.log('updating', desc);
         this._widget.updateNode(desc);
         this.updateConnections(desc);
     };
@@ -560,7 +556,7 @@ define([
                         );
                     });
             })
-            .catch(err => console.error(err));
+            .catch(err => this._logger.error(err));
     };
 
     KerasArchEditorControl.prototype.getAllLayers = function() {
@@ -648,21 +644,6 @@ define([
 
     // TODO: Move this to a webhook...
     KerasArchEditorControl.prototype.validateKerasArchitecture = function() {
-        //var pluginId = 'ValidateKerasArchitecture',
-            //context = this._client.getCurrentPluginContext(pluginId);
-
-        this._logger.info('about to validate arch');
-        // Run the plugin in the browser (set namespace)
-        //context.managerConfig.namespace = 'keras';
-        //context.pluginConfig = {};
-        //Q.ninvoke(this._client, 'runServerPlugin', pluginId, context)
-            //.then(res => {
-                //var results = res.messages[0].message;
-                //if (results.errors !== null) {
-                    //this._widget.displayErrors(results.errors);
-                //}
-            //})
-            //.fail(err => this._logger.warn(`Validation failed: ${err}`));
     };
 
     ////////////////////////////// Event Handlers //////////////////////////////

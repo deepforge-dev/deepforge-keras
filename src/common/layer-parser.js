@@ -96,7 +96,7 @@ function parseLayer(def) {
     };
 }
 
-function parseFnOutputs(fn) {
+function parseFnOutputs(/*fn*/) {
     // TODO: parse the return values
     return [];
 }
