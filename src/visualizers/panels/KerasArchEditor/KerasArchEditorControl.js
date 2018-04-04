@@ -396,7 +396,7 @@ define([
                     };
                 });
             })
-            .reduce((l1, l2) => l1.concat(l2));
+            .reduce((l1, l2) => l1.concat(l2), []);
     };
 
     KerasArchEditorControl.prototype.getValidExistingPredecessors = function(id) {
@@ -421,7 +421,7 @@ define([
                     };
                 });
             })
-            .reduce((l1, l2) => l1.concat(l2));
+            .reduce((l1, l2) => l1.concat(l2), []);
     };
 
     KerasArchEditorControl.prototype.getCurrentChildren = function() {
