@@ -43,15 +43,52 @@ define([
     GenerateKeras.prototype = Object.create(PluginBase.prototype);
     GenerateKeras.prototype.constructor = GenerateKeras;
 
-    /**
-     * Main function for the plugin to execute. This will perform the execution.
-     * Notes:
-     * - Always log with the provided logger.[error,warning,info,debug].
-     * - Do NOT put any user interaction logic UI, etc. inside this method.
-     * - callback always has to be called even if error happened.
-     *
-     * @param {function(string, plugin.PluginResult)} callback - the result callback
-     */
+    GenerateKeras.prototype.isConnection =
+    GenerateKeras.prototype._isConnection = function(node) {
+        if (this.core.isTypeOf(node, this.META.Layer)) {
+            const dstLayerId = this.core.getPath(node);
+            const inputs = this.core.getMemberPaths(node, 'inputs')
+                .map(id => this.getNode(id));
+            const srcDstPairs = inputs
+                .map(node => [
+                    this.core.getPath(node),
+                    this.core.getMemberPaths(node, 'source')
+                ]);
+
+            srcDstPairs.forEach(pair => {
+                const [inputId, outputIds] = pair;
+
+                outputIds.forEach(outputId => {
+                    const srcLayerId = this.getChildId(outputId);
+                    this._connections.push({
+                        src: srcLayerId,
+                        dst: dstLayerId,
+                        inputId: inputId,
+                        outputId: outputId
+                    });
+                });
+            });
+        }
+
+        // Always return false since layers are implied by set containment
+        return false;
+    };
+
+    GenerateKeras.prototype.mergeConnectionNode = function(conn) {
+        const src = this.nodes[conn.src];
+        const dst = this.nodes[conn.dst];
+
+        src[SimpleConstants.NEXT].push(dst);
+        dst[SimpleConstants.PREV].push(src);
+    };
+
+    GenerateKeras.prototype.getChildId = function(id) {
+        // Get the id of the child containing the given id
+        const activeId = this.core.getPath(this.activeNode);
+        const depth = activeId.split('/').length;
+        return id.split('/').slice(0, depth+1).join('/');
+    };
+
     GenerateKeras.prototype.createOutputFiles = function(activeNode) {
         var outputFiles = {};
         var layers = activeNode[SimpleConstants.CHILDREN];
