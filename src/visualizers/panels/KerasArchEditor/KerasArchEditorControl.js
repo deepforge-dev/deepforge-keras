@@ -337,10 +337,57 @@ define([
         };
     };
 
+    KerasArchEditorControl.prototype.getAllPredecessorsAsDict = function(childId) {
+        // For the given node, get all the predecessors
+        let current = [childId];
+        let visited = {};
+        let next;
+        while (current.length) {
+            next = [];
+            for (let i = current.length; i--;) {
+                visited[current[i]] = true;
+
+                let node = this._client.getNode(current[i]);
+                let inputs = node.getMemberIds('inputs')
+                    .map(id => this._client.getNode(id));
+
+                let prevs = inputs
+                    .map(node => node.getMemberIds('source').map(id => this.getParentAtDepth(id)))
+                    .reduce((l1, l2) => l1.concat(l2), []);
+
+                // Get the predecessors of a given node
+                next = next.concat(prevs);
+            }
+            current = next.filter(id => !visited[id]);
+        }
+
+        return visited;
+    };
+
     KerasArchEditorControl.prototype.getValidExistingSuccessors = function(id) {
-        id = this.getParentAtDepth(id);
+        const childId = this.getParentAtDepth(id);
+        const isPredecessor = this.getAllPredecessorsAsDict(childId);
+
+        // Remove the nodes which are already connected
+        // TODO
+
         return this.getCurrentChildren()
-            .filter(node => node.getId() !== id)
+            .filter(node => {
+                if (isPredecessor[node.getId()]) {
+                    return false;
+                }
+
+                // Check if the node is already connected to "childId"
+                const isImmediateSuccessor = node.getMemberIds('inputs')
+                    .find(id => {
+                        const inputNode = this._client.getNode(id);
+                        return inputNode.getMemberIds('source')
+                            .map(id => this.getParentAtDepth(id))
+                            .find(id => id === childId);
+                    });
+
+                return !isImmediateSuccessor;
+            })
             .map(node => {
                 return node.getMemberIds('inputs').map(id => {
                     return {
@@ -353,9 +400,19 @@ define([
     };
 
     KerasArchEditorControl.prototype.getValidExistingPredecessors = function(id) {
-        id = this.getParentAtDepth(id);
+        const childId = this.getParentAtDepth(id);
+
+        // Get all valid predecessors
+        const isPredecessor = this.getAllPredecessorsAsDict(childId);
+        delete isPredecessor[childId];  // no self-connections
+
+        // Remove the nodes which are already connected
+        const immediatePreds = this._client.getNode(id).getMemberIds('source')
+            .map(id => this.getParentAtDepth(id));
+        immediatePreds.forEach(id => delete isPredecessor[id]);
+
         return this.getCurrentChildren()
-            .filter(node => node.getId() !== id)
+            .filter(node => isPredecessor[node.getId()])
             .map(node => {
                 return node.getMemberIds('outputs').map(id => {
                     return {
