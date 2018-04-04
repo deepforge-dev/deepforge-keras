@@ -192,85 +192,79 @@ define([
             desc = ThumbnailControl.prototype._getObjectDescriptor.call(this, id);
 
         // Filter attributes
-        if (!desc.isConnection && desc.name !== 'Connection') {
-            var allAttrs = desc.attributes,
-                names = Object.keys(allAttrs),
-                ctorInfo = desc.attributes[Constants.ATTR.CTOR_ARGS],
-                ctorAttrs = ctorInfo ? ctorInfo.value.split(','): [],
-                schema,
-                i;
+        var allAttrs = desc.attributes,
+            names = Object.keys(allAttrs),
+            ctorInfo = desc.attributes[Constants.ATTR.CTOR_ARGS],
+            ctorAttrs = ctorInfo ? ctorInfo.value.split(','): [],
+            schema,
+            i;
 
-            // Add information about the LayerData inputs and outputs
-            desc.inputs = [];
-            desc.outputs = [];
-            if (node.getSetNames().includes('inputs')) {
-                desc.inputs = node.getMemberIds('inputs');
+        // Add information about the LayerData inputs and outputs
+        desc.inputs = [];
+        desc.outputs = [];
+        if (node.getSetNames().includes('inputs')) {
+            desc.inputs = node.getMemberIds('inputs');
+        }
+        if (node.getSetNames().includes('outputs')) {
+            desc.outputs = node.getMemberIds('outputs');
+        }
+
+        desc.attributes = {};
+
+        // add ctor attributes
+        for (i = 0; i < ctorAttrs.length; i++) {
+            if (allAttrs[ctorAttrs[i]]) {  // (not a ref to a layer)
+                desc.attributes[ctorAttrs[i]] = allAttrs[ctorAttrs[i]];
             }
-            if (node.getSetNames().includes('outputs')) {
-                desc.outputs = node.getMemberIds('outputs');
+        }
+
+        for (i = names.length; i--;) {
+            // check if it is a setter
+            schema = node.getAttributeMeta(names[i]);
+            if (names[i] === 'name' || schema.setterType) {
+                desc.attributes[names[i]] = allAttrs[names[i]];
             }
+        }
 
-            desc.attributes = {};
+        // Add layer type (base class's base class)
+        desc.layerType = null;
+        if (desc.baseName) {
+            var base = this._client.getNode(node.getMetaTypeId()),
+                layerType = this._client.getNode(base.getBaseId()),
+                color;
 
-            // add ctor attributes
-            for (i = 0; i < ctorAttrs.length; i++) {
-                if (allAttrs[ctorAttrs[i]]) {  // (not a ref to a layer)
-                    desc.attributes[ctorAttrs[i]] = allAttrs[ctorAttrs[i]];
+            desc.baseName = base.getAttribute(nodePropertyNames.Attributes.name);
+            if (layerType) {
+                desc.layerType = layerType.getAttribute(nodePropertyNames.Attributes.name);
+
+                color = this._config.LayerColors[desc.layerType];
+                if (desc.layerType === 'Container' && this.nestedLevel) {
+                    color = this._config.LayerColors.NestedContainer;
+                }
+                if (!color) {
+                    this._logger.warn(`No color found for ${desc.layerType}`);
+                    color = this._config.DefaultColor;
+                }
+                desc.color = color;
+
+                if (desc.layerType === 'Container') {
+                    desc.containedLayers = node.getMemberIds(Constants.CONTAINED_LAYER_SET)
+                        .map(layerId => {
+                            var index = node.getMemberRegistry(
+                                Constants.CONTAINED_LAYER_SET,
+                                layerId,
+                                Constants.CONTAINED_LAYER_INDEX
+                            );
+                            return [layerId, index];
+                        })
+                        .sort((a, b) => a[1] < b[1] ? -1 : 1)
+                        .map(tuple => tuple[0]);
+
+                    // Set the decorator to ContainerLayerDecorator
+                    desc.Decorator = this._client.decoratorManager
+                        .getDecoratorForWidget('ContainerLayerDecorator', 'EasyDAG');
                 }
             }
-
-            for (i = names.length; i--;) {
-                // check if it is a setter
-                schema = node.getAttributeMeta(names[i]);
-                if (names[i] === 'name' || schema.setterType) {
-                    desc.attributes[names[i]] = allAttrs[names[i]];
-                }
-            }
-
-            // Add layer type (base class's base class)
-            desc.layerType = null;
-            if (desc.baseName) {
-                var base = this._client.getNode(node.getMetaTypeId()),
-                    layerType = this._client.getNode(base.getBaseId()),
-                    color;
-
-                desc.baseName = base.getAttribute(nodePropertyNames.Attributes.name);
-                if (layerType) {
-                    desc.layerType = layerType.getAttribute(nodePropertyNames.Attributes.name);
-
-                    color = this._config.LayerColors[desc.layerType];
-                    if (desc.layerType === 'Container' && this.nestedLevel) {
-                        color = this._config.LayerColors.NestedContainer;
-                    }
-                    if (!color) {
-                        this._logger.warn(`No color found for ${desc.layerType}`);
-                        color = this._config.DefaultColor;
-                    }
-                    desc.color = color;
-
-                    if (desc.layerType === 'Container') {
-                        desc.containedLayers = node.getMemberIds(Constants.CONTAINED_LAYER_SET)
-                            .map(layerId => {
-                                var index = node.getMemberRegistry(
-                                    Constants.CONTAINED_LAYER_SET,
-                                    layerId,
-                                    Constants.CONTAINED_LAYER_INDEX
-                                );
-                                return [layerId, index];
-                            })
-                            .sort((a, b) => a[1] < b[1] ? -1 : 1)
-                            .map(tuple => tuple[0]);
-
-                        // Set the decorator to ContainerLayerDecorator
-                        desc.Decorator = this._client.decoratorManager
-                            .getDecoratorForWidget('ContainerLayerDecorator', 'EasyDAG');
-                    }
-                }
-            }
-        } else if (desc.isConnection) {  // TODO: Fix this once I can actually connect these ports wrt
-            // the auto-layout stuff...
-            desc.src = this.getParentAtDepth(desc.src);
-            desc.dst = this.getParentAtDepth(desc.dst);
         }
 
         return desc;
