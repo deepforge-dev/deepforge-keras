@@ -133,6 +133,10 @@ define([
         }
     };
 
+    KerasArchEditorWidget.prototype.onDeselect = function() {
+        this.hideHoverButtons();
+    };
+
     KerasArchEditorWidget.prototype.startConnection = function () {
         this.hideHoverButtons();
 
