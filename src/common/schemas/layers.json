@@ -12,6 +12,17 @@
         "default": 0.3
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Leaky version of a Rectified Linear Unit.\n\n    It allows a small gradient when the unit is not active:\n    `f(x) = alpha * x for x < 0`,\n    `f(x) = x for x >= 0`.\n\n    # Input shape\n        Arbitrary. Use the keyword argument `input_shape`\n        (tuple of integers, does not include the samples axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        Same shape as the input.\n\n    # Arguments\n        alpha: float >= 0. Negative slope coefficient.\n\n    # References\n        - [Rectifier Nonlinearities Improve Neural Network Acoustic Models](https://web.stanford.edu/~awni/papers/relu_hybrid_icml2013_final.pdf)\n    ",
@@ -45,6 +56,21 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "mask",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Parametric Rectified Linear Unit.\n\n    It follows:\n    `f(x) = alpha * x for x < 0`,\n    `f(x) = x for x >= 0`,\n    where `alpha` is a learned array with the same shape as x.\n\n    # Input shape\n        Arbitrary. Use the keyword argument `input_shape`\n        (tuple of integers, does not include the samples axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        Same shape as the input.\n\n    # Arguments\n        alpha_initializer: initializer function for the weights.\n        alpha_regularizer: regularizer for the weights.\n        alpha_constraint: constraint for the weights.\n        shared_axes: the axes along which to share learnable\n            parameters for the activation function.\n            For example, if the incoming feature maps\n            are from a 2D convolution\n            with output shape `(batch, height, width, channels)`,\n            and you wish to share parameters across space\n            so that each filter only has one set of parameters,\n            set `shared_axes=[1, 2]`.\n\n    # References\n        - [Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification](https://arxiv.org/abs/1502.01852)\n    ",
@@ -63,6 +89,17 @@
         "default": 1
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Exponential Linear Unit.\n\n    It follows:\n    `f(x) =  alpha * (exp(x) - 1.) for x < 0`,\n    `f(x) = x for x >= 0`.\n\n    # Input shape\n        Arbitrary. Use the keyword argument `input_shape`\n        (tuple of integers, does not include the samples axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        Same shape as the input.\n\n    # Arguments\n        alpha: scale for the negative factor.\n\n    # References\n        - [Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)](https://arxiv.org/abs/1511.07289v1)\n    ",
@@ -81,10 +118,123 @@
         "default": 1
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "mask",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Thresholded Rectified Linear Unit.\n\n    It follows:\n    `f(x) = x for x > theta`,\n    `f(x) = 0 otherwise`.\n\n    # Input shape\n        Arbitrary. Use the keyword argument `input_shape`\n        (tuple of integers, does not include the samples axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        Same shape as the input.\n\n    # Arguments\n        theta: float >= 0. Threshold location of activation.\n\n    # References\n        - [Zero-Bias Autoencoders and the Benefits of Co-Adapting Features](http://arxiv.org/abs/1402.3337)\n    ",
     "file": "keras/layers/advanced_activations.py"
+  },
+  {
+    "name": "_Conv",
+    "base": "Layer",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "rank",
+        "default": null
+      },
+      {
+        "name": "filters",
+        "default": null
+      },
+      {
+        "name": "kernel_size",
+        "default": null
+      },
+      {
+        "name": "strides",
+        "default": 1
+      },
+      {
+        "name": "padding",
+        "default": "valid"
+      },
+      {
+        "name": "data_format",
+        "default": "None"
+      },
+      {
+        "name": "dilation_rate",
+        "default": 1
+      },
+      {
+        "name": "activation",
+        "type": "activation",
+        "default": "None"
+      },
+      {
+        "name": "use_bias",
+        "type": "boolean",
+        "default": "True"
+      },
+      {
+        "name": "kernel_initializer",
+        "type": "initializer",
+        "default": "glorot_uniform"
+      },
+      {
+        "name": "bias_initializer",
+        "type": "initializer",
+        "default": "zeros"
+      },
+      {
+        "name": "kernel_regularizer",
+        "type": "regularizer",
+        "default": "None"
+      },
+      {
+        "name": "bias_regularizer",
+        "type": "regularizer",
+        "default": "None"
+      },
+      {
+        "name": "activity_regularizer",
+        "type": "regularizer",
+        "default": "None"
+      },
+      {
+        "name": "kernel_constraint",
+        "type": "constraint",
+        "default": "None"
+      },
+      {
+        "name": "bias_constraint",
+        "type": "constraint",
+        "default": "None"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
+    "abstract": true,
+    "aliases": [],
+    "docstring": "Abstract nD convolution layer (private, used as implementation base).\n\n    This layer creates a convolution kernel that is convolved\n    with the layer input to produce a tensor of outputs.\n    If `use_bias` is True, a bias vector is created and added to the outputs.\n    Finally, if `activation` is not `None`,\n    it is applied to the outputs as well.\n\n    # Arguments\n        rank: An integer, the rank of the convolution,\n            e.g. \"2\" for 2D convolution.\n        filters: Integer, the dimensionality of the output space\n            (i.e. the number output of filters in the convolution).\n        kernel_size: An integer or tuple/list of n integers, specifying the\n            dimensions of the convolution window.\n        strides: An integer or tuple/list of n integers,\n            specifying the strides of the convolution.\n            Specifying any stride value != 1 is incompatible with specifying\n            any `dilation_rate` value != 1.\n        padding: One of `\"valid\"` or `\"same\"` (case-insensitive).\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, ..., channels)` while `channels_first` corresponds to\n            inputs with shape `(batch, channels, ...)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n        dilation_rate: An integer or tuple/list of n integers, specifying\n            the dilation rate to use for dilated convolution.\n            Currently, specifying any `dilation_rate` value != 1 is\n            incompatible with specifying any `strides` value != 1.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you don't specify anything, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to the kernel matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n    ",
+    "file": "keras/layers/convolutional.py"
   },
   {
     "name": "Conv1D",
@@ -152,6 +302,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "Convolution1D"
@@ -227,6 +379,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "Convolution2D"
@@ -302,6 +456,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "Convolution3D"
@@ -374,6 +530,17 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [
       "Deconvolution2D",
@@ -447,6 +614,17 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [
       "Deconvolution3D",
@@ -542,6 +720,17 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [
       "SeparableConvolution2D"
@@ -562,6 +751,17 @@
         "default": 2
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Upsampling layer for 1D inputs.\n\n    Repeats each temporal step `size` times along the time axis.\n\n    # Arguments\n        size: integer. Upsampling factor.\n\n    # Input shape\n        3D tensor with shape: `(batch, steps, features)`.\n\n    # Output shape\n        3D tensor with shape: `(batch, upsampled_steps, features)`.\n    ",
@@ -583,6 +783,17 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Upsampling layer for 2D inputs.\n\n    Repeats the rows and columns of the data\n    by size[0] and size[1] respectively.\n\n    # Arguments\n        size: int, or tuple of 2 integers.\n            The upsampling factors for rows and columns.\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, height, width, channels)` while `channels_first`\n            corresponds to inputs with shape\n            `(batch, channels, height, width)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        4D tensor with shape:\n        - If `data_format` is `\"channels_last\"`:\n            `(batch, rows, cols, channels)`\n        - If `data_format` is `\"channels_first\"`:\n            `(batch, channels, rows, cols)`\n\n    # Output shape\n        4D tensor with shape:\n        - If `data_format` is `\"channels_last\"`:\n            `(batch, upsampled_rows, upsampled_cols, channels)`\n        - If `data_format` is `\"channels_first\"`:\n            `(batch, channels, upsampled_rows, upsampled_cols)`\n    ",
@@ -604,6 +815,17 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Upsampling layer for 3D inputs.\n\n    Repeats the 1st, 2nd and 3rd dimensions\n    of the data by size[0], size[1] and size[2] respectively.\n\n    # Arguments\n        size: int, or tuple of 3 integers.\n            The upsampling factors for dim1, dim2 and dim3.\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n            while `channels_first` corresponds to inputs with shape\n            `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        5D tensor with shape:\n        - If `data_format` is `\"channels_last\"`:\n            `(batch, dim1, dim2, dim3, channels)`\n        - If `data_format` is `\"channels_first\"`:\n            `(batch, channels, dim1, dim2, dim3)`\n\n    # Output shape\n        5D tensor with shape:\n        - If `data_format` is `\"channels_last\"`:\n            `(batch, upsampled_dim1, upsampled_dim2, upsampled_dim3, channels)`\n        - If `data_format` is `\"channels_first\"`:\n            `(batch, channels, upsampled_dim1, upsampled_dim2, upsampled_dim3)`\n    ",
@@ -622,6 +844,17 @@
         "default": 1
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Zero-padding layer for 1D input (e.g. temporal sequence).\n\n    # Arguments\n        padding: int, or tuple of int (length 2), or dictionary.\n            - If int:\n            How many zeros to add at the beginning and end of\n            the padding dimension (axis 1).\n            - If tuple of int (length 2):\n            How many zeros to add at the beginning and at the end of\n            the padding dimension (`(left_pad, right_pad)`).\n\n    # Input shape\n        3D tensor with shape `(batch, axis_to_pad, features)`\n\n    # Output shape\n        3D tensor with shape `(batch, padded_axis, features)`\n    ",
@@ -643,6 +876,17 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Zero-padding layer for 2D input (e.g. picture).\n\n    This layer can add rows and columns of zeros\n    at the top, bottom, left and right side of an image tensor.\n\n    # Arguments\n        padding: int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints.\n            - If int: the same symmetric padding\n                is applied to width and height.\n            - If tuple of 2 ints:\n                interpreted as two different\n                symmetric padding values for height and width:\n                `(symmetric_height_pad, symmetric_width_pad)`.\n            - If tuple of 2 tuples of 2 ints:\n                interpreted as\n                `((top_pad, bottom_pad), (left_pad, right_pad))`\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, height, width, channels)` while `channels_first`\n            corresponds to inputs with shape\n            `(batch, channels, height, width)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        4D tensor with shape:\n        - If `data_format` is `\"channels_last\"`:\n            `(batch, rows, cols, channels)`\n        - If `data_format` is `\"channels_first\"`:\n            `(batch, channels, rows, cols)`\n\n    # Output shape\n        4D tensor with shape:\n        - If `data_format` is `\"channels_last\"`:\n            `(batch, padded_rows, padded_cols, channels)`\n        - If `data_format` is `\"channels_first\"`:\n            `(batch, channels, padded_rows, padded_cols)`\n    ",
@@ -664,6 +908,17 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Zero-padding layer for 3D data (spatial or spatio-temporal).\n\n    # Arguments\n        padding: int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints.\n            - If int: the same symmetric padding\n                is applied to width and height.\n            - If tuple of 2 ints:\n                interpreted as two different\n                symmetric padding values for height and width:\n                `(symmetric_dim1_pad, symmetric_dim2_pad, symmetric_dim3_pad)`.\n            - If tuple of 2 tuples of 2 ints:\n                interpreted as\n                `((left_dim1_pad, right_dim1_pad), (left_dim2_pad, right_dim2_pad), (left_dim3_pad, right_dim3_pad))`\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n            while `channels_first` corresponds to inputs with shape\n            `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        5D tensor with shape:\n        - If `data_format` is `\"channels_last\"`:\n            `(batch, first_axis_to_pad, second_axis_to_pad, third_axis_to_pad, depth)`\n        - If `data_format` is `\"channels_first\"`:\n            `(batch, depth, first_axis_to_pad, second_axis_to_pad, third_axis_to_pad)`\n\n    # Output shape\n        5D tensor with shape:\n        - If `data_format` is `\"channels_last\"`:\n            `(batch, first_padded_axis, second_padded_axis, third_axis_to_pad, depth)`\n        - If `data_format` is `\"channels_first\"`:\n            `(batch, depth, first_padded_axis, second_padded_axis, third_axis_to_pad)`\n    ",
@@ -681,6 +936,17 @@
         "name": "cropping"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Cropping layer for 1D input (e.g. temporal sequence).\n\n    It crops along the time dimension (axis 1).\n\n    # Arguments\n        cropping: int or tuple of int (length 2)\n            How many units should be trimmed off at the beginning and end of\n            the cropping dimension (axis 1).\n            If a single int is provided,\n            the same value will be used for both.\n\n    # Input shape\n        3D tensor with shape `(batch, axis_to_crop, features)`\n\n    # Output shape\n        3D tensor with shape `(batch, cropped_axis, features)`\n    ",
@@ -702,6 +968,17 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Cropping layer for 2D input (e.g. picture).\n\n    It crops along spatial dimensions, i.e. width and height.\n\n    # Arguments\n        cropping: int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints.\n            - If int: the same symmetric cropping\n                is applied to width and height.\n            - If tuple of 2 ints:\n                interpreted as two different\n                symmetric cropping values for height and width:\n                `(symmetric_height_crop, symmetric_width_crop)`.\n            - If tuple of 2 tuples of 2 ints:\n                interpreted as\n                `((top_crop, bottom_crop), (left_crop, right_crop))`\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, height, width, channels)` while `channels_first`\n            corresponds to inputs with shape\n            `(batch, channels, height, width)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        4D tensor with shape:\n        - If `data_format` is `\"channels_last\"`:\n            `(batch, rows, cols, channels)`\n        - If `data_format` is `\"channels_first\"`:\n            `(batch, channels, rows, cols)`\n\n    # Output shape\n        4D tensor with shape:\n        - If `data_format` is `\"channels_last\"`:\n            `(batch, cropped_rows, cropped_cols, channels)`\n        - If `data_format` is `\"channels_first\"`:\n            `(batch, channels, cropped_rows, cropped_cols)`\n\n    # Examples\n\n    ```python\n        # Crop the input 2D images or feature maps\n        model = Sequential()\n        model.add(Cropping2D(cropping=((2, 2), (4, 4)),\n                             input_shape=(28, 28, 3)))\n        # now model.output_shape == (None, 24, 20, 3)\n        model.add(Conv2D(64, (3, 3), padding='same'))\n        model.add(Cropping2D(cropping=((2, 2), (2, 2))))\n        # now model.output_shape == (None, 20, 16. 64)\n    ```\n    ",
@@ -723,6 +1000,17 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Cropping layer for 3D data (e.g. spatial or spatio-temporal).\n\n    # Arguments\n        cropping: int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n            - If int: the same symmetric cropping\n                is applied to depth, height, and width.\n            - If tuple of 3 ints:\n                interpreted as two different\n                symmetric cropping values for depth, height, and width:\n                `(symmetric_dim1_crop, symmetric_dim2_crop, symmetric_dim3_crop)`.\n            - If tuple of 3 tuples of 2 ints:\n                interpreted as\n                `((left_dim1_crop, right_dim1_crop), (left_dim2_crop, right_dim2_crop), (left_dim3_crop, right_dim3_crop))`\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n            while `channels_first` corresponds to inputs with shape\n            `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        5D tensor with shape:\n        - If `data_format` is `\"channels_last\"`:\n            `(batch, first_axis_to_crop, second_axis_to_crop, third_axis_to_crop, depth)`\n        - If `data_format` is `\"channels_first\"`:\n            `(batch, depth, first_axis_to_crop, second_axis_to_crop, third_axis_to_crop)`\n\n    # Output shape\n        5D tensor with shape:\n        - If `data_format` is `\"channels_last\"`:\n            `(batch, first_cropped_axis, second_cropped_axis, third_cropped_axis, depth)`\n        - If `data_format` is `\"channels_first\"`:\n            `(batch, depth, first_cropped_axis, second_cropped_axis, third_cropped_axis)`\n    ",
@@ -774,6 +1062,8 @@
         "default": "False"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": true,
     "aliases": [],
     "docstring": "Abstract base class for convolutional recurrent layers.\n\n    Do not use in a model -- it's not a functional layer!\n\n    # Arguments\n        filters: Integer, the dimensionality of the output space\n            (i.e. the number output of filters in the convolution).\n        kernel_size: An integer or tuple/list of n integers, specifying the\n            dimensions of the convolution window.\n        strides: An integer or tuple/list of n integers,\n            specifying the strides of the convolution.\n            Specifying any stride value != 1 is incompatible with specifying\n            any `dilation_rate` value != 1.\n        padding: One of `\"valid\"` or `\"same\"` (case-insensitive).\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, time, ..., channels)`\n            while `channels_first` corresponds to\n            inputs with shape `(batch, time, channels, ...)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n        dilation_rate: An integer or tuple/list of n integers, specifying\n            the dilation rate to use for dilated convolution.\n            Currently, specifying any `dilation_rate` value != 1 is\n            incompatible with specifying any `strides` value != 1.\n        return_sequences: Boolean. Whether to return the last output\n            in the output sequence, or the full sequence.\n        go_backwards: Boolean (default False).\n            If True, rocess the input sequence backwards.\n        stateful: Boolean (default False). If True, the last state\n            for each sample at index i in a batch will be used as initial\n            state for the sample of index i in the following batch.\n\n    # Input shape\n        5D tensor with shape `(num_samples, timesteps, channels, rows, cols)`.\n\n    # Output shape\n        - if `return_sequences`: 5D tensor with shape\n            `(num_samples, timesteps, channels, rows, cols)`.\n        - else, 4D tensor with shape `(num_samples, channels, rows, cols)`.\n\n    # Masking\n        This layer supports masking for input data with a variable number\n        of timesteps. To introduce masks to your data,\n        use an [Embedding](embeddings.md) layer with the `mask_zero` parameter\n        set to `True`.\n        **Note:** for the time being, masking is only supported with Theano.\n\n    # Note on using statefulness in RNNs\n        You can set RNN layers to be 'stateful', which means that the states\n        computed for the samples in one batch will be reused as initial states\n        for the samples in the next batch.\n        This assumes a one-to-one mapping between\n        samples in different successive batches.\n\n        To enable statefulness:\n            - specify `stateful=True` in the layer constructor.\n            - specify a fixed batch size for your model, by passing\n                a `batch_input_size=(...)` to the first layer in your model.\n                This is the expected shape of your inputs *including the batch\n                size*.\n                It should be a tuple of integers, e.g. `(32, 10, 100)`.\n\n        To reset the states of your model, call `.reset_states()` on either\n        a specific layer, or on your entire model.\n    ",
@@ -903,6 +1193,8 @@
         "default": 0
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Convolutional LSTM.\n\n    It is similar to an LSTM layer, but the input transformations\n    and recurrent transformations are both convolutional.\n\n    # Arguments\n        filters: Integer, the dimensionality of the output space\n            (i.e. the number output of filters in the convolution).\n        kernel_size: An integer or tuple/list of n integers, specifying the\n            dimensions of the convolution window.\n        strides: An integer or tuple/list of n integers,\n            specifying the strides of the convolution.\n            Specifying any stride value != 1 is incompatible with specifying\n            any `dilation_rate` value != 1.\n        padding: One of `\"valid\"` or `\"same\"` (case-insensitive).\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, time, ..., channels)`\n            while `channels_first` corresponds to\n            inputs with shape `(batch, time, channels, ...)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n        dilation_rate: An integer or tuple/list of n integers, specifying\n            the dilation rate to use for dilated convolution.\n            Currently, specifying any `dilation_rate` value != 1 is\n            incompatible with specifying any `strides` value != 1.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you don't specify anything, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        recurrent_activation: Activation function to use\n            for the recurrent step\n            (see [activations](../activations.md)).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        unit_forget_bias: Boolean.\n            If True, add 1 to the bias of the forget gate at initialization.\n            Use in combination with `bias_initializer=\"zeros\"`.\n            This is recommended in [Jozefowicz et al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        return_sequences: Boolean. Whether to return the last output\n            in the output sequence, or the full sequence.\n        go_backwards: Boolean (default False).\n            If True, rocess the input sequence backwards.\n        stateful: Boolean (default False). If True, the last state\n            for each sample at index i in a batch will be used as initial\n            state for the sample of index i in the following batch.\n        dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the inputs.\n        recurrent_dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the recurrent state.\n\n    # Input shape\n        - if data_format='channels_first'\n            5D tensor with shape:\n            `(samples,time, channels, rows, cols)`\n        - if data_format='channels_last'\n            5D tensor with shape:\n            `(samples,time, rows, cols, channels)`\n\n     # Output shape\n        - if `return_sequences`\n             - if data_format='channels_first'\n                5D tensor with shape:\n                `(samples, time, filters, output_row, output_col)`\n             - if data_format='channels_last'\n                5D tensor with shape:\n                `(samples, time, output_row, output_col, filters)`\n        - else\n            - if data_format ='channels_first'\n                4D tensor with shape:\n                `(samples, filters, output_row, output_col)`\n            - if data_format='channels_last'\n                4D tensor with shape:\n                `(samples, output_row, output_col, filters)`\n            where o_row and o_col depend on the shape of the filter and\n            the padding\n\n    # Raises\n        ValueError: in case of invalid constructor arguments.\n\n    # References\n        - [Convolutional LSTM Network: A Machine Learning Approach for\n        Precipitation Nowcasting](http://arxiv.org/abs/1506.04214v1)\n        The current implementation does not include the feedback loop on the\n        cells output\n    ",
@@ -921,6 +1213,17 @@
         "default": 0
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Masks a sequence by using a mask value to skip timesteps.\n\n    For each timestep in the input tensor (dimension #1 in the tensor),\n    if all values in the input tensor at that timestep\n    are equal to `mask_value`, then the timestep will be masked (skipped)\n    in all downstream layers (as long as they support masking).\n\n    If any downstream layer does not support masking yet receives such\n    an input mask, an exception will be raised.\n\n    # Example\n\n    Consider a Numpy data array `x` of shape `(samples, timesteps, features)`,\n    to be fed to an LSTM layer.\n    You want to mask timestep #3 and #5 because you lack data for\n    these timesteps. You can:\n\n        - set `x[:, 3, :] = 0.` and `x[:, 5, :] = 0.`\n        - insert a `Masking` layer with `mask_value=0.` before the LSTM layer:\n\n    ```python\n        model = Sequential()\n        model.add(Masking(mask_value=0., input_shape=(timesteps, features)))\n        model.add(LSTM(32))\n    ```\n    ",
@@ -947,6 +1250,21 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "training",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Applies Dropout to the input.\n\n    Dropout consists in randomly setting\n    a fraction `rate` of input units to 0 at each update during training time,\n    which helps prevent overfitting.\n\n    # Arguments\n        rate: float between 0 and 1. Fraction of the input units to drop.\n        noise_shape: 1D integer tensor representing the shape of the\n            binary dropout mask that will be multiplied with the input.\n            For instance, if your inputs have shape\n            `(batch_size, timesteps, features)` and\n            you want the dropout mask to be the same for all timesteps,\n            you can use `noise_shape=(batch_size, 1, features)`.\n        seed: A Python integer to use as random seed.\n\n    # References\n        - [Dropout: A Simple Way to Prevent Neural Networks from Overfitting](http://www.cs.toronto.edu/~rsalakhu/papers/srivastava14a.pdf)\n    ",
@@ -965,6 +1283,8 @@
         "default": null
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Spatial 1D version of Dropout.\n\n    This version performs the same function as Dropout, however it drops\n    entire 1D feature maps instead of individual elements. If adjacent frames\n    within feature maps are strongly correlated (as is normally the case in\n    early convolution layers) then regular dropout will not regularize the\n    activations and will otherwise just result in an effective learning rate\n    decrease. In this case, SpatialDropout1D will help promote independence\n    between feature maps and should be used instead.\n\n    # Arguments\n        rate: float between 0 and 1. Fraction of the input units to drop.\n\n    # Input shape\n        3D tensor with shape:\n        `(samples, timesteps, channels)`\n\n    # Output shape\n        Same as input\n\n    # References\n        - [Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)\n    ",
@@ -987,6 +1307,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Spatial 2D version of Dropout.\n\n    This version performs the same function as Dropout, however it drops\n    entire 2D feature maps instead of individual elements. If adjacent pixels\n    within feature maps are strongly correlated (as is normally the case in\n    early convolution layers) then regular dropout will not regularize the\n    activations and will otherwise just result in an effective learning rate\n    decrease. In this case, SpatialDropout2D will help promote independence\n    between feature maps and should be used instead.\n\n    # Arguments\n        rate: float between 0 and 1. Fraction of the input units to drop.\n        data_format: 'channels_first' or 'channels_last'.\n            In 'channels_first' mode, the channels dimension\n            (the depth) is at index 1,\n            in 'channels_last' mode is it at index 3.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        4D tensor with shape:\n        `(samples, channels, rows, cols)` if data_format='channels_first'\n        or 4D tensor with shape:\n        `(samples, rows, cols, channels)` if data_format='channels_last'.\n\n    # Output shape\n        Same as input\n\n    # References\n        - [Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)\n    ",
@@ -1009,6 +1331,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Spatial 3D version of Dropout.\n\n    This version performs the same function as Dropout, however it drops\n    entire 3D feature maps instead of individual elements. If adjacent voxels\n    within feature maps are strongly correlated (as is normally the case in\n    early convolution layers) then regular dropout will not regularize the\n    activations and will otherwise just result in an effective learning rate\n    decrease. In this case, SpatialDropout3D will help promote independence\n    between feature maps and should be used instead.\n\n    # Arguments\n        rate: float between 0 and 1. Fraction of the input units to drop.\n        data_format: 'channels_first' or 'channels_last'.\n            In 'channels_first' mode, the channels dimension (the depth)\n            is at index 1, in 'channels_last' mode is it at index 4.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        5D tensor with shape:\n        `(samples, channels, dim1, dim2, dim3)` if data_format='channels_first'\n        or 5D tensor with shape:\n        `(samples, dim1, dim2, dim3, channels)` if data_format='channels_last'.\n\n    # Output shape\n        Same as input\n\n    # References\n        - [Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)\n    ",
@@ -1028,6 +1352,17 @@
         "default": null
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Applies an activation function to an output.\n\n    # Arguments\n        activation: name of activation function to use\n            (see: [activations](../activations.md)),\n            or alternatively, a Theano or TensorFlow operation.\n\n    # Input shape\n        Arbitrary. Use the keyword argument `input_shape`\n        (tuple of integers, does not include the samples axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        Same shape as input.\n    ",
@@ -1046,6 +1381,17 @@
         "default": null
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Reshapes an output to a certain shape.\n\n    # Arguments\n        target_shape: target shape. Tuple of integers.\n            Does not include the batch axis.\n\n    # Input shape\n        Arbitrary, although all dimensions in the input shaped must be fixed.\n        Use the keyword argument `input_shape`\n        (tuple of integers, does not include the batch axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        `(batch_size,) + target_shape`\n\n    # Example\n\n    ```python\n        # as first layer in a Sequential model\n        model = Sequential()\n        model.add(Reshape((3, 4), input_shape=(12,)))\n        # now: model.output_shape == (None, 3, 4)\n        # note: `None` is the batch dimension\n\n        # as intermediate layer in a Sequential model\n        model.add(Reshape((6, 2)))\n        # now: model.output_shape == (None, 6, 2)\n\n        # also supports shape inference using `-1` as dimension\n        model.add(Reshape((-1, 2, 2)))\n        # now: model.output_shape == (None, 3, 2, 2)\n    ```\n    ",
@@ -1064,6 +1410,17 @@
         "default": null
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Permutes the dimensions of the input according to a given pattern.\n\n    Useful for e.g. connecting RNNs and convnets together.\n\n    # Example\n\n    ```python\n        model = Sequential()\n        model.add(Permute((2, 1), input_shape=(10, 64)))\n        # now: model.output_shape == (None, 64, 10)\n        # note: `None` is the batch dimension\n    ```\n\n    # Arguments\n        dims: Tuple of integers. Permutation pattern, does not include the\n            samples dimension. Indexing starts at 1.\n            For instance, `(2, 1)` permutes the first and second dimension\n            of the input.\n\n    # Input shape\n        Arbitrary. Use the keyword argument `input_shape`\n        (tuple of integers, does not include the samples axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        Same as the input shape, but with the dimensions re-ordered according\n        to the specified pattern.\n    ",
@@ -1078,6 +1435,17 @@
         "default": null
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Flattens the input. Does not affect the batch size.\n\n    # Example\n\n    ```python\n        model = Sequential()\n        model.add(Conv2D(64, 3, 3,\n                         border_mode='same',\n                         input_shape=(3, 32, 32)))\n        # now: model.output_shape == (None, 64, 32, 32)\n\n        model.add(Flatten())\n        # now: model.output_shape == (None, 65536)\n    ```\n    ",
@@ -1096,6 +1464,17 @@
         "default": null
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Repeats the input n times.\n\n    # Example\n\n    ```python\n        model = Sequential()\n        model.add(Dense(32, input_dim=32))\n        # now: model.output_shape == (None, 32)\n        # note: `None` is the batch dimension\n\n        model.add(RepeatVector(3))\n        # now: model.output_shape == (None, 3, 32)\n    ```\n\n    # Arguments\n        n: integer, repetition factor.\n\n    # Input shape\n        2D tensor of shape `(num_samples, features)`.\n\n    # Output shape\n        3D tensor of shape `(num_samples, n, features)`.\n    ",
@@ -1126,6 +1505,21 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "mask",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Wraps arbitrary expression as a `Layer` object.\n\n    # Examples\n\n    ```python\n        # add a x -> x^2 layer\n        model.add(Lambda(lambda x: x ** 2))\n    ```\n    ```python\n        # add a layer that returns the concatenation\n        # of the positive part of the input and\n        # the opposite of the negative part\n\n        def antirectifier(x):\n            x -= K.mean(x, axis=1, keepdims=True)\n            x = K.l2_normalize(x, axis=1)\n            pos = K.relu(x)\n            neg = K.relu(-x)\n            return K.concatenate([pos, neg], axis=1)\n\n        def antirectifier_output_shape(input_shape):\n            shape = list(input_shape)\n            assert len(shape) == 2  # only valid for 2D tensors\n            shape[-1] *= 2\n            return tuple(shape)\n\n        model.add(Lambda(antirectifier,\n                         output_shape=antirectifier_output_shape))\n    ```\n\n    # Arguments\n        function: The function to be evaluated.\n            Takes input tensor as first argument.\n        output_shape: Expected output shape from function.\n            Only relevant when using Theano.\n            Can be a tuple or function.\n            If a tuple, it only specifies the first dimension onward;\n                 sample dimension is assumed either the same as the input:\n                 `output_shape = (input_shape[0], ) + output_shape`\n                 or, the input is `None` and\n                 the sample dimension is also `None`:\n                 `output_shape = (None, ) + output_shape`\n            If a function, it specifies the entire shape as a function of the\n            input shape: `output_shape = f(input_shape)`\n        arguments: optional dictionary of keyword arguments to be passed\n            to the function.\n\n    # Input shape\n        Arbitrary. Use the keyword argument input_shape\n        (tuple of integers, does not include the samples axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        Specified by `output_shape` argument\n        (or auto-inferred when using TensorFlow).\n    ",
@@ -1189,6 +1583,17 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Just your regular densely-connected NN layer.\n\n    `Dense` implements the operation:\n    `output = activation(dot(input, kernel) + bias)`\n    where `activation` is the element-wise activation function\n    passed as the `activation` argument, `kernel` is a weights matrix\n    created by the layer, and `bias` is a bias vector created by the layer\n    (only applicable if `use_bias` is `True`).\n\n    Note: if the input to the layer has a rank greater than 2, then\n    it is flattened prior to the initial dot product with `kernel`.\n\n    # Example\n\n    ```python\n        # as first layer in a sequential model:\n        model = Sequential()\n        model.add(Dense(32, input_shape=(16,)))\n        # now the model will take as input arrays of shape (*, 16)\n        # and output arrays of shape (*, 32)\n\n        # after the first layer, you don't need to specify\n        # the size of the input anymore:\n        model.add(Dense(32))\n    ```\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you don't specify anything, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n\n    # Input shape\n        nD tensor with shape: `(batch_size, ..., input_dim)`.\n        The most common situation would be\n        a 2D input with shape `(batch_size, input_dim)`.\n\n    # Output shape\n        nD tensor with shape: `(batch_size, ..., units)`.\n        For instance, for a 2D input with shape `(batch_size, input_dim)`,\n        the output would have shape `(batch_size, units)`.\n    ",
@@ -1211,10 +1616,69 @@
         "default": 0
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Layer that applies an update to the cost function based input activity.\n\n    # Arguments\n        l1: L1 regularization factor (positive float).\n        l2: L2 regularization factor (positive float).\n\n    # Input shape\n        Arbitrary. Use the keyword argument `input_shape`\n        (tuple of integers, does not include the samples axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        Same shape as input.\n    ",
     "file": "keras/layers/core.py"
+  },
+  {
+    "name": "_CuDNNRNN",
+    "base": "RNN",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "return_sequences",
+        "type": "boolean",
+        "default": "False"
+      },
+      {
+        "name": "return_state",
+        "type": "boolean",
+        "default": "False"
+      },
+      {
+        "name": "go_backwards",
+        "type": "boolean",
+        "default": "False"
+      },
+      {
+        "name": "stateful",
+        "type": "boolean",
+        "default": "False"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "mask",
+        "default": "None"
+      },
+      {
+        "name": "training",
+        "default": "None"
+      },
+      {
+        "name": "initial_state",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
+    "abstract": true,
+    "aliases": [],
+    "docstring": "Private base class for CuDNNGRU and CuDNNLSTM.\n\n    # Arguments\n        return_sequences: Boolean. Whether to return the last output.\n            in the output sequence, or the full sequence.\n        return_state: Boolean. Whether to return the last state\n            in addition to the output.\n        stateful: Boolean (default False). If True, the last state\n            for each sample at index i in a batch will be used as initial\n            state for the sample of index i in the following batch.\n    ",
+    "file": "keras/layers/cudnn_recurrent.py"
   },
   {
     "name": "CuDNNGRU",
@@ -1294,6 +1758,8 @@
         "default": "False"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Fast GRU implementation backed by [CuDNN](https://developer.nvidia.com/cudnn).\n\n    Can only be run on GPU, with the TensorFlow backend.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        return_sequences: Boolean. Whether to return the last output.\n            in the output sequence, or the full sequence.\n        return_state: Boolean. Whether to return the last state\n            in addition to the output.\n        stateful: Boolean (default False). If True, the last state\n            for each sample at index i in a batch will be used as initial\n            state for the sample of index i in the following batch.\n    ",
@@ -1382,6 +1848,8 @@
         "default": "False"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Fast LSTM implementation backed by [CuDNN](https://developer.nvidia.com/cudnn).\n\n    Can only be run on GPU, with the TensorFlow backend.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        unit_forget_bias: Boolean.\n            If True, add 1 to the bias of the forget gate at initialization.\n            Setting it to true will also force `bias_initializer=\"zeros\"`.\n            This is recommended in [Jozefowicz et al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        return_sequences: Boolean. Whether to return the last output.\n            in the output sequence, or the full sequence.\n        return_state: Boolean. Whether to return the last state\n            in addition to the output.\n        stateful: Boolean (default False). If True, the last state\n            for each sample at index i in a batch will be used as initial\n            state for the sample of index i in the following batch.\n    ",
@@ -1433,6 +1901,17 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Turns positive integers (indexes) into dense vectors of fixed size.\n    eg. [[4], [20]] -> [[0.25, 0.1], [0.6, -0.2]]\n\n    This layer can only be used as the first layer in a model.\n\n    # Example\n\n    ```python\n      model = Sequential()\n      model.add(Embedding(1000, 64, input_length=10))\n      # the model will take as input an integer matrix of size (batch, input_length).\n      # the largest integer (i.e. word index) in the input should be no larger than 999 (vocabulary size).\n      # now model.output_shape == (None, 10, 64), where None is the batch dimension.\n\n      input_array = np.random.randint(1000, size=(32, 10))\n\n      model.compile('rmsprop', 'mse')\n      output_array = model.predict(input_array)\n      assert output_array.shape == (32, 10, 64)\n    ```\n\n    # Arguments\n      input_dim: int > 0. Size of the vocabulary,\n          i.e. maximum integer index + 1.\n      output_dim: int >= 0. Dimension of the dense embedding.\n      embeddings_initializer: Initializer for the `embeddings` matrix\n          (see [initializers](../initializers.md)).\n      embeddings_regularizer: Regularizer function applied to\n          the `embeddings` matrix\n          (see [regularizer](../regularizers.md)).\n      embeddings_constraint: Constraint function applied to\n          the `embeddings` matrix\n          (see [constraints](../constraints.md)).\n      mask_zero: Whether or not the input value 0 is a special \"padding\"\n          value that should be masked out.\n          This is useful when using [recurrent layers](recurrent.md)\n          which may take variable length input.\n          If this is `True` then all subsequent layers\n          in the model need to support masking or an exception will be raised.\n          If mask_zero is set to True, as a consequence, index 0 cannot be\n          used in the vocabulary (input_dim should equal size of\n          vocabulary + 1).\n      input_length: Length of input sequences, when it is constant.\n          This argument is required if you are going to connect\n          `Flatten` then `Dense` layers upstream\n          (without it, the shape of the dense outputs cannot be computed).\n\n    # Input shape\n        2D tensor with shape: `(batch_size, sequence_length)`.\n\n    # Output shape\n        3D tensor with shape: `(batch_size, sequence_length, output_dim)`.\n\n    # References\n        - [A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)\n    ",
@@ -1512,6 +1991,17 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Locally-connected layer for 1D inputs.\n\n    The `LocallyConnected1D` layer works similarly to\n    the `Conv1D` layer, except that weights are unshared,\n    that is, a different set of filters is applied at each different patch\n    of the input.\n\n    # Example\n    ```python\n        # apply a unshared weight convolution 1d of length 3 to a sequence with\n        # 10 timesteps, with 64 output filters\n        model = Sequential()\n        model.add(LocallyConnected1D(64, 3, input_shape=(10, 32)))\n        # now model.output_shape == (None, 8, 64)\n        # add a new conv1d on top\n        model.add(LocallyConnected1D(32, 3))\n        # now model.output_shape == (None, 6, 32)\n    ```\n\n    # Arguments\n        filters: Integer, the dimensionality of the output space\n            (i.e. the number output of filters in the convolution).\n        kernel_size: An integer or tuple/list of a single integer,\n            specifying the length of the 1D convolution window.\n        strides: An integer or tuple/list of a single integer,\n            specifying the stride length of the convolution.\n            Specifying any stride value != 1 is incompatible with specifying\n            any `dilation_rate` value != 1.\n        padding: Currently only supports `\"valid\"` (case-insensitive).\n            `\"same\"` may be supported in the future.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you don't specify anything, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to the kernel matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n\n    # Input shape\n        3D tensor with shape: `(batch_size, steps, input_dim)`\n\n    # Output shape\n        3D tensor with shape: `(batch_size, new_steps, filters)`\n        `steps` value might have changed due to padding or strides.\n    ",
@@ -1590,15 +2080,53 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Locally-connected layer for 2D inputs.\n\n    The `LocallyConnected2D` layer works similarly\n    to the `Conv2D` layer, except that weights are unshared,\n    that is, a different set of filters is applied at each\n    different patch of the input.\n\n    # Examples\n    ```python\n        # apply a 3x3 unshared weights convolution with 64 output filters on a 32x32 image\n        # with `data_format=\"channels_last\"`:\n        model = Sequential()\n        model.add(LocallyConnected2D(64, (3, 3), input_shape=(32, 32, 3)))\n        # now model.output_shape == (None, 30, 30, 64)\n        # notice that this layer will consume (30*30)*(3*3*3*64) + (30*30)*64 parameters\n\n        # add a 3x3 unshared weights convolution on top, with 32 output filters:\n        model.add(LocallyConnected2D(32, (3, 3)))\n        # now model.output_shape == (None, 28, 28, 32)\n    ```\n\n    # Arguments\n        filters: Integer, the dimensionality of the output space\n            (i.e. the number output of filters in the convolution).\n        kernel_size: An integer or tuple/list of 2 integers, specifying the\n            width and height of the 2D convolution window.\n            Can be a single integer to specify the same value for\n            all spatial dimensions.\n        strides: An integer or tuple/list of 2 integers,\n            specifying the strides of the convolution along the width and height.\n            Can be a single integer to specify the same value for\n            all spatial dimensions.\n        padding: Currently only support `\"valid\"` (case-insensitive).\n            `\"same\"` will be supported in future.\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, height, width, channels)` while `channels_first`\n            corresponds to inputs with shape\n            `(batch, channels, height, width)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you don't specify anything, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to the kernel matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n\n    # Input shape\n        4D tensor with shape:\n        `(samples, channels, rows, cols)` if data_format='channels_first'\n        or 4D tensor with shape:\n        `(samples, rows, cols, channels)` if data_format='channels_last'.\n\n    # Output shape\n        4D tensor with shape:\n        `(samples, filters, new_rows, new_cols)` if data_format='channels_first'\n        or 4D tensor with shape:\n        `(samples, new_rows, new_cols, filters)` if data_format='channels_last'.\n        `rows` and `cols` values might have changed due to padding.\n    ",
     "file": "keras/layers/local.py"
   },
   {
+    "name": "_Merge",
+    "base": "Layer",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      }
+    ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
+    "abstract": true,
+    "aliases": [],
+    "docstring": "Generic merge layer for elementwise merge functions.\n\n    Used to implement `Sum`, `Average`, etc.\n\n    # Arguments\n        **kwargs: standard layer keyword arguments.\n    ",
+    "file": "keras/layers/merge.py"
+  },
+  {
     "name": "Add",
     "base": "_Merge",
-    "arguments": [],
+    "arguments": null,
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Layer that adds a list of inputs.\n\n    It takes as input a list of tensors,\n    all of the same shape, and returns\n    a single tensor (also of the same shape).\n\n    # Examples\n\n    ```python\n        import keras\n\n        input1 = keras.layers.Input(shape=(16,))\n        x1 = keras.layers.Dense(8, activation='relu')(input1)\n        input2 = keras.layers.Input(shape=(32,))\n        x2 = keras.layers.Dense(8, activation='relu')(input2)\n        added = keras.layers.Add()([x1, x2])  # equivalent to added = keras.layers.add([x1, x2])\n\n        out = keras.layers.Dense(4)(added)\n        model = keras.models.Model(inputs=[input1, input2], outputs=out)\n    ```\n    ",
@@ -1607,7 +2135,9 @@
   {
     "name": "Subtract",
     "base": "_Merge",
-    "arguments": [],
+    "arguments": null,
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Layer that subtracts two inputs.\n\n    It takes as input a list of tensors of size 2,\n    both of the same shape, and returns a single tensor, (inputs[0] - inputs[1]),\n    also of the same shape.\n\n    # Examples\n\n    ```python\n        import keras\n\n        input1 = keras.layers.Input(shape=(16,))\n        x1 = keras.layers.Dense(8, activation='relu')(input1)\n        input2 = keras.layers.Input(shape=(32,))\n        x2 = keras.layers.Dense(8, activation='relu')(input2)\n        # Equivalent to subtracted = keras.layers.subtract([x1, x2])\n        subtracted = keras.layers.Subtract()([x1, x2])\n\n        out = keras.layers.Dense(4)(subtracted)\n        model = keras.models.Model(inputs=[input1, input2], outputs=out)\n    ```\n    ",
@@ -1616,7 +2146,9 @@
   {
     "name": "Multiply",
     "base": "_Merge",
-    "arguments": [],
+    "arguments": null,
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Layer that multiplies (element-wise) a list of inputs.\n\n    It takes as input a list of tensors,\n    all of the same shape, and returns\n    a single tensor (also of the same shape).\n    ",
@@ -1625,7 +2157,9 @@
   {
     "name": "Average",
     "base": "_Merge",
-    "arguments": [],
+    "arguments": null,
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Layer that averages a list of inputs.\n\n    It takes as input a list of tensors,\n    all of the same shape, and returns\n    a single tensor (also of the same shape).\n    ",
@@ -1634,7 +2168,9 @@
   {
     "name": "Maximum",
     "base": "_Merge",
-    "arguments": [],
+    "arguments": null,
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Layer that computes the maximum (element-wise) a list of inputs.\n\n    It takes as input a list of tensors,\n    all of the same shape, and returns\n    a single tensor (also of the same shape).\n    ",
@@ -1643,7 +2179,9 @@
   {
     "name": "Minimum",
     "base": "_Merge",
-    "arguments": [],
+    "arguments": null,
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [],
     "docstring": "Layer that computes the minimum (element-wise) a list of inputs.\n\n    It takes as input a list of tensors,\n    all of the same shape, and returns\n    a single tensor (also of the same shape).\n    ",
@@ -1662,9 +2200,20 @@
         "default": -1
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
-    "docstring": "Layer that concatenates a list of inputs.\n\n    It takes as input a list of tensors,\n    all of the same shape expect for the concatenation axis,\n    and returns a single tensor, the concatenation of all inputs.\n\n    # Arguments\n        axis: Axis along which to concatenate.\n        **kwargs: standard layer keyword arguments.\n    ",
+    "docstring": "Layer that concatenates a list of inputs.\n\n    It takes as input a list of tensors,\n    all of the same shape except for the concatenation axis,\n    and returns a single tensor, the concatenation of all inputs.\n\n    # Arguments\n        axis: Axis along which to concatenate.\n        **kwargs: standard layer keyword arguments.\n    ",
     "file": "keras/layers/merge.py"
   },
   {
@@ -1685,6 +2234,17 @@
         "default": "False"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Layer that computes a dot product between samples in two tensors.\n\n    E.g. if applied to two tensors `a` and `b` of shape `(batch_size, n)`,\n    the output will be a tensor of shape `(batch_size, 1)`\n    where each entry `i` will be the dot product between\n    `a[i]` and `b[i]`.\n\n    # Arguments\n        axes: Integer or tuple of integers,\n            axis or axes along which to take the dot product.\n        normalize: Whether to L2-normalize samples along the\n            dot product axis before taking the dot product.\n            If set to True, then the output of the dot product\n            is the cosine proximity between the two samples.\n        **kwargs: Standard layer keyword arguments.\n    ",
@@ -1703,6 +2263,21 @@
         "default": null
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "training",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Apply additive zero-centered Gaussian noise.\n\n    This is useful to mitigate overfitting\n    (you could see it as a form of random data augmentation).\n    Gaussian Noise (GS) is a natural choice as corruption process\n    for real valued inputs.\n\n    As it is a regularization layer, it is only active at training time.\n\n    # Arguments\n        stddev: float, standard deviation of the noise distribution.\n\n    # Input shape\n        Arbitrary. Use the keyword argument `input_shape`\n        (tuple of integers, does not include the samples axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        Same shape as input.\n    ",
@@ -1721,6 +2296,21 @@
         "default": null
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "training",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Apply multiplicative 1-centered Gaussian noise.\n\n    As it is a regularization layer, it is only active at training time.\n\n    # Arguments\n        rate: float, drop probability (as with `Dropout`).\n            The multiplicative noise will have\n            standard deviation `sqrt(rate / (1 - rate))`.\n\n    # Input shape\n        Arbitrary. Use the keyword argument `input_shape`\n        (tuple of integers, does not include the samples axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        Same shape as input.\n\n    # References\n        - [Dropout: A Simple Way to Prevent Neural Networks from Overfitting Srivastava, Hinton, et al. 2014](http://www.cs.toronto.edu/~rsalakhu/papers/srivastava14a.pdf)\n    ",
@@ -1747,6 +2337,21 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "training",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Applies Alpha Dropout to the input.\n\n    Alpha Dropout is a `Dropout` that keeps mean and variance of inputs\n    to their original values, in order to ensure the self-normalizing property\n    even after this dropout.\n    Alpha Dropout fits well to Scaled Exponential Linear Units\n    by randomly setting activations to the negative saturation value.\n\n    # Arguments\n        rate: float, drop probability (as with `Dropout`).\n            The multiplicative noise will have\n            standard deviation `sqrt(rate / (1 - rate))`.\n        seed: A Python integer to use as random seed.\n\n    # Input shape\n        Arbitrary. Use the keyword argument `input_shape`\n        (tuple of integers, does not include the samples axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        Same shape as input.\n\n    # References\n        - [Self-Normalizing Neural Networks](https://arxiv.org/abs/1706.02515)\n    ",
@@ -1823,10 +2428,62 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "training",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Batch normalization layer (Ioffe and Szegedy, 2014).\n\n    Normalize the activations of the previous layer at each batch,\n    i.e. applies a transformation that maintains the mean activation\n    close to 0 and the activation standard deviation close to 1.\n\n    # Arguments\n        axis: Integer, the axis that should be normalized\n            (typically the features axis).\n            For instance, after a `Conv2D` layer with\n            `data_format=\"channels_first\"`,\n            set `axis=1` in `BatchNormalization`.\n        momentum: Momentum for the moving average.\n        epsilon: Small float added to variance to avoid dividing by zero.\n        center: If True, add offset of `beta` to normalized tensor.\n            If False, `beta` is ignored.\n        scale: If True, multiply by `gamma`.\n            If False, `gamma` is not used.\n            When the next layer is linear (also e.g. `nn.relu`),\n            this can be disabled since the scaling\n            will be done by the next layer.\n        beta_initializer: Initializer for the beta weight.\n        gamma_initializer: Initializer for the gamma weight.\n        moving_mean_initializer: Initializer for the moving mean.\n        moving_variance_initializer: Initializer for the moving variance.\n        beta_regularizer: Optional regularizer for the beta weight.\n        gamma_regularizer: Optional regularizer for the gamma weight.\n        beta_constraint: Optional constraint for the beta weight.\n        gamma_constraint: Optional constraint for the gamma weight.\n\n    # Input shape\n        Arbitrary. Use the keyword argument `input_shape`\n        (tuple of integers, does not include the samples axis)\n        when using this layer as the first layer in a model.\n\n    # Output shape\n        Same shape as input.\n\n    # References\n        - [Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift](https://arxiv.org/abs/1502.03167)\n    ",
     "file": "keras/layers/normalization.py"
+  },
+  {
+    "name": "_Pooling1D",
+    "base": "Layer",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "pool_size",
+        "default": 2
+      },
+      {
+        "name": "strides",
+        "default": "None"
+      },
+      {
+        "name": "padding",
+        "default": "valid"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
+    "abstract": true,
+    "aliases": [],
+    "docstring": "Abstract class for different pooling 1D layers.\n    ",
+    "file": "keras/layers/pooling.py"
   },
   {
     "name": "MaxPooling1D",
@@ -1849,6 +2506,8 @@
         "default": "valid"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "MaxPool1D"
@@ -1877,11 +2536,53 @@
         "default": "valid"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "AvgPool1D"
     ],
     "docstring": "Average pooling for temporal data.\n\n    # Arguments\n        pool_size: Integer, size of the max pooling windows.\n        strides: Integer, or None. Factor by which to downscale.\n            E.g. 2 will halve the input.\n            If None, it will default to `pool_size`.\n        padding: One of `\"valid\"` or `\"same\"` (case-insensitive).\n\n    # Input shape\n        3D tensor with shape: `(batch_size, steps, features)`.\n\n    # Output shape\n        3D tensor with shape: `(batch_size, downsampled_steps, features)`.\n    ",
+    "file": "keras/layers/pooling.py"
+  },
+  {
+    "name": "_Pooling2D",
+    "base": "Layer",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "pool_size"
+      },
+      {
+        "name": "strides",
+        "default": "None"
+      },
+      {
+        "name": "padding",
+        "default": "valid"
+      },
+      {
+        "name": "data_format",
+        "default": "None"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
+    "abstract": true,
+    "aliases": [],
+    "docstring": "Abstract class for different pooling 2D layers.\n    ",
     "file": "keras/layers/pooling.py"
   },
   {
@@ -1908,6 +2609,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "MaxPool2D"
@@ -1939,11 +2642,53 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "AvgPool2D"
     ],
     "docstring": "Average pooling operation for spatial data.\n\n    # Arguments\n        pool_size: integer or tuple of 2 integers,\n            factors by which to downscale (vertical, horizontal).\n            (2, 2) will halve the input in both spatial dimension.\n            If only one integer is specified, the same window length\n            will be used for both dimensions.\n        strides: Integer, tuple of 2 integers, or None.\n            Strides values.\n            If None, it will default to `pool_size`.\n        padding: One of `\"valid\"` or `\"same\"` (case-insensitive).\n        data_format: A string,\n            one of `channels_last` (default) or `channels_first`.\n            The ordering of the dimensions in the inputs.\n            `channels_last` corresponds to inputs with shape\n            `(batch, height, width, channels)` while `channels_first`\n            corresponds to inputs with shape\n            `(batch, channels, height, width)`.\n            It defaults to the `image_data_format` value found in your\n            Keras config file at `~/.keras/keras.json`.\n            If you never set it, then it will be \"channels_last\".\n\n    # Input shape\n        - If `data_format='channels_last'`:\n            4D tensor with shape:\n            `(batch_size, rows, cols, channels)`\n        - If `data_format='channels_first'`:\n            4D tensor with shape:\n            `(batch_size, channels, rows, cols)`\n\n    # Output shape\n        - If `data_format='channels_last'`:\n            4D tensor with shape:\n            `(batch_size, pooled_rows, pooled_cols, channels)`\n        - If `data_format='channels_first'`:\n            4D tensor with shape:\n            `(batch_size, channels, pooled_rows, pooled_cols)`\n    ",
+    "file": "keras/layers/pooling.py"
+  },
+  {
+    "name": "_Pooling3D",
+    "base": "Layer",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "pool_size"
+      },
+      {
+        "name": "strides",
+        "default": "None"
+      },
+      {
+        "name": "padding",
+        "default": "valid"
+      },
+      {
+        "name": "data_format",
+        "default": "None"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
+    "abstract": true,
+    "aliases": [],
+    "docstring": "Abstract class for different pooling 3D layers.\n    ",
     "file": "keras/layers/pooling.py"
   },
   {
@@ -1970,6 +2715,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "MaxPool3D"
@@ -2001,6 +2748,8 @@
         "default": "None"
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": false,
     "aliases": [
       "AvgPool3D"
@@ -2009,9 +2758,45 @@
     "file": "keras/layers/pooling.py"
   },
   {
+    "name": "_GlobalPooling1D",
+    "base": "Layer",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      }
+    ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
+    "abstract": true,
+    "aliases": [],
+    "docstring": "Abstract class for different global pooling 1D layers.\n    ",
+    "file": "keras/layers/pooling.py"
+  },
+  {
     "name": "GlobalAveragePooling1D",
     "base": "_GlobalPooling1D",
-    "arguments": [],
+    "arguments": null,
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [
       "GlobalAvgPool1D"
@@ -2022,7 +2807,18 @@
   {
     "name": "GlobalMaxPooling1D",
     "base": "_GlobalPooling1D",
-    "arguments": [],
+    "arguments": null,
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [
       "GlobalMaxPool1D"
@@ -2031,9 +2827,49 @@
     "file": "keras/layers/pooling.py"
   },
   {
+    "name": "_GlobalPooling2D",
+    "base": "Layer",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "data_format",
+        "default": "None"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
+    "abstract": true,
+    "aliases": [],
+    "docstring": "Abstract class for different global pooling 2D layers.\n    ",
+    "file": "keras/layers/pooling.py"
+  },
+  {
     "name": "GlobalAveragePooling2D",
     "base": "_GlobalPooling2D",
-    "arguments": [],
+    "arguments": null,
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [
       "GlobalAvgPool2D"
@@ -2044,7 +2880,18 @@
   {
     "name": "GlobalMaxPooling2D",
     "base": "_GlobalPooling2D",
-    "arguments": [],
+    "arguments": null,
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [
       "GlobalMaxPool2D"
@@ -2053,9 +2900,49 @@
     "file": "keras/layers/pooling.py"
   },
   {
+    "name": "_GlobalPooling3D",
+    "base": "Layer",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "data_format",
+        "default": "None"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
+    "abstract": true,
+    "aliases": [],
+    "docstring": "Abstract class for different global pooling 3D layers.\n    ",
+    "file": "keras/layers/pooling.py"
+  },
+  {
     "name": "GlobalAveragePooling3D",
     "base": "_GlobalPooling3D",
-    "arguments": [],
+    "arguments": null,
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [
       "GlobalAvgPool3D"
@@ -2066,7 +2953,18 @@
   {
     "name": "GlobalMaxPooling3D",
     "base": "_GlobalPooling3D",
-    "arguments": [],
+    "arguments": null,
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [
       "GlobalMaxPool3D"
@@ -2087,6 +2985,21 @@
         "default": null
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "states",
+        "default": null
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Wrapper allowing a stack of RNN cells to behave as a single cell.\n\n    Used to implement efficient stacked RNNs.\n\n    # Arguments\n        cells: List of RNN cell instances.\n\n    # Examples\n\n    ```python\n        cells = [\n            keras.layers.LSTMCell(output_dim),\n            keras.layers.LSTMCell(output_dim),\n            keras.layers.LSTMCell(output_dim),\n        ]\n\n        inputs = keras.Input((timesteps, input_dim))\n        x = keras.layers.RNN(cells)(inputs)\n    ```\n    ",
@@ -2130,9 +3043,36 @@
         "default": "False"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "mask",
+        "default": "None"
+      },
+      {
+        "name": "training",
+        "default": "None"
+      },
+      {
+        "name": "initial_state",
+        "default": "None"
+      },
+      {
+        "name": "constants",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
-    "docstring": "Base class for recurrent layers.\n\n    # Arguments\n        cell: A RNN cell instance. A RNN cell is a class that has:\n            - a `call(input_at_t, states_at_t)` method, returning\n                `(output_at_t, states_at_t_plus_1)`.\n            - a `state_size` attribute. This can be a single integer\n                (single state) in which case it is\n                the size of the recurrent state\n                (which should be the same as the size of the cell output).\n                This can also be a list/tuple of integers\n                (one size per state). In this case, the first entry\n                (`state_size[0]`) should be the same as\n                the size of the cell output.\n            It is also possible for `cell` to be a list of RNN cell instances,\n            in which cases the cells get stacked on after the other in the RNN,\n            implementing an efficient stacked RNN.\n        return_sequences: Boolean. Whether to return the last output.\n            in the output sequence, or the full sequence.\n        return_state: Boolean. Whether to return the last state\n            in addition to the output.\n        go_backwards: Boolean (default False).\n            If True, process the input sequence backwards and return the\n            reversed sequence.\n        stateful: Boolean (default False). If True, the last state\n            for each sample at index i in a batch will be used as initial\n            state for the sample of index i in the following batch.\n        unroll: Boolean (default False).\n            If True, the network will be unrolled,\n            else a symbolic loop will be used.\n            Unrolling can speed-up a RNN,\n            although it tends to be more memory-intensive.\n            Unrolling is only suitable for short sequences.\n        input_dim: dimensionality of the input (integer).\n            This argument (or alternatively,\n            the keyword argument `input_shape`)\n            is required when using this layer as the first layer in a model.\n        input_length: Length of input sequences, to be specified\n            when it is constant.\n            This argument is required if you are going to connect\n            `Flatten` then `Dense` layers upstream\n            (without it, the shape of the dense outputs cannot be computed).\n            Note that if the recurrent layer is not the first layer\n            in your model, you would need to specify the input length\n            at the level of the first layer\n            (e.g. via the `input_shape` argument)\n\n    # Input shapes\n        3D tensor with shape `(batch_size, timesteps, input_dim)`,\n        (Optional) 2D tensors with shape `(batch_size, output_dim)`.\n\n    # Output shape\n        - if `return_state`: a list of tensors. The first tensor is\n            the output. The remaining tensors are the last states,\n            each with shape `(batch_size, units)`.\n        - if `return_sequences`: 3D tensor with shape\n            `(batch_size, timesteps, units)`.\n        - else, 2D tensor with shape `(batch_size, units)`.\n\n    # Masking\n        This layer supports masking for input data with a variable number\n        of timesteps. To introduce masks to your data,\n        use an [Embedding](embeddings.md) layer with the `mask_zero` parameter\n        set to `True`.\n\n    # Note on using statefulness in RNNs\n        You can set RNN layers to be 'stateful', which means that the states\n        computed for the samples in one batch will be reused as initial states\n        for the samples in the next batch. This assumes a one-to-one mapping\n        between samples in different successive batches.\n\n        To enable statefulness:\n            - specify `stateful=True` in the layer constructor.\n            - specify a fixed batch size for your model, by passing\n                if sequential model:\n                  `batch_input_shape=(...)` to the first layer in your model.\n                else for functional model with 1 or more Input layers:\n                  `batch_shape=(...)` to all the first layers in your model.\n                This is the expected shape of your inputs\n                *including the batch size*.\n                It should be a tuple of integers, e.g. `(32, 10, 100)`.\n            - specify `shuffle=False` when calling fit().\n\n        To reset the states of your model, call `.reset_states()` on either\n        a specific layer, or on your entire model.\n\n    # Note on specifying the initial state of RNNs\n        You can specify the initial state of RNN layers symbolically by\n        calling them with the keyword argument `initial_state`. The value of\n        `initial_state` should be a tensor or list of tensors representing\n        the initial state of the RNN layer.\n\n        You can specify the initial state of RNN layers numerically by\n        calling `reset_states` with the keyword argument `states`. The value of\n        `states` should be a numpy array or list of numpy arrays representing\n        the initial state of the RNN layer.\n\n    # Examples\n\n    ```python\n        # First, let's define a RNN Cell, as a layer subclass.\n\n        class MinimalRNNCell(keras.layers.Layer):\n\n            def __init__(self, units, **kwargs):\n                self.units = units\n                self.state_size = units\n                super(MinimalRNNCell, self).__init__(**kwargs)\n\n            def build(self, input_shape):\n                self.kernel = self.add_weight(shape=(input_shape[-1], self.units),\n                                              initializer='uniform',\n                                              name='kernel')\n                self.recurrent_kernel = self.add_weight(\n                    shape=(self.units, self.units),\n                    initializer='uniform',\n                    name='recurrent_kernel')\n                self.built = True\n\n            def call(self, inputs, states):\n                prev_output = states[0]\n                h = K.dot(inputs, self.kernel)\n                output = h + K.dot(prev_output, self.recurrent_kernel)\n                return output, [output]\n\n        # Let's use this cell in a RNN layer:\n\n        cell = MinimalRNNCell(32)\n        x = keras.Input((None, 5))\n        layer = RNN(cell)\n        y = layer(x)\n\n        # Here's how to use the cell to build a stacked RNN:\n\n        cells = [MinimalRNNCell(32), MinimalRNNCell(64)]\n        x = keras.Input((None, 5))\n        layer = RNN(cells)\n        y = layer(x)\n    ```\n    ",
+    "docstring": "Base class for recurrent layers.\n\n    # Arguments\n        cell: A RNN cell instance. A RNN cell is a class that has:\n            - a `call(input_at_t, states_at_t)` method, returning\n                `(output_at_t, states_at_t_plus_1)`. The call method of the\n                cell can also take the optional argument `constants`, see\n                section \"Note on passing external constants\" below.\n            - a `state_size` attribute. This can be a single integer\n                (single state) in which case it is\n                the size of the recurrent state\n                (which should be the same as the size of the cell output).\n                This can also be a list/tuple of integers\n                (one size per state). In this case, the first entry\n                (`state_size[0]`) should be the same as\n                the size of the cell output.\n            It is also possible for `cell` to be a list of RNN cell instances,\n            in which cases the cells get stacked on after the other in the RNN,\n            implementing an efficient stacked RNN.\n        return_sequences: Boolean. Whether to return the last output.\n            in the output sequence, or the full sequence.\n        return_state: Boolean. Whether to return the last state\n            in addition to the output.\n        go_backwards: Boolean (default False).\n            If True, process the input sequence backwards and return the\n            reversed sequence.\n        stateful: Boolean (default False). If True, the last state\n            for each sample at index i in a batch will be used as initial\n            state for the sample of index i in the following batch.\n        unroll: Boolean (default False).\n            If True, the network will be unrolled,\n            else a symbolic loop will be used.\n            Unrolling can speed-up a RNN,\n            although it tends to be more memory-intensive.\n            Unrolling is only suitable for short sequences.\n        input_dim: dimensionality of the input (integer).\n            This argument (or alternatively,\n            the keyword argument `input_shape`)\n            is required when using this layer as the first layer in a model.\n        input_length: Length of input sequences, to be specified\n            when it is constant.\n            This argument is required if you are going to connect\n            `Flatten` then `Dense` layers upstream\n            (without it, the shape of the dense outputs cannot be computed).\n            Note that if the recurrent layer is not the first layer\n            in your model, you would need to specify the input length\n            at the level of the first layer\n            (e.g. via the `input_shape` argument)\n\n    # Input shape\n        3D tensor with shape `(batch_size, timesteps, input_dim)`.\n\n    # Output shape\n        - if `return_state`: a list of tensors. The first tensor is\n            the output. The remaining tensors are the last states,\n            each with shape `(batch_size, units)`.\n        - if `return_sequences`: 3D tensor with shape\n            `(batch_size, timesteps, units)`.\n        - else, 2D tensor with shape `(batch_size, units)`.\n\n    # Masking\n        This layer supports masking for input data with a variable number\n        of timesteps. To introduce masks to your data,\n        use an [Embedding](embeddings.md) layer with the `mask_zero` parameter\n        set to `True`.\n\n    # Note on using statefulness in RNNs\n        You can set RNN layers to be 'stateful', which means that the states\n        computed for the samples in one batch will be reused as initial states\n        for the samples in the next batch. This assumes a one-to-one mapping\n        between samples in different successive batches.\n\n        To enable statefulness:\n            - specify `stateful=True` in the layer constructor.\n            - specify a fixed batch size for your model, by passing\n                if sequential model:\n                  `batch_input_shape=(...)` to the first layer in your model.\n                else for functional model with 1 or more Input layers:\n                  `batch_shape=(...)` to all the first layers in your model.\n                This is the expected shape of your inputs\n                *including the batch size*.\n                It should be a tuple of integers, e.g. `(32, 10, 100)`.\n            - specify `shuffle=False` when calling fit().\n\n        To reset the states of your model, call `.reset_states()` on either\n        a specific layer, or on your entire model.\n\n    # Note on specifying the initial state of RNNs\n        You can specify the initial state of RNN layers symbolically by\n        calling them with the keyword argument `initial_state`. The value of\n        `initial_state` should be a tensor or list of tensors representing\n        the initial state of the RNN layer.\n\n        You can specify the initial state of RNN layers numerically by\n        calling `reset_states` with the keyword argument `states`. The value of\n        `states` should be a numpy array or list of numpy arrays representing\n        the initial state of the RNN layer.\n\n    # Note on passing external constants to RNNs\n        You can pass \"external\" constants to the cell using the `constants`\n        keyword argument of `RNN.__call__` (as well as `RNN.call`) method. This\n        requires that the `cell.call` method accepts the same keyword argument\n        `constants`. Such constants can be used to condition the cell\n        transformation on additional static inputs (not changing over time),\n        a.k.a. an attention mechanism.\n\n    # Examples\n\n    ```python\n        # First, let's define a RNN Cell, as a layer subclass.\n\n        class MinimalRNNCell(keras.layers.Layer):\n\n            def __init__(self, units, **kwargs):\n                self.units = units\n                self.state_size = units\n                super(MinimalRNNCell, self).__init__(**kwargs)\n\n            def build(self, input_shape):\n                self.kernel = self.add_weight(shape=(input_shape[-1], self.units),\n                                              initializer='uniform',\n                                              name='kernel')\n                self.recurrent_kernel = self.add_weight(\n                    shape=(self.units, self.units),\n                    initializer='uniform',\n                    name='recurrent_kernel')\n                self.built = True\n\n            def call(self, inputs, states):\n                prev_output = states[0]\n                h = K.dot(inputs, self.kernel)\n                output = h + K.dot(prev_output, self.recurrent_kernel)\n                return output, [output]\n\n        # Let's use this cell in a RNN layer:\n\n        cell = MinimalRNNCell(32)\n        x = keras.Input((None, 5))\n        layer = RNN(cell)\n        y = layer(x)\n\n        # Here's how to use the cell to build a stacked RNN:\n\n        cells = [MinimalRNNCell(32), MinimalRNNCell(64)]\n        x = keras.Input((None, 5))\n        layer = RNN(cells)\n        y = layer(x)\n    ```\n    ",
     "file": "keras/layers/recurrent.py"
   },
   {
@@ -2211,9 +3151,28 @@
         "default": 0
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "states",
+        "default": null
+      },
+      {
+        "name": "training",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
-    "docstring": "Cell class for SimpleRNN.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you pass None, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the inputs.\n        recurrent_dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the recurrent state.\n    ",
+    "docstring": "Cell class for SimpleRNN.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you pass None, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the inputs.\n        recurrent_dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the recurrent state.\n    ",
     "file": "keras/layers/recurrent.py"
   },
   {
@@ -2312,6 +3271,29 @@
         "default": "False"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "mask",
+        "default": "None"
+      },
+      {
+        "name": "training",
+        "default": "None"
+      },
+      {
+        "name": "initial_state",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Fully-connected RNN where the output is to be fed back to input.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you pass None, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the inputs.\n        recurrent_dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the recurrent state.\n        return_sequences: Boolean. Whether to return the last output.\n            in the output sequence, or the full sequence.\n        return_state: Boolean. Whether to return the last state\n            in addition to the output.\n        go_backwards: Boolean (default False).\n            If True, process the input sequence backwards and return the\n            reversed sequence.\n        stateful: Boolean (default False). If True, the last state\n            for each sample at index i in a batch will be used as initial\n            state for the sample of index i in the following batch.\n        unroll: Boolean (default False).\n            If True, the network will be unrolled,\n            else a symbolic loop will be used.\n            Unrolling can speed-up a RNN,\n            although it tends to be more memory-intensive.\n            Unrolling is only suitable for short sequences.\n    ",
@@ -2402,9 +3384,28 @@
         "default": 1
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "states",
+        "default": null
+      },
+      {
+        "name": "training",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
-    "docstring": "Cell class for the GRU layer.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you pass None, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        recurrent_activation: Activation function to use\n            for the recurrent step\n            (see [activations](../activations.md)).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the inputs.\n        recurrent_dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the recurrent state.\n        implementation: Implementation mode, either 1 or 2.\n    ",
+    "docstring": "Cell class for the GRU layer.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you pass None, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        recurrent_activation: Activation function to use\n            for the recurrent step\n            (see [activations](../activations.md)).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the inputs.\n        recurrent_dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the recurrent state.\n        implementation: Implementation mode, either 1 or 2.\n            Mode 1 will structure its operations as a larger number of\n            smaller dot products and additions, whereas mode 2 will\n            batch them into fewer, larger operations. These modes will\n            have different performance profiles on different hardware and\n            for different applications.\n    ",
     "file": "keras/layers/recurrent.py"
   },
   {
@@ -2511,9 +3512,32 @@
         "default": "False"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "mask",
+        "default": "None"
+      },
+      {
+        "name": "training",
+        "default": "None"
+      },
+      {
+        "name": "initial_state",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
-    "docstring": "Gated Recurrent Unit - Cho et al. 2014.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you pass None, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        recurrent_activation: Activation function to use\n            for the recurrent step\n            (see [activations](../activations.md)).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the inputs.\n        recurrent_dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the recurrent state.\n        implementation: Implementation mode, either 1 or 2.\n        return_sequences: Boolean. Whether to return the last output.\n            in the output sequence, or the full sequence.\n        return_state: Boolean. Whether to return the last state\n            in addition to the output.\n        go_backwards: Boolean (default False).\n            If True, process the input sequence backwards and return the\n            reversed sequence.\n        stateful: Boolean (default False). If True, the last state\n            for each sample at index i in a batch will be used as initial\n            state for the sample of index i in the following batch.\n        unroll: Boolean (default False).\n            If True, the network will be unrolled,\n            else a symbolic loop will be used.\n            Unrolling can speed-up a RNN,\n            although it tends to be more memory-intensive.\n            Unrolling is only suitable for short sequences.\n\n    # References\n        - [On the Properties of Neural Machine Translation: Encoder-Decoder Approaches](https://arxiv.org/abs/1409.1259)\n        - [Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling](http://arxiv.org/abs/1412.3555v1)\n        - [A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)\n    ",
+    "docstring": "Gated Recurrent Unit - Cho et al. 2014.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you pass None, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        recurrent_activation: Activation function to use\n            for the recurrent step\n            (see [activations](../activations.md)).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the inputs.\n        recurrent_dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the recurrent state.\n        implementation: Implementation mode, either 1 or 2.\n            Mode 1 will structure its operations as a larger number of\n            smaller dot products and additions, whereas mode 2 will\n            batch them into fewer, larger operations. These modes will\n            have different performance profiles on different hardware and\n            for different applications.\n        return_sequences: Boolean. Whether to return the last output.\n            in the output sequence, or the full sequence.\n        return_state: Boolean. Whether to return the last state\n            in addition to the output.\n        go_backwards: Boolean (default False).\n            If True, process the input sequence backwards and return the\n            reversed sequence.\n        stateful: Boolean (default False). If True, the last state\n            for each sample at index i in a batch will be used as initial\n            state for the sample of index i in the following batch.\n        unroll: Boolean (default False).\n            If True, the network will be unrolled,\n            else a symbolic loop will be used.\n            Unrolling can speed-up a RNN,\n            although it tends to be more memory-intensive.\n            Unrolling is only suitable for short sequences.\n\n    # References\n        - [On the Properties of Neural Machine Translation: Encoder-Decoder Approaches](https://arxiv.org/abs/1409.1259)\n        - [Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling](http://arxiv.org/abs/1412.3555v1)\n        - [A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)\n    ",
     "file": "keras/layers/recurrent.py"
   },
   {
@@ -2606,9 +3630,28 @@
         "default": 1
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "states",
+        "default": null
+      },
+      {
+        "name": "training",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
-    "docstring": "Cell class for the LSTM layer.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you pass None, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        recurrent_activation: Activation function to use\n            for the recurrent step\n            (see [activations](../activations.md)).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        unit_forget_bias: Boolean.\n            If True, add 1 to the bias of the forget gate at initialization.\n            Setting it to true will also force `bias_initializer=\"zeros\"`.\n            This is recommended in [Jozefowicz et al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the inputs.\n        recurrent_dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the recurrent state.\n        implementation: Implementation mode, either 1 or 2.\n    ",
+    "docstring": "Cell class for the LSTM layer.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you pass None, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        recurrent_activation: Activation function to use\n            for the recurrent step\n            (see [activations](../activations.md)).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        unit_forget_bias: Boolean.\n            If True, add 1 to the bias of the forget gate at initialization.\n            Setting it to true will also force `bias_initializer=\"zeros\"`.\n            This is recommended in [Jozefowicz et al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the inputs.\n        recurrent_dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the recurrent state.\n        implementation: Implementation mode, either 1 or 2.\n            Mode 1 will structure its operations as a larger number of\n            smaller dot products and additions, whereas mode 2 will\n            batch them into fewer, larger operations. These modes will\n            have different performance profiles on different hardware and\n            for different applications.\n    ",
     "file": "keras/layers/recurrent.py"
   },
   {
@@ -2720,9 +3763,32 @@
         "default": "False"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "mask",
+        "default": "None"
+      },
+      {
+        "name": "training",
+        "default": "None"
+      },
+      {
+        "name": "initial_state",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
-    "docstring": "Long-Short Term Memory layer - Hochreiter 1997.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you pass None, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        recurrent_activation: Activation function to use\n            for the recurrent step\n            (see [activations](../activations.md)).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        unit_forget_bias: Boolean.\n            If True, add 1 to the bias of the forget gate at initialization.\n            Setting it to true will also force `bias_initializer=\"zeros\"`.\n            This is recommended in [Jozefowicz et al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the inputs.\n        recurrent_dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the recurrent state.\n        implementation: Implementation mode, either 1 or 2.\n        return_sequences: Boolean. Whether to return the last output.\n            in the output sequence, or the full sequence.\n        return_state: Boolean. Whether to return the last state\n            in addition to the output.\n        go_backwards: Boolean (default False).\n            If True, process the input sequence backwards and return the\n            reversed sequence.\n        stateful: Boolean (default False). If True, the last state\n            for each sample at index i in a batch will be used as initial\n            state for the sample of index i in the following batch.\n        unroll: Boolean (default False).\n            If True, the network will be unrolled,\n            else a symbolic loop will be used.\n            Unrolling can speed-up a RNN,\n            although it tends to be more memory-intensive.\n            Unrolling is only suitable for short sequences.\n\n    # References\n        - [Long short-term memory](http://www.bioinf.jku.at/publications/older/2604.pdf) (original 1997 paper)\n        - [Learning to forget: Continual prediction with LSTM](http://www.mitpressjournals.org/doi/pdf/10.1162/089976600300015015)\n        - [Supervised sequence labeling with recurrent neural networks](http://www.cs.toronto.edu/~graves/preprint.pdf)\n        - [A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)\n    ",
+    "docstring": "Long-Short Term Memory layer - Hochreiter 1997.\n\n    # Arguments\n        units: Positive integer, dimensionality of the output space.\n        activation: Activation function to use\n            (see [activations](../activations.md)).\n            If you pass None, no activation is applied\n            (ie. \"linear\" activation: `a(x) = x`).\n        recurrent_activation: Activation function to use\n            for the recurrent step\n            (see [activations](../activations.md)).\n        use_bias: Boolean, whether the layer uses a bias vector.\n        kernel_initializer: Initializer for the `kernel` weights matrix,\n            used for the linear transformation of the inputs.\n            (see [initializers](../initializers.md)).\n        recurrent_initializer: Initializer for the `recurrent_kernel`\n            weights matrix,\n            used for the linear transformation of the recurrent state.\n            (see [initializers](../initializers.md)).\n        bias_initializer: Initializer for the bias vector\n            (see [initializers](../initializers.md)).\n        unit_forget_bias: Boolean.\n            If True, add 1 to the bias of the forget gate at initialization.\n            Setting it to true will also force `bias_initializer=\"zeros\"`.\n            This is recommended in [Jozefowicz et al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)\n        kernel_regularizer: Regularizer function applied to\n            the `kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        recurrent_regularizer: Regularizer function applied to\n            the `recurrent_kernel` weights matrix\n            (see [regularizer](../regularizers.md)).\n        bias_regularizer: Regularizer function applied to the bias vector\n            (see [regularizer](../regularizers.md)).\n        activity_regularizer: Regularizer function applied to\n            the output of the layer (its \"activation\").\n            (see [regularizer](../regularizers.md)).\n        kernel_constraint: Constraint function applied to\n            the `kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        recurrent_constraint: Constraint function applied to\n            the `recurrent_kernel` weights matrix\n            (see [constraints](../constraints.md)).\n        bias_constraint: Constraint function applied to the bias vector\n            (see [constraints](../constraints.md)).\n        dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the inputs.\n        recurrent_dropout: Float between 0 and 1.\n            Fraction of the units to drop for\n            the linear transformation of the recurrent state.\n        implementation: Implementation mode, either 1 or 2.\n            Mode 1 will structure its operations as a larger number of\n            smaller dot products and additions, whereas mode 2 will\n            batch them into fewer, larger operations. These modes will\n            have different performance profiles on different hardware and\n            for different applications.\n        return_sequences: Boolean. Whether to return the last output.\n            in the output sequence, or the full sequence.\n        return_state: Boolean. Whether to return the last state\n            in addition to the output.\n        go_backwards: Boolean (default False).\n            If True, process the input sequence backwards and return the\n            reversed sequence.\n        stateful: Boolean (default False). If True, the last state\n            for each sample at index i in a batch will be used as initial\n            state for the sample of index i in the following batch.\n        unroll: Boolean (default False).\n            If True, the network will be unrolled,\n            else a symbolic loop will be used.\n            Unrolling can speed-up a RNN,\n            although it tends to be more memory-intensive.\n            Unrolling is only suitable for short sequences.\n\n    # References\n        - [Long short-term memory](http://www.bioinf.jku.at/publications/older/2604.pdf) (original 1997 paper)\n        - [Learning to forget: Continual prediction with LSTM](http://www.mitpressjournals.org/doi/pdf/10.1162/089976600300015015)\n        - [Supervised sequence labeling with recurrent neural networks](http://www.cs.toronto.edu/~graves/preprint.pdf)\n        - [A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)\n    ",
     "file": "keras/layers/recurrent.py"
   },
   {
@@ -2738,6 +3804,8 @@
         "default": null
       }
     ],
+    "inputs": null,
+    "outputs": null,
     "abstract": true,
     "aliases": [],
     "docstring": "Abstract wrapper base class.\n\n    Wrappers take another layer and augment it in various ways.\n    Do not use this class as a layer, it is only an abstract base class.\n    Two usable wrappers are the `TimeDistributed` and `Bidirectional` wrappers.\n\n    # Arguments\n        layer: The layer to be wrapped.\n    ",
@@ -2756,6 +3824,25 @@
         "default": null
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "training",
+        "default": "None"
+      },
+      {
+        "name": "mask",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "This wrapper applies a layer to every temporal slice of an input.\n\n    The input should be at least 3D, and the dimension of index one\n    will be considered to be the temporal dimension.\n\n    Consider a batch of 32 samples,\n    where each sample is a sequence of 10 vectors of 16 dimensions.\n    The batch input shape of the layer is then `(32, 10, 16)`,\n    and the `input_shape`, not including the samples dimension, is `(10, 16)`.\n\n    You can then use `TimeDistributed` to apply a `Dense` layer\n    to each of the 10 timesteps, independently:\n\n    ```python\n        # as the first layer in a model\n        model = Sequential()\n        model.add(TimeDistributed(Dense(8), input_shape=(10, 16)))\n        # now model.output_shape == (None, 10, 8)\n    ```\n\n    The output will then have shape `(32, 10, 8)`.\n\n    In subsequent layers, there is no need for the `input_shape`:\n\n    ```python\n        model.add(TimeDistributed(Dense(32)))\n        # now model.output_shape == (None, 10, 32)\n    ```\n\n    The output will then have shape `(32, 10, 32)`.\n\n    `TimeDistributed` can be used with arbitrary layers, not just `Dense`,\n    for instance with a `Conv2D` layer:\n\n    ```python\n        model = Sequential()\n        model.add(TimeDistributed(Conv2D(64, (3, 3)),\n                                  input_shape=(10, 299, 299, 3)))\n    ```\n\n    # Arguments\n        layer: a layer instance.\n    ",
@@ -2782,6 +3869,25 @@
         "default": "None"
       }
     ],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      },
+      {
+        "name": "training",
+        "default": "None"
+      },
+      {
+        "name": "mask",
+        "default": "None"
+      }
+    ],
+    "outputs": [],
     "abstract": false,
     "aliases": [],
     "docstring": "Bidirectional wrapper for RNNs.\n\n    # Arguments\n        layer: `Recurrent` instance.\n        merge_mode: Mode by which outputs of the\n            forward and backward RNNs will be combined.\n            One of {'sum', 'mul', 'concat', 'ave', None}.\n            If None, the outputs will not be combined,\n            they will be returned as a list.\n\n    # Raises\n        ValueError: In case of invalid `merge_mode` argument.\n\n    # Examples\n\n    ```python\n        model = Sequential()\n        model.add(Bidirectional(LSTM(10, return_sequences=True),\n                                input_shape=(5, 10)))\n        model.add(Bidirectional(LSTM(10)))\n        model.add(Dense(5))\n        model.add(Activation('softmax'))\n        model.compile(loss='categorical_crossentropy', optimizer='rmsprop')\n    ```\n    ",
@@ -2817,7 +3923,7 @@
       }
     ],
     "abstract": false,
-    "docstring": "`Input()` is used to instantiate a Keras tensor.\n\n    A Keras tensor is a tensor object from the underlying backend\n    (Theano or TensorFlow), which we augment with certain\n    attributes that allow us to build a Keras model\n    just by knowing the inputs and outputs of the model.\n\n    For instance, if a, b and c are Keras tensors,\n    it becomes possible to do:\n    `model = Model(input=[a, b], output=c)`\n\n    The added Keras attributes are:\n        ._keras_shape: Integer shape tuple propagated\n            via Keras-side shape inference.\n        ._keras_history: Last layer applied to the tensor.\n            the entire layer graph is retrievable from that layer,\n            recursively.\n\n    # Arguments\n        shape: A shape tuple (integer), not including the batch size.\n            For instance, `shape=(32,)` indicates that the expected input\n            will be batches of 32-dimensional vectors.\n        batch_shape: A shape tuple (integer), including the batch size.\n            For instance, `batch_shape=(10, 32)` indicates that\n            the expected input will be batches of 10 32-dimensional vectors.\n            `batch_shape=(None, 32)` indicates batches of an arbitrary number\n            of 32-dimensional vectors.\n        name: An optional name string for the layer.\n            Should be unique in a model (do not reuse the same name twice).\n            It will be autogenerated if it isn't provided.\n        dtype: The data type expected by the input, as a string\n            (`float32`, `float64`, `int32`...)\n        sparse: A boolean specifying whether the placeholder\n            to be created is sparse.\n        tensor: Optional existing tensor to wrap into the `Input` layer.\n            If set, the layer will not create a placeholder tensor.\n\n    # Returns\n        A tensor.\n\n    # Example\n\n        ```python\n        # this is a logistic regression in Keras\n        x = Input(shape=(32,))\n        y = Dense(16, activation='softmax')(x)\n        model = Model(x, y)\n        ```\n    ",
+    "docstring": "`Input()` is used to instantiate a Keras tensor.\n\n    A Keras tensor is a tensor object from the underlying backend\n    (Theano, TensorFlow or CNTK), which we augment with certain\n    attributes that allow us to build a Keras model\n    just by knowing the inputs and outputs of the model.\n\n    For instance, if a, b and c are Keras tensors,\n    it becomes possible to do:\n    `model = Model(input=[a, b], output=c)`\n\n    The added Keras attributes are:\n        `_keras_shape`: Integer shape tuple propagated\n            via Keras-side shape inference.\n        `_keras_history`: Last layer applied to the tensor.\n            the entire layer graph is retrievable from that layer,\n            recursively.\n\n    # Arguments\n        shape: A shape tuple (integer), not including the batch size.\n            For instance, `shape=(32,)` indicates that the expected input\n            will be batches of 32-dimensional vectors.\n        batch_shape: A shape tuple (integer), including the batch size.\n            For instance, `batch_shape=(10, 32)` indicates that\n            the expected input will be batches of 10 32-dimensional vectors.\n            `batch_shape=(None, 32)` indicates batches of an arbitrary number\n            of 32-dimensional vectors.\n        name: An optional name string for the layer.\n            Should be unique in a model (do not reuse the same name twice).\n            It will be autogenerated if it isn't provided.\n        dtype: The data type expected by the input, as a string\n            (`float32`, `float64`, `int32`...)\n        sparse: A boolean specifying whether the placeholder\n            to be created is sparse.\n        tensor: Optional existing tensor to wrap into the `Input` layer.\n            If set, the layer will not create a placeholder tensor.\n\n    # Returns\n        A tensor.\n\n    # Example\n\n        ```python\n        # this is a logistic regression in Keras\n        x = Input(shape=(32,))\n        y = Dense(16, activation='softmax')(x)\n        model = Model(x, y)\n        ```\n    ",
     "file": "keras/engine/topology.py"
   }
 ]

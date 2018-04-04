@@ -70,7 +70,7 @@ describe('GenerateKeras', function () {
                     project: project,
                     commitHash: commitHash,
                     branchName: 'test',
-                    activeNode: '/V',
+                    activeNode: '/D',
                 };
 
             manager.executePlugin(pluginName, pluginConfig, context, function (err, pluginResult) {
