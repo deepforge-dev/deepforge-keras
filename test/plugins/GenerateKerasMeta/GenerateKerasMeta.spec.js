@@ -160,6 +160,14 @@ describe('GenerateKerasMeta', function () {
                 let meta = plugin.core.getPointerMeta(node, 'activation');
                 assert(meta[fnId]);
             });
+
+            it('should detect types from base layer args (`activation`/Conv2D)', function () {
+                let node = getMetaNode('Conv2D');
+                let fn = getMetaNode('ActivationFunction');
+                let fnId = plugin.core.getPath(fn);
+                let meta = plugin.core.getPointerMeta(node, 'activation');
+                assert(meta[fnId]);
+            });
         });
     });
 

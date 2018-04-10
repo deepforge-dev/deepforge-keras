@@ -203,6 +203,10 @@ define([
         return Q.all(LAYERS.map(schema => this.updateNode(schema)));
     };
 
+    GenerateKerasMeta.prototype.getLayerSchema = function (name) {
+        return ALL_LAYERS.find(layer => layer.name === name);
+    };
+
     GenerateKerasMeta.prototype.updateNode = function (layer) {
         // Create the actual nodes
         this.logger.debug(`adding "${layer.name}" layer`);
@@ -275,7 +279,8 @@ define([
         var argNames = layerArgs.map(arg => arg.name);
 
         layerArgs.forEach(arg => {
-            this.addParameter(node, arg.name, {type: arg.type}, arg.default);
+            let type = this.getArgumentType(layer, arg.name);
+            this.addParameter(node, arg.name, {type: type}, arg.default);
         });
 
         // Add ctor args
@@ -291,6 +296,23 @@ define([
         this.addLayerOutputs(node, layer);
 
         return node;
+    };
+
+    GenerateKerasMeta.prototype.getArgumentType = function (layer, name) {
+        let arg, type;
+
+        // For now, we assume that arguments used by both a child and base class
+        // are the same type. Ideally, we would inspect the usage of the
+        // parameter. For now, this should be sufficient.
+        while (layer && !type) {
+            arg = layer.arguments && layer.arguments.find(arg => arg.name === name);
+            if (!arg) {  // if the argument is not used, stop tracing the inheritance
+                return undefined;
+            }
+            type = arg.type;
+            layer = this.getLayerSchema(layer.base);
+        }
+        return type;
     };
 
     GenerateKerasMeta.prototype.createIOSet = function (node, name) {
