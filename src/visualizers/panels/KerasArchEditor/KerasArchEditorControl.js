@@ -328,25 +328,28 @@ define([
     };
 
     KerasArchEditorControl.prototype.getAllPredecessorsAsDict = function(childId) {
-        // For the given node, get all the predecessors
+        return this.getAllNodesInDirection(childId, false);
+    };
+
+    KerasArchEditorControl.prototype.getAllSuccessorsAsDict = function(childId) {
+        return this.getAllNodesInDirection(childId);
+    };
+
+    KerasArchEditorControl.prototype.getAllNodesInDirection = function(childId, forward=true) {
+        // If forward, get successors. Else get the predecessors
+        const nodeDict = this.getBidirectionalGraph();
+        const edgeName = forward ? 'next' : 'prev';
         let current = [childId];
         let visited = {};
         let next;
+
         while (current.length) {
             next = [];
             for (let i = current.length; i--;) {
                 visited[current[i]] = true;
 
-                let node = this._client.getNode(current[i]);
-                let inputs = node.getMemberIds('inputs')
-                    .map(id => this._client.getNode(id));
-
-                let prevs = inputs
-                    .map(node => node.getMemberIds('source').map(id => this.getParentAtDepth(id)))
-                    .reduce((l1, l2) => l1.concat(l2), []);
-
                 // Get the predecessors of a given node
-                next = next.concat(prevs);
+                next = next.concat(nodeDict[current[i]][edgeName]);
             }
             current = next.filter(id => !visited[id]);
         }
@@ -354,57 +357,61 @@ define([
         return visited;
     };
 
-    KerasArchEditorControl.prototype.getValidExistingSuccessors = function(id) {
-        const childId = this.getParentAtDepth(id);
-        const isPredecessor = this.getAllPredecessorsAsDict(childId);
+    KerasArchEditorControl.prototype.getBidirectionalGraph = function() {
+        const nodeDict = {};
+        const children = this.getCurrentChildren();
 
-        // Remove the nodes which are already connected
-        // TODO
+        children.forEach(child => nodeDict[child.getId()] = {next: [], prev: [], node: child});
+
+        // Reconstruct the connections in both directions
+        children.forEach(node => {
+            const inputs = node.getMemberIds('inputs')
+                .map(id => this._client.getNode(id));
+
+            const prevs = inputs
+                .map(node => node.getMemberIds('source').map(id => this.getParentAtDepth(id)))
+                .reduce((l1, l2) => l1.concat(l2), []);
+
+            const nodeId = node.getId();
+            nodeDict[nodeId].prev = prevs;
+            prevs.forEach(prevId => {
+                nodeDict[prevId].next.push(nodeId);
+            });
+        });
+
+        return nodeDict;
+    };
+
+    KerasArchEditorControl.prototype.getValidExistingSuccessors = function(id) {
+        return this.getValidExistingNextNodes(id, true);
+    };
+
+    KerasArchEditorControl.prototype.getValidExistingPredecessors = function(id) {
+        return this.getValidExistingNextNodes(id, false);
+    };
+
+    KerasArchEditorControl.prototype.getValidExistingNextNodes = function(id, forward=true) {
+        const childId = this.getParentAtDepth(id);
+        const isInDirection = this.getAllNodesInDirection(childId, !forward);
+        const nodeDict = this.getBidirectionalGraph();
+        const edgeName = forward ? 'next' : 'prev';
+        const argsType = forward ? 'inputs' : 'outputs';
+        const alreadyConnectedNodes = nodeDict[childId][edgeName];
 
         return this.getCurrentChildren()
             .filter(node => {
-                if (isPredecessor[node.getId()]) {
+                const nodeId = node.getId();
+                if (isInDirection[nodeId]) {
                     return false;
                 }
 
                 // Check if the node is already connected to "childId"
-                const isImmediateSuccessor = node.getMemberIds('inputs')
-                    .find(id => {
-                        const inputNode = this._client.getNode(id);
-                        return inputNode.getMemberIds('source')
-                            .map(id => this.getParentAtDepth(id))
-                            .find(id => id === childId);
-                    });
+                const isImmediateNode = alreadyConnectedNodes.includes(nodeId);
 
-                return !isImmediateSuccessor;
+                return !isImmediateNode;
             })
             .map(node => {
-                return node.getMemberIds('inputs').map(id => {
-                    return {
-                        node: this._getObjectDescriptor(this.getParentAtDepth(id)),
-                        arg: this._getObjectDescriptor(id)
-                    };
-                });
-            })
-            .reduce((l1, l2) => l1.concat(l2), []);
-    };
-
-    KerasArchEditorControl.prototype.getValidExistingPredecessors = function(id) {
-        const childId = this.getParentAtDepth(id);
-
-        // Get all valid predecessors
-        const isPredecessor = this.getAllPredecessorsAsDict(childId);
-        delete isPredecessor[childId];  // no self-connections
-
-        // Remove the nodes which are already connected
-        const immediatePreds = this._client.getNode(id).getMemberIds('source')
-            .map(id => this.getParentAtDepth(id));
-        immediatePreds.forEach(id => delete isPredecessor[id]);
-
-        return this.getCurrentChildren()
-            .filter(node => isPredecessor[node.getId()])
-            .map(node => {
-                return node.getMemberIds('outputs').map(id => {
+                return node.getMemberIds(argsType).map(id => {
                     return {
                         node: this._getObjectDescriptor(this.getParentAtDepth(id)),
                         arg: this._getObjectDescriptor(id)
