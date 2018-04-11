@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "webgme-autoviz": "^2.2.1",
-    "webgme-easydag": "^1.2.0",
+    "webgme-easydag": "github:dfst/webgme-easydag",
     "webgme-simple-nodes": "github:brollb/webgme-simple-nodes"
   }
 }

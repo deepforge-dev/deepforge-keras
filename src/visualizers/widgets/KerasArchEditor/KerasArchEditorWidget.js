@@ -186,24 +186,22 @@ define([
             dstItems = dsts.map(pair => this.items[pair.node.id]);
 
         this.resetConnectingState();
-        this._connectionOptions = dstItems;
-        this._connectionSrc = src;
-        dstItems
-            .map((item, i) => {
-                let arg = dsts[i].arg;
-                return [
-                    arg,
-                    item.showIcon({
-                        x: 0.5,
-                        y: !reverse ? 0 : 1,
-                        icon: 'chevron-bottom'
-                    })
-                ];
-            })
-            .forEach(pair => pair[1].on('click', () => onClick(pair[0])));
+        const tuples = dstItems.map((item, i) => {
+            let arg = dsts[i].arg;
+            return [
+                arg,
+                item,
+                item.showIcon({
+                    x: 0.5,
+                    y: !reverse ? 0 : 1,
+                    icon: 'chevron-bottom'
+                })
+            ];
+        });
+        tuples.forEach(pair => pair[2].on('click', () => onClick(pair[0])));
 
         // Create the 'create-new' icon for the src
-        src.showIcon({
+        const srcIcon = src.showIcon({
             x: 0.5,
             y: !reverse ? 1 : 0,
             icon: 'plus'
@@ -212,6 +210,9 @@ define([
             this.resetConnectingState();
             this.onAddButtonClicked(srcId, reverse);
         });
+
+        this._connectionOptions = tuples.map(tuple => tuple.slice(1));
+        this._connectionSrc = [src, srcIcon];
 
         this._connecting = true;
     };
