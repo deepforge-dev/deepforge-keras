@@ -1,7 +1,7 @@
 /*globals define, WebGMEGlobal, d3*/
 define([
     'widgets/EasyDAG/Buttons',
-    'widgets/EasyDAG/Icons'
+    'webgme-easydag/Icons'
 ], function(
     Buttons,
     Icons
