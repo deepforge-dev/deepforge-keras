@@ -47,6 +47,8 @@ define([
                 if (selectedId.includes(inputId)) {
                     this.selectionManager.deselect();
                 }
+            } else {  // hovered
+                this.hideHoverButtons();
             }
         }
     };
@@ -91,6 +93,8 @@ define([
                 if (selectedId.includes(inputId)) {
                     this.selectionManager.deselect();
                 }
+            } else {  // hovered
+                this.hideHoverButtons();
             }
         }
     };
