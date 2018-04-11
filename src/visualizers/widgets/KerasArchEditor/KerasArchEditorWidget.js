@@ -28,13 +28,19 @@ define([
 
     var KerasArchEditorWidget,
         WIDGET_CLASS = 'keras-arch-editor',
-        LAYER_TAB_ORDER = [  // TODO: FIXME
-            'Simple',
-            'Transfer',
-            'Convolution',
-            'RNN',
-            'Container',
-            'Misc'
+        LAYER_TAB_ORDER = [
+            'Core',
+            'Convolutional',
+            'Pooling',
+            'Normalization',
+            'Embeddings',
+            'Advanced_activations',
+            'Recurrent',
+            'Local',
+            'Merge',
+            'Noise',
+            'Cudnn_recurrent',
+            'Wrappers'
         ];
 
     KerasArchEditorWidget = function () {
@@ -248,7 +254,6 @@ define([
             i;
 
         Object.keys(types).forEach(type => allTabs[type] = true);
-        delete allTabs.Criterion;
 
         // Add the ordered tabs
         for (i = LAYER_TAB_ORDER.length; i--;) {
