@@ -44,7 +44,7 @@ define([
             if (this.selectionManager.selectedItem) {
                 const selectedId = this.selectionManager.selectedItem.id;
 
-                if (selectedId.includes(inputId)) {
+                if (inputId.includes(selectedId)) {
                     this.selectionManager.deselect();
                 }
             } else {  // hovered
@@ -90,7 +90,7 @@ define([
             if (this.selectionManager.selectedItem) {
                 const selectedId = this.selectionManager.selectedItem.id;
 
-                if (selectedId.includes(inputId)) {
+                if (inputId.includes(selectedId)) {
                     this.selectionManager.deselect();
                 }
             } else {  // hovered
