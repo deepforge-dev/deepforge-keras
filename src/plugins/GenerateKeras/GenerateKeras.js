@@ -6,12 +6,14 @@ define([
     'SimpleNodes/SimpleNodes',
     'SimpleNodes/Constants',
     './keywords',
+    'underscore',
     'text!./metadata.json'
 ], function (
     Constants,
     PluginBase,
     SimpleConstants,
     PythonKeywords,
+    _,
     pluginMetadata
 ) {
     'use strict';
@@ -43,6 +45,7 @@ define([
     GenerateKeras.prototype = Object.create(PluginBase.prototype);
     GenerateKeras.prototype.constructor = GenerateKeras;
 
+    /* * * * Overrides for Updating Connection Detection * * * */
     GenerateKeras.prototype.isConnection =
     GenerateKeras.prototype._isConnection = function(node) {
         if (this.core.isTypeOf(node, this.META.Layer)) {
@@ -89,6 +92,7 @@ define([
         return id.split('/').slice(0, depth+1).join('/');
     };
 
+    /* * * * * * * * Main Code Generation Logic * * * * * * * */
     GenerateKeras.prototype.createOutputFiles = function(activeNode) {
         var outputFiles = {};
         var layers = activeNode[SimpleConstants.CHILDREN];
@@ -151,6 +155,8 @@ define([
         var ctor = layer[SimpleConstants.BASE].name;
         var args = this.getArguments(layer);
 
+        this.sortLayerInputsByIndex(layer);
+
         if (layer[SimpleConstants.BASE].name === 'Input') {
             return `${name} = ${ctor}(${args})`;
         } else {
@@ -162,6 +168,40 @@ define([
 
             return `${name} = ${ctor}(${args})(${inputCode})`;
         }
+    };
+
+    GenerateKeras.prototype.getSourceIndicesDict = function(node) {
+        const sourceIndicesDict = {};
+
+        const sourceIds = this.core.getMemberPaths(node, 'source');
+        sourceIds.forEach(id => {
+            const index = this.core.getMemberAttribute(node, 'source', id, 'index');
+            const srcLayerId = this.getChildId(id);
+            sourceIndicesDict[srcLayerId] = index;
+        });
+
+        return sourceIndicesDict;
+    };
+
+    GenerateKeras.prototype.sortLayerInputsByIndex = function(layer) {
+
+        // Get the input id
+        const node = this.getNode(layer[SimpleConstants.NODE_PATH]);
+        const inputs = this.core.getMemberPaths(node, 'inputs').map(id => this.getNode(id));
+
+        let indexByNodeId = {};
+        inputs.forEach(input => {
+            const dict = this.getSourceIndicesDict(input);
+            _.extend(indexByNodeId, dict);
+        });
+
+        layer[SimpleConstants.PREV].sort((layer1, layer2) => {
+            const [index1, index2] = [layer1, layer2]
+                .map(l => l[SimpleConstants.NODE_PATH])
+                .map(id => indexByNodeId[id]);
+
+            return index1 < index2 ? -1 : 1;
+        });
     };
 
     GenerateKeras.prototype.generateVariableName = function(basename) {
