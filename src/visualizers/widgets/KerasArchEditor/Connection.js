@@ -24,11 +24,7 @@ define([
         BaseConnection.prototype.redraw.apply(this, arguments);
         // More intelligent placement of indices
         // TODO
-        const center = {
-            x: this.x,// + this.getWidth()/2,
-            y: this.y// - this.getHeight()/2
-        };
-        this.$index.attr('transform', `translate(${center.x+10}, ${center.y})`);
+        this.$index.attr('transform', `translate(${this.x+10}, ${this.y})`);
     };
 
     Connection.prototype.update = function(desc) {
