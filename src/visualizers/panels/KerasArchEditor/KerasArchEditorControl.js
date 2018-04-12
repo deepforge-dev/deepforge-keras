@@ -141,7 +141,7 @@ define([
             return newPairs.push(pair);  // new connection
         });
 
-        // Add the existing connections
+        // Update the existing connections if index should no longer be shown
         existingPairs.forEach(conn => this._widget.updateConnection(conn));
 
         // Add the new connections
@@ -163,12 +163,20 @@ define([
     };
 
     KerasArchEditorControl.prototype.removeConnectionsInvolving = function (id) {
+        // I also need to detect if this affects any existing connections
+        // That is, I need to update any node which is the target of the
+        // connection
         id = this.getParentAtDepth(id);
         for (let i = this.connections.length; i--;) {
             const conn = this.connections[i];
             if (conn.src === id || conn.dst === id) {
                 this.connections.splice(i, 1);
                 this._widget.removeNode(conn.id);
+                if (conn.src === id) {
+                    // If this is the source node, this may affect the printing
+                    // of indices for other connections to this destination node
+                    this._onUpdate(conn.dst);
+                }
             }
         }
     };
@@ -474,16 +482,44 @@ define([
         this._client.startTransaction(msg);
         this._client.removeMember(dstId, srcId, 'source');
         // Update the 'index' member attribute for any other members
-        inputs.forEach((id, index) => {
+        this.updateSourceIndices(dstId, inputs);
+        this._client.completeTransaction();
+    };
+
+    KerasArchEditorControl.prototype.getInputNodesWithSource = function(nodeId) {
+        return this.getCurrentChildren()  // Get the inputs
+            .map(node => node.getMemberIds('inputs').map(id => this._client.getNode(id)))
+            .reduce((l1, l2) => l1.concat(l2), [])
+            .filter(inputNode => inputNode.getMemberIds('source').includes(nodeId));
+    };
+
+    KerasArchEditorControl.prototype.updateSourceIndices = function(inputId, sourceIds) {
+        sourceIds = sourceIds || this._getLayerArgInputIds(inputId);
+        sourceIds.forEach((id, index) => {
             this._client.setMemberAttribute(
-                dstId,
+                inputId,
                 id,
                 'source',
                 'index',
                 index
             );
         });
-        this._client.completeTransaction();
+    };
+
+    KerasArchEditorControl.prototype._deleteNode = function(nodeId, silent) {
+        // Get all nodes which have a reference to this one
+        const inputNodes = this.getInputNodesWithSource(nodeId);
+        const name = this._client.getNode(nodeId).getAttribute('name');
+
+        if (!silent) this._client.startTransaction(`Removing ${name} layer`);
+        // Update their 'index' member attributes
+        inputNodes.forEach(node => this.updateSourceIndices(node.getId()));
+
+        // Remove the node
+        ThumbnailControl.prototype._deleteNode.call(this, nodeId, true);
+
+        if (!silent) this._client.completeTransaction();
+
     };
 
     KerasArchEditorControl.prototype._getLayerArgInputIds = function(argId) {
@@ -493,9 +529,10 @@ define([
         existingInputs.sort((idA, idB) => {  // sort by the index
             // Get the indices and compare
             const [indexA, indexB] = [idA, idB]
-                .map(id => dstNode.getMemberAttribute('source', id, 'index'));
+                .map(id => dstNode.getMemberAttribute('source', id, 'index') || 0);
             return indexA < indexB ? -1 : 1;
         });
+
         return existingInputs;
     };
 
@@ -568,21 +605,20 @@ define([
                 if (!reverse) {  // srcId is the output and we created the new input
                     outputId = srcId;
                     inputId = core.getMemberPaths(newNode, 'inputs')
-                        .find(id => {  // get the first input
+                        .find(id => {  // get the first input (for now)
                             const index = core.getMemberAttribute(newNode, 'inputs', id, 'index');
                             return index === 0;
                         });
                 } else {
                     inputId = srcId;
                     outputId = core.getMemberPaths(newNode, 'outputs')
-                        .find(id => {  // get the first output
+                        .find(id => {  // get the first output (for now)
                             const index = core.getMemberAttribute(newNode, 'outputs', id, 'index');
                             return index === 0;
                         });
                 }
 
                 // Set the reference from the input node to the output node
-                // TODO
                 let inputNode = null;
                 let outputNode = null;
                 return core.loadByPath(rootNode, inputId)
@@ -592,6 +628,9 @@ define([
                     })
                     .then(node => {
                         outputNode = node;
+                        const index = core.getMemberPaths(inputNode, 'source').length;
+                        console.log('current source count: ', index, 'for', outputId);
+                        console.log('inputNode', core.getAttribute(inputNode, 'name'));
                         core.addMember(inputNode, 'source', outputNode);
                         core.setMemberRegistry(
                             inputNode,
@@ -599,6 +638,14 @@ define([
                             outputId,
                             'position',
                             {x: 100, y: 100}
+                        );
+                        // Set the 'index'
+                        core.setMemberAttribute(
+                            inputNode,
+                            'source',
+                            outputId,
+                            'index',
+                            index
                         );
 
                         const persisted = core.persist(rootNode);

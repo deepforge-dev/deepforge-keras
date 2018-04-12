@@ -11,6 +11,7 @@ define([
         this.$index = this.$el.append('g')
             .attr('class', 'connection-index');
 
+        this.$indexText = this.$index.append('text');
         this.update(desc);
     };
 
@@ -32,10 +33,8 @@ define([
 
     Connection.prototype.update = function(desc) {
         BaseConnection.prototype.update.apply(this, arguments);
-        if (desc.index !== null) {
-            this.$index.append('text')
-                .text(desc.index);
-        }
+        const index = desc.index !== null ? desc.index : '';
+        this.$indexText.text(index);
     };
 
     return Connection;
