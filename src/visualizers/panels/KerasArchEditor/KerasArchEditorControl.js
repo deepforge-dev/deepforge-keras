@@ -91,49 +91,61 @@ define([
 
         // Update the ids to ignore ports and stuff
         // TODO
-        const srcDstPairs = desc.inputs.map(node => {
-            const dstId = node.getId();
-            const ids = node.getMemberIds('source');
+        const connections = desc.inputs
+            .map(node => {
+                const dstId = node.getId();
+                const ids = node.getMemberIds('source');
 
-            return ids.map(srcId => [
-                this.getParentAtDepth(srcId),
-                this.getParentAtDepth(dstId),
-                srcId,
-                dstId
-            ]);
-        }).reduce((l1, l2) => l1.concat(l2), []);
+                return ids.map(srcId => [
+                    this.getParentAtDepth(srcId),
+                    this.getParentAtDepth(dstId),
+                    srcId,
+                    dstId
+                ]);
+            })
+            .reduce((l1, l2) => l1.concat(l2), [])
+            .map(pair => {
+                const [src, dst, srcArgId, dstArgId] = pair;
+                const connection = {
+                    src,
+                    dst,
+                    srcArgId,
+                    dstArgId,
+                    index: null,
+                    id: `${src}-${dst}`
+                };
+
+                const inputIds = this._getLayerArgInputIds(dstArgId);
+                if (inputIds.length > 1) {
+                    connection.index = inputIds.indexOf(srcArgId);
+                }
+                return connection;
+            });
 
         // For all pairs, remove them if they already exist
-        const newPairs = srcDstPairs.filter(pair => {
-            const [src, dst] = pair;
+        // They should be updated
+        const newPairs = [];
+        const existingPairs = [];
+        connections.forEach(pair => {
+            const {src, dst} = pair;
 
             if (srcIdsForId[dst]) {
                 const index = srcIdsForId[dst].indexOf(src);
 
                 if (index > -1) {  // exists
                     srcIdsForId[dst].splice(index, 1);
-                    return false;
+                    return existingPairs.push(pair);
                 }
             }
 
-            return true;  // new connection
+            return newPairs.push(pair);  // new connection
         });
 
+        // Add the existing connections
+        existingPairs.forEach(conn => this._widget.updateConnection(conn));
+
         // Add the new connections
-        newPairs
-            .map(pair => {  // create the connection
-                const [src, dst, srcArgId, dstArgId] = pair;
-                return {
-                    src,
-                    dst,
-                    srcArgId,
-                    dstArgId,
-                    id: `${src}-${dst}`
-                };
-            })
-            .forEach(conn => {  // add the connection
-                this.connections.push(conn);
-            });
+        newPairs.forEach(conn => this.connections.push(conn));
 
         // Remove any connections with the same dst but different source
         const ids = srcIdsForId[desc.id] || [];
