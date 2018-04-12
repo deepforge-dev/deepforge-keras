@@ -454,9 +454,37 @@ define([
         });
         const msg = `Disconnecting ${dstLayer} from ${srcLayer}`;
 
+        // Determine the indices for each input
+        const inputs = this._getLayerArgInputIds(dstId);
+        const srcIndex = inputs.indexOf(srcId);
+        inputs.splice(srcIndex, 1);
+
         this._client.startTransaction(msg);
         this._client.removeMember(dstId, srcId, 'source');
+        // Update the 'index' member attribute for any other members
+        inputs.forEach((id, index) => {
+            this._client.setMemberAttribute(
+                dstId,
+                id,
+                'source',
+                'index',
+                index
+            );
+        });
         this._client.completeTransaction();
+    };
+
+    KerasArchEditorControl.prototype._getLayerArgInputIds = function(argId) {
+        const dstNode = this._client.getNode(argId);
+        const existingInputs = dstNode.getMemberIds('source');
+
+        existingInputs.sort((idA, idB) => {  // sort by the index
+            // Get the indices and compare
+            const [indexA, indexB] = [idA, idB]
+                .map(id => dstNode.getMemberAttribute('source', id, 'index'));
+            return indexA < indexB ? -1 : 1;
+        });
+        return existingInputs;
     };
 
     KerasArchEditorControl.prototype._connectNodes = function(srcId, dstId) {
@@ -467,6 +495,11 @@ define([
         });
         const msg = `Connecting ${srcLayer} to ${dstLayer}`;
 
+        // Get the index for the new input
+        const dstNode = this._client.getNode(dstId);
+        const existingInputs = dstNode.getMemberIds('source');
+        const index = existingInputs.length;
+
         this._client.startTransaction(msg);
         this._client.addMember(dstId, srcId, 'source');
         this._client.setMemberRegistry(
@@ -475,6 +508,15 @@ define([
             'source',
             'position',
             {x: 100, y: 100}
+        );
+
+        // Set the 'index' member attribute
+        this._client.setMemberAttribute(
+            dstId,
+            srcId,
+            'source',
+            'index',
+            index
         );
         this._client.completeTransaction();
     };
