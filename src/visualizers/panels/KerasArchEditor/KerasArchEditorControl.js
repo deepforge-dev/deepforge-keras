@@ -629,8 +629,6 @@ define([
                     .then(node => {
                         outputNode = node;
                         const index = core.getMemberPaths(inputNode, 'source').length;
-                        console.log('current source count: ', index, 'for', outputId);
-                        console.log('inputNode', core.getAttribute(inputNode, 'name'));
                         core.addMember(inputNode, 'source', outputNode);
                         core.setMemberRegistry(
                             inputNode,
