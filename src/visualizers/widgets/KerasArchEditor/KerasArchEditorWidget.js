@@ -297,6 +297,11 @@ define([
         this.refreshUI();
     };
 
+    KerasArchEditorWidget.prototype.updateConnection = function(desc) {
+        ThumbnailWidget.prototype.updateConnection.apply(this, arguments);
+        this.connections[desc.id].update(desc);
+    };
+
     KerasArchEditorWidget.prototype.expandAllNodes = function(reverse) {
         var itemIds = Object.keys(this.items),
             method = reverse ? 'condenseAll' : 'expandAll';

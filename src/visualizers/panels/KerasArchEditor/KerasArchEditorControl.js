@@ -91,49 +91,61 @@ define([
 
         // Update the ids to ignore ports and stuff
         // TODO
-        const srcDstPairs = desc.inputs.map(node => {
-            const dstId = node.getId();
-            const ids = node.getMemberIds('source');
+        const connections = desc.inputs
+            .map(node => {
+                const dstId = node.getId();
+                const ids = node.getMemberIds('source');
 
-            return ids.map(srcId => [
-                this.getParentAtDepth(srcId),
-                this.getParentAtDepth(dstId),
-                srcId,
-                dstId
-            ]);
-        }).reduce((l1, l2) => l1.concat(l2), []);
+                return ids.map(srcId => [
+                    this.getParentAtDepth(srcId),
+                    this.getParentAtDepth(dstId),
+                    srcId,
+                    dstId
+                ]);
+            })
+            .reduce((l1, l2) => l1.concat(l2), [])
+            .map(pair => {
+                const [src, dst, srcArgId, dstArgId] = pair;
+                const connection = {
+                    src,
+                    dst,
+                    srcArgId,
+                    dstArgId,
+                    index: null,
+                    id: `${src}-${dst}`
+                };
+
+                const inputIds = this._getLayerArgInputIds(dstArgId);
+                if (inputIds.length > 1) {
+                    connection.index = inputIds.indexOf(srcArgId);
+                }
+                return connection;
+            });
 
         // For all pairs, remove them if they already exist
-        const newPairs = srcDstPairs.filter(pair => {
-            const [src, dst] = pair;
+        // They should be updated
+        const newPairs = [];
+        const existingPairs = [];
+        connections.forEach(pair => {
+            const {src, dst} = pair;
 
             if (srcIdsForId[dst]) {
                 const index = srcIdsForId[dst].indexOf(src);
 
                 if (index > -1) {  // exists
                     srcIdsForId[dst].splice(index, 1);
-                    return false;
+                    return existingPairs.push(pair);
                 }
             }
 
-            return true;  // new connection
+            return newPairs.push(pair);  // new connection
         });
 
+        // Update the existing connections if index should no longer be shown
+        existingPairs.forEach(conn => this._widget.updateConnection(conn));
+
         // Add the new connections
-        newPairs
-            .map(pair => {  // create the connection
-                const [src, dst, srcArgId, dstArgId] = pair;
-                return {
-                    src,
-                    dst,
-                    srcArgId,
-                    dstArgId,
-                    id: `${src}-${dst}`
-                };
-            })
-            .forEach(conn => {  // add the connection
-                this.connections.push(conn);
-            });
+        newPairs.forEach(conn => this.connections.push(conn));
 
         // Remove any connections with the same dst but different source
         const ids = srcIdsForId[desc.id] || [];
@@ -150,13 +162,25 @@ define([
         }
     };
 
+    KerasArchEditorControl.prototype.isNodeLoaded = function (id) {
+        return !!this._client.getNode(id);
+    };
+
     KerasArchEditorControl.prototype.removeConnectionsInvolving = function (id) {
+        // I also need to detect if this affects any existing connections
+        // That is, I need to update any node which is the target of the
+        // connection
         id = this.getParentAtDepth(id);
         for (let i = this.connections.length; i--;) {
             const conn = this.connections[i];
             if (conn.src === id || conn.dst === id) {
                 this.connections.splice(i, 1);
                 this._widget.removeNode(conn.id);
+                if (conn.src === id && this.isNodeLoaded(conn.dst)) {
+                    // If this is the source node, this may affect the printing
+                    // of indices for other connections to this destination node
+                    this._onUpdate(conn.dst);
+                }
             }
         }
     };
@@ -454,9 +478,66 @@ define([
         });
         const msg = `Disconnecting ${dstLayer} from ${srcLayer}`;
 
+        // Determine the indices for each input
+        const inputs = this._getLayerArgInputIds(dstId);
+        const srcIndex = inputs.indexOf(srcId);
+        inputs.splice(srcIndex, 1);
+
         this._client.startTransaction(msg);
         this._client.removeMember(dstId, srcId, 'source');
+        // Update the 'index' member attribute for any other members
+        this.updateSourceIndices(dstId, inputs);
         this._client.completeTransaction();
+    };
+
+    KerasArchEditorControl.prototype.getInputNodesWithSource = function(nodeId) {
+        return this.getCurrentChildren()  // Get the inputs
+            .map(node => node.getMemberIds('inputs').map(id => this._client.getNode(id)))
+            .reduce((l1, l2) => l1.concat(l2), [])
+            .filter(inputNode => inputNode.getMemberIds('source').includes(nodeId));
+    };
+
+    KerasArchEditorControl.prototype.updateSourceIndices = function(inputId, sourceIds) {
+        sourceIds = sourceIds || this._getLayerArgInputIds(inputId);
+        sourceIds.forEach((id, index) => {
+            this._client.setMemberAttribute(
+                inputId,
+                id,
+                'source',
+                'index',
+                index
+            );
+        });
+    };
+
+    KerasArchEditorControl.prototype._deleteNode = function(nodeId, silent) {
+        // Get all nodes which have a reference to this one
+        const inputNodes = this.getInputNodesWithSource(nodeId);
+        const name = this._client.getNode(nodeId).getAttribute('name');
+
+        if (!silent) this._client.startTransaction(`Removing ${name} layer`);
+        // Update their 'index' member attributes
+        inputNodes.forEach(node => this.updateSourceIndices(node.getId()));
+
+        // Remove the node
+        ThumbnailControl.prototype._deleteNode.call(this, nodeId, true);
+
+        if (!silent) this._client.completeTransaction();
+
+    };
+
+    KerasArchEditorControl.prototype._getLayerArgInputIds = function(argId) {
+        const dstNode = this._client.getNode(argId);
+        const existingInputs = dstNode.getMemberIds('source');
+
+        existingInputs.sort((idA, idB) => {  // sort by the index
+            // Get the indices and compare
+            const [indexA, indexB] = [idA, idB]
+                .map(id => dstNode.getMemberAttribute('source', id, 'index') || 0);
+            return indexA < indexB ? -1 : 1;
+        });
+
+        return existingInputs;
     };
 
     KerasArchEditorControl.prototype._connectNodes = function(srcId, dstId) {
@@ -467,6 +548,11 @@ define([
         });
         const msg = `Connecting ${srcLayer} to ${dstLayer}`;
 
+        // Get the index for the new input
+        const dstNode = this._client.getNode(dstId);
+        const existingInputs = dstNode.getMemberIds('source');
+        const index = existingInputs.length;
+
         this._client.startTransaction(msg);
         this._client.addMember(dstId, srcId, 'source');
         this._client.setMemberRegistry(
@@ -475,6 +561,15 @@ define([
             'source',
             'position',
             {x: 100, y: 100}
+        );
+
+        // Set the 'index' member attribute
+        this._client.setMemberAttribute(
+            dstId,
+            srcId,
+            'source',
+            'index',
+            index
         );
         this._client.completeTransaction();
     };
@@ -514,21 +609,20 @@ define([
                 if (!reverse) {  // srcId is the output and we created the new input
                     outputId = srcId;
                     inputId = core.getMemberPaths(newNode, 'inputs')
-                        .find(id => {  // get the first input
+                        .find(id => {  // get the first input (for now)
                             const index = core.getMemberAttribute(newNode, 'inputs', id, 'index');
                             return index === 0;
                         });
                 } else {
                     inputId = srcId;
                     outputId = core.getMemberPaths(newNode, 'outputs')
-                        .find(id => {  // get the first output
+                        .find(id => {  // get the first output (for now)
                             const index = core.getMemberAttribute(newNode, 'outputs', id, 'index');
                             return index === 0;
                         });
                 }
 
                 // Set the reference from the input node to the output node
-                // TODO
                 let inputNode = null;
                 let outputNode = null;
                 return core.loadByPath(rootNode, inputId)
@@ -538,6 +632,7 @@ define([
                     })
                     .then(node => {
                         outputNode = node;
+                        const index = core.getMemberPaths(inputNode, 'source').length;
                         core.addMember(inputNode, 'source', outputNode);
                         core.setMemberRegistry(
                             inputNode,
@@ -545,6 +640,14 @@ define([
                             outputId,
                             'position',
                             {x: 100, y: 100}
+                        );
+                        // Set the 'index'
+                        core.setMemberAttribute(
+                            inputNode,
+                            'source',
+                            outputId,
+                            'index',
+                            index
                         );
 
                         const persisted = core.persist(rootNode);

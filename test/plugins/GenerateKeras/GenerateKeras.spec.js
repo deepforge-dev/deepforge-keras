@@ -4,6 +4,7 @@
 var testFixture = require('../../globals');
 
 describe('GenerateKeras', function () {
+    const Q = require('q');
     var gmeConfig = testFixture.getGmeConfig(),
         expect = testFixture.expect,
         assert = require('assert'),
@@ -61,33 +62,32 @@ describe('GenerateKeras', function () {
             .nodeify(done);
     });
 
+    function getGeneratedCode(nodeId) {
+        let pluginConfig = {
+            },
+            context = {
+                project: project,
+                commitHash: commitHash,
+                branchName: 'test',
+                activeNode: nodeId,
+            };
+
+        return Q.ninvoke(manager, 'executePlugin', pluginName, pluginConfig, context)
+            .then(pluginResult => {
+                expect(typeof pluginResult).to.equal('object');
+                expect(pluginResult.success).to.equal(true);
+                let codeHash = pluginResult.artifacts[0];
+                return blobClient.getObject(codeHash)
+                    .then(obj => String.fromCharCode.apply(null, new Uint8Array(obj)));
+            });
+    }
+
     describe('code', function() {
         let code;
         before(function(done) {  // run the plugin and get the generated code
-            let pluginConfig = {
-                },
-                context = {
-                    project: project,
-                    commitHash: commitHash,
-                    branchName: 'test',
-                    activeNode: '/D',
-                };
-
-            manager.executePlugin(pluginName, pluginConfig, context, function (err, pluginResult) {
-                try {
-                    expect(err).to.equal(null);
-                    expect(typeof pluginResult).to.equal('object');
-                    expect(pluginResult.success).to.equal(true);
-                    let codeHash = pluginResult.artifacts[0];
-                    blobClient.getObject(codeHash, function(err, obj) {
-                        code = String.fromCharCode.apply(null, new Uint8Array(obj));
-                        done();
-                    });
-                } catch (e) {
-                    done(e);
-                    return;
-                }
-            });
+            getGeneratedCode('/D')
+                .then(result => code = result)
+                .nodeify(done);
         });
 
         it('should import all keras layers', function() {
@@ -104,6 +104,30 @@ describe('GenerateKeras', function () {
 
         it('should resolve activation pointers', function() {
             assert(!code.includes('[object Object]'));
+        });
+    });
+
+    describe('ordered list input', function() {
+        let code;
+
+        before(function(done) {  // run the plugin and get the generated code
+            getGeneratedCode('/k')
+                .then(result => code = result)
+                .nodeify(done);
+        });
+
+        it('should preserve correct order', function() {
+            // Check the argument ordering (Dense, Activation, Dropout)
+            const addLayerLine = code.split('\n')
+                .find(line => line.includes('Add()'));
+            const layers = ['dense', 'activation', 'dropout'];
+            const indices = layers.map(layer => addLayerLine.indexOf(layer));
+            const inputs = addLayerLine.split('[')[1].split(']')[0];
+
+            indices.reduce((index, nextIndex) => {  // compare pairs
+                assert(index < nextIndex, `layer list inputs are out of order: ${inputs}`);
+                return nextIndex;
+            });
         });
     });
 
