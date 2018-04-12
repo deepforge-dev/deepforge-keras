@@ -162,6 +162,10 @@ define([
         }
     };
 
+    KerasArchEditorControl.prototype.isNodeLoaded = function (id) {
+        return !!this._client.getNode(id);
+    };
+
     KerasArchEditorControl.prototype.removeConnectionsInvolving = function (id) {
         // I also need to detect if this affects any existing connections
         // That is, I need to update any node which is the target of the
@@ -172,7 +176,7 @@ define([
             if (conn.src === id || conn.dst === id) {
                 this.connections.splice(i, 1);
                 this._widget.removeNode(conn.id);
-                if (conn.src === id) {
+                if (conn.src === id && this.isNodeLoaded(conn.dst)) {
                     // If this is the source node, this may affect the printing
                     // of indices for other connections to this destination node
                     this._onUpdate(conn.dst);
