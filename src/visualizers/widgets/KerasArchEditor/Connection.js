@@ -33,7 +33,7 @@ define([
 
     Connection.prototype.update = function(desc) {
         BaseConnection.prototype.update.apply(this, arguments);
-        const index = desc.index !== null ? desc.index : '';
+        const index = desc.index !== null ? desc.index+1 : '';
         this.$indexText.text(index);
     };
 
