@@ -124,24 +124,37 @@ define([
         code.unshift('import keras');
 
         // Return the model
-        var inputs = layers
-            .filter(layer => layer[SimpleConstants.PREV].length === 0)
-            .map(layer => layer.variableName)
-            .join(',');
-
-        var outputs = layers
-            .filter(layer => layer[SimpleConstants.NEXT].length === 0)
-            .map(layer => layer.variableName)
-            .join(',');
-
+        const modelCtor = this.getModelIODefinition(layers);
         code.push('');
-        code.push(`${modelName} = Model(inputs=[${inputs}], outputs=[${outputs}])`);
+        code.push(`${modelName} = ${modelCtor}`);
         code.push(`${resultName} = ${modelName}`);
         code.push(`${modelName}.custom_objects = ${customObjs}`);
 
         outputFiles['output.py'] = code.join('\n');
 
         return outputFiles;
+    };
+
+    GenerateKeras.prototype.getModelIODefinition = function(layers) {
+        const inputs = layers
+            .filter(layer => layer[SimpleConstants.PREV].length === 0);
+
+        const inputIndexDict = this.getMemberIndicesDict(this.activeNode, 'inputs');
+        inputs.sort((layer1, layer2) => {
+            const [index1, index2] = [layer1, layer2]
+                .map(layer => layer[SimpleConstants.NODE_PATH])
+                .map(id => inputIndexDict[id]);
+            return index1 < index2 ? -1 : 1;
+        });
+        const inputNames = inputs.map(layer => layer.variableName)
+            .join(',');
+
+        const outputs = layers
+            .filter(layer => layer[SimpleConstants.NEXT].length === 0)
+            .map(layer => layer.variableName)
+            .join(',');
+
+        return `Model(inputs=[${inputNames}], outputs=[${outputs}])`;
     };
 
     GenerateKeras.prototype.defineCustomObject = function(name, def) {
@@ -170,12 +183,12 @@ define([
         }
     };
 
-    GenerateKeras.prototype.getSourceIndicesDict = function(node) {
+    GenerateKeras.prototype.getMemberIndicesDict = function(node, set) {
         const sourceIndicesDict = {};
 
-        const sourceIds = this.core.getMemberPaths(node, 'source');
+        const sourceIds = this.core.getMemberPaths(node, set);
         sourceIds.forEach(id => {
-            const index = this.core.getMemberAttribute(node, 'source', id, 'index');
+            const index = this.core.getMemberAttribute(node, set, id, 'index');
             const srcLayerId = this.getChildId(id);
             sourceIndicesDict[srcLayerId] = index;
         });
@@ -191,7 +204,7 @@ define([
 
         let indexByNodeId = {};
         inputs.forEach(input => {
-            const dict = this.getSourceIndicesDict(input);
+            const dict = this.getMemberIndicesDict(input, 'source');
             _.extend(indexByNodeId, dict);
         });
 
