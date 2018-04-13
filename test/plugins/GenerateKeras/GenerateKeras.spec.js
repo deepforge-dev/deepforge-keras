@@ -131,6 +131,36 @@ describe('GenerateKeras', function () {
         });
     });
 
+    describe('multi arch input', function() {
+        let code;
+
+        before(function(done) {  // run the plugin and get the generated code
+            getGeneratedCode('/Q')
+                .then(result => code = result)
+                .nodeify(done);
+        });
+
+        it('should preserve correct order', function() {
+            const lines = code.split('\n');
+            const input1 = lines.find(line => line.includes('100'))
+                .split(' ')[0];
+            const input2 = lines.find(line => line.includes('200'))
+                .split(' ')[0];
+            const input3 = lines.find(line => line.includes('300'))
+                .split(' ')[0];
+            const createModelLine = lines.find(line => line.includes('Model('));
+            const inputs = [input1, input2, input3];
+            const indices = inputs.map(name => createModelLine.indexOf(name));
+            const order = createModelLine.split('[')[1].split(']')[0];
+
+            indices.reduce((index, nextIndex) => {  // compare pairs
+                assert(index < nextIndex, `model inputs are out of order: ${order}`);
+                return nextIndex;
+            });
+        });
+
+    });
+
     describe('layer args', function() {
         const testCases = [  // [string, shouldBeQuoted]
             ['valid', true],
