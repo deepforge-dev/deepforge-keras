@@ -624,7 +624,6 @@ define([
             project,
             commitHash;
 
-        // TODO: If adding an Input layer, set the index
         return Q.ninvoke(this._client, 'getCoreInstance', {logger: this._logger})
             .then(result => {
                 core = result.core;
@@ -680,7 +679,7 @@ define([
                             'position',
                             {x: 100, y: 100}
                         );
-                        // Set the 'index'
+                        // Set the 'index' for layer input ordering
                         core.setMemberAttribute(
                             inputNode,
                             'source',
@@ -688,6 +687,17 @@ define([
                             'index',
                             index
                         );
+
+                        // If it is an Input layer, set the index for the arch node
+                        if (reverse) {
+                            const newLayerNode = core.getParent(outputNode);
+                            const parentNode = core.getParent(newLayerNode);
+                            const isInArchitecture = core.getAttribute(parentNode, 'name') === 'Architecture';
+                            const isInputLayer = core.getAttribute(newLayerNode, 'name') === 'Input';
+                            if (isInputLayer && isInArchitecture) {
+                                this.addArchInputWithCore(core, newLayerNode);
+                            }
+                        }
 
                         const persisted = core.persist(rootNode);
                         return project.makeCommit(
@@ -700,6 +710,19 @@ define([
                     });
             })
             .catch(err => this._logger.error(err));
+    };
+
+    KerasArchEditorControl.prototype.addArchInputWithCore = function(core, layerNode) {
+        const archNode = core.getParent(layerNode);
+        const archInputCount = core.getMemberPaths(archNode, 'inputs').length;
+        core.addMember(archNode, 'inputs', layerNode);
+        core.setMemberAttribute(
+            archNode,
+            'inputs',
+            core.getPath(layerNode),
+            'index',
+            archInputCount
+        );
     };
 
     KerasArchEditorControl.prototype.getMetaTypeName = function(id) {
