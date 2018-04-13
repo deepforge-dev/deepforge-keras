@@ -305,8 +305,9 @@ define([
         const desc = this._getMetaObjectDescriptor(id);
 
         // Add the 'index' field if it is an Input layer
-        desc.index = this.getCurrentNodeInputs().indexOf(id);
-        // TODO: only show if multiple inputs...
+        // (only show if multiple inputs)
+        const inputs = this.getCurrentNodeInputs();
+        desc.index = inputs.length > 1 ? inputs.indexOf(id) : -1;
 
         if (desc.inputs) {
             desc.inputs = desc.inputs.map(id => this._client.getNode(id));
