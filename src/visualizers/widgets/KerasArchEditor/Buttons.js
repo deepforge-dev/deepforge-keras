@@ -37,7 +37,7 @@ define([
 
     ConnectToInput.prototype._onClick = function(inputId) {
         if (d3.event.shiftKey) {
-            this.onAddButtonClicked(inputId);
+            this.onAddButtonClicked(inputId, true);
         } else {
             this.startConnectionTo(inputId);
 
