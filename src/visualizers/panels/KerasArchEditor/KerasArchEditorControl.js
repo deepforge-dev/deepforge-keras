@@ -203,6 +203,13 @@ define([
         this.updateConnections(desc);
     };
 
+    KerasArchEditorControl.prototype.onActiveNodeUpdate = function (id) {
+        // Update the input nodes (their index may have changed)
+        const node = this._client.getNode(id);
+        const inputIds = node.getMemberIds('inputs');
+        inputIds.forEach(id => this._onUpdate(id));
+    };
+
     KerasArchEditorControl.prototype._onUnload = function (gmeId) {
         if (this.isCurrentChild(gmeId)) {
             this.removeConnectionsInvolving(gmeId);
