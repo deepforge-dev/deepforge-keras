@@ -317,7 +317,7 @@ define([
     KerasArchEditorControl.prototype.getCurrentNodeInputs = function() {
         const node = this._client.getNode(this._currentNodeId);
         return node.getSetNames().includes('inputs') ?
-            node.getMemberIds('inputs') : [];
+            this.getSortedSetIds(this._currentNodeId,'inputs') : [];
     };
 
     ////////////////////////// Layer Selection Logic //////////////////////////
