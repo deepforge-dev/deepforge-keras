@@ -699,9 +699,11 @@ define([
                         // If it is an Input layer, set the index for the arch node
                         if (reverse) {
                             const newLayerNode = core.getParent(outputNode);
+                            const newLayerMeta = core.getMetaType(newLayerNode);
                             const parentNode = core.getParent(newLayerNode);
-                            const isInArchitecture = core.getAttribute(parentNode, 'name') === 'Architecture';
-                            const isInputLayer = core.getAttribute(newLayerNode, 'name') === 'Input';
+                            const parentMeta = core.getMetaType(parentNode);
+                            const isInArchitecture = core.getAttribute(parentMeta, 'name') === 'Architecture';
+                            const isInputLayer = core.getAttribute(newLayerMeta, 'name') === 'Input';
                             if (isInputLayer && isInArchitecture) {
                                 this.addArchInputWithCore(core, newLayerNode);
                             }
