@@ -8,6 +8,7 @@ define([
     'underscore',
     'q',
 
+    'text!./additional-layers.json',
     'text!deepforge-keras/schemas/activations.json',
     'text!deepforge-keras/schemas/initializers.json',
     'text!deepforge-keras/schemas/constraints.json',
@@ -20,6 +21,7 @@ define([
     generateGuid,
     _,
     Q,
+    AdditionalLayerTxt,
     ActivationsTxt,
     InitializersTxt,
     ConstraintsTxt,
@@ -30,7 +32,8 @@ define([
     'use strict';
 
     pluginMetadata = JSON.parse(pluginMetadata);
-    const ALL_LAYERS = JSON.parse(LayerTxt);
+    const AdditionalLayers = JSON.parse(AdditionalLayerTxt);
+    const ALL_LAYERS = JSON.parse(LayerTxt).concat(AdditionalLayers);
     const LAYERS = ALL_LAYERS.filter(schema => !schema.abstract);
     const TYPES = {
         activation: JSON.parse(ActivationsTxt),
@@ -366,7 +369,12 @@ define([
         this.createIOSet(node, 'outputs');
         const data = this.getLayerProperty(layer, 'outputs') || [];
 
-        data.push({name: 'output'});
+        // Also shouldn't add these to any of the activation, reg, init functions
+        // TODO
+        if (layer.name !== 'Output') {
+            data.push({name: 'output'});
+        }
+
         if (this.isRecurrentLayer(layer)) {
             data.push({name: 'hidden_state'});
             data.push({name: 'cell_state'});

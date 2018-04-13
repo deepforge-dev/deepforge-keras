@@ -2,6 +2,12 @@
     {
     "name": "Output",
     "arguments": [],
+    "inputs": [
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
     "abstract": false,
     "docstring": "Output layers are used to explicitly designate the output of the Keras model.\n\n    They are optional but can be used to specify the order of the outputs in models containing multiple outputs.",
     "file": "deepforge-keras/topology.py"
