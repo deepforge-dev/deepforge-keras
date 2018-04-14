@@ -40,6 +40,7 @@ define([
             'Merge',
             'Noise',
             'Cudnn_recurrent',
+            'Topology',
             'Wrappers'
         ];
 
@@ -235,7 +236,8 @@ define([
 
     KerasArchEditorWidget.prototype.onAddButtonClicked = function(srcId, reverse) {
         // TODO: Should this accept the id of the input/output node, too?
-        var nodes = this.getValidSuccessors(srcId);
+        var nodes = reverse ? this.getValidPredecessors(srcId) :
+            this.getValidSuccessors(srcId);
 
         return this.promptLayer(nodes)
             .then(selected => this.onAddItemSelected(srcId, selected, reverse));
