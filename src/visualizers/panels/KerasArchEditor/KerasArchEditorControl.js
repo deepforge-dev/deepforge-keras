@@ -94,7 +94,7 @@ define([
         const connections = desc.inputs
             .map(node => {
                 const dstId = node.getId();
-                const ids = node.getMemberIds('source');
+                const ids = this.getSortedSetIds(dstId, 'source');
 
                 return ids.map(srcId => [
                     this.getParentAtDepth(srcId),
