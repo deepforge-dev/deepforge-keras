@@ -206,8 +206,15 @@ define([
     KerasArchEditorControl.prototype.onActiveNodeUpdate = function (id) {
         // Update the input nodes (their index may have changed)
         const node = this._client.getNode(id);
-        const inputIds = node.getMemberIds('inputs');
-        inputIds.forEach(id => this._onUpdate(id));
+        const setsToUpdate = ['inputs', 'outputs'];
+        setsToUpdate.forEach(set => {
+            const memberIds = node.getMemberIds(set);
+            memberIds.forEach(id => {
+                // Update the node
+                const desc = this._getObjectDescriptor(id);
+                this._widget.updateNode(desc);
+            });
+        });
     };
 
     KerasArchEditorControl.prototype._onUnload = function (gmeId) {
