@@ -315,8 +315,11 @@ define([
         // (only show if multiple inputs)
         const inputs = this.getCurrentNodeInputs();
         desc.index = inputs.length > 1 ? inputs.indexOf(id) : -1;
-        const outputs = this.getSortedSetIds(this._currentNodeId, 'outputs');
-        desc.index = outputs.length > 1 ? outputs.indexOf(id) : desc.index;
+
+        if (desc.index === -1) {
+            const outputs = this.getSortedSetIds(this._currentNodeId, 'outputs');
+            desc.index = outputs.length > 1 ? outputs.indexOf(id) : -1;
+        }
 
         if (desc.inputs) {
             desc.inputs = desc.inputs.map(id => this._client.getNode(id));
