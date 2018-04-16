@@ -376,8 +376,10 @@ define([
 
     KerasArchEditorControl.prototype.getPairDesc = function(node) {
         const nodeId = node.getId();
+        // this has an issue with `getParentAtDepth`
+        // FIXME
         return {
-            node: this._getMetaObjectDescriptor(this.getParentAtDepth(nodeId)),
+            node: this._getMetaObjectDescriptor(nodeId),
             arg: this._getMetaObjectDescriptor(nodeId)
         };
     };
