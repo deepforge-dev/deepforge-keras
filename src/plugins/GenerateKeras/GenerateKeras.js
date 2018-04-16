@@ -95,8 +95,10 @@ define([
     /* * * * * * * * Main Code Generation Logic * * * * * * * */
     GenerateKeras.prototype.createOutputFiles = function(activeNode) {
         var outputFiles = {};
-        var layers = activeNode[SimpleConstants.CHILDREN];
         var code;
+
+        const allLayers = activeNode[SimpleConstants.CHILDREN];
+        const layers = allLayers.filter(layer => layer.base.name !== 'Output');
 
         this.variableNames = {};
         this.customObjects = [];
@@ -124,7 +126,7 @@ define([
         code.unshift('import keras');
 
         // Return the model
-        const modelCtor = this.getModelIODefinition(layers);
+        const modelCtor = this.getModelIODefinition(allLayers);
         code.push('');
         code.push(`${modelName} = ${modelCtor}`);
         code.push(`${resultName} = ${modelName}`);
@@ -149,12 +151,31 @@ define([
         const inputNames = inputs.map(layer => layer.variableName)
             .join(',');
 
+        // Order the outputs by their 'index' as well
+        const outputIndexDict = this.getMemberIndicesDict(this.activeNode, 'outputs');
         const outputs = layers
             .filter(layer => layer[SimpleConstants.NEXT].length === 0)
-            .map(layer => layer.variableName)
+            .map(layer => {  // if "Output" layer, get the predecessor
+                if (layer.base.name === 'Output') {
+                    return layer[SimpleConstants.PREV][0];
+                }
+                return layer;
+            });
+
+        outputs.sort((layer1, layer2) => {
+            // Sort them by the output
+            const [index1, index2] = [layer1, layer2]
+                .map(layer => layer[SimpleConstants.NEXT][0] || layer)
+                .map(layer => layer[SimpleConstants.NODE_PATH])
+                .map(id => outputIndexDict[id]);
+
+            return index1 < index2 ? -1 : 1;
+        });
+
+        const outputNames = outputs.map(layer => layer.variableName)
             .join(',');
 
-        return `Model(inputs=[${inputNames}], outputs=[${outputs}])`;
+        return `Model(inputs=[${inputNames}], outputs=[${outputNames}])`;
     };
 
     GenerateKeras.prototype.defineCustomObject = function(name, def) {
