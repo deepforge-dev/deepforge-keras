@@ -376,8 +376,8 @@ define([
 
     KerasArchEditorControl.prototype.getPairDesc = function(node) {
         const nodeId = node.getId();
-        // this has an issue with `getParentAtDepth`
-        // FIXME
+        // this will need to be updated when we add multi input type support to UI
+        // TODO
         return {
             node: this._getMetaObjectDescriptor(nodeId),
             arg: this._getMetaObjectDescriptor(nodeId)
@@ -543,8 +543,6 @@ define([
         });
     };
 
-    // Add updating outputs as well
-    // TODO
     KerasArchEditorControl.prototype.updateArchIndices = function(archId, set) {
         const inputIds = this.getSortedSetIds(archId, set);
         inputIds.forEach((inputId, index) => {
