@@ -1,23 +1,30 @@
 /*jshint node:true, mocha:true*/
 
 'use strict';
-var testFixture = require('../../globals');
+const testFixture = require('../../globals');
 
 describe('GenerateKeras', function () {
     const Q = require('q');
-    var gmeConfig = testFixture.getGmeConfig(),
-        expect = testFixture.expect,
-        assert = require('assert'),
-        path = testFixture.path,
-        BlobClient = require('webgme-engine/src/server/middleware/blob/BlobClientWithFSBackend'),
-        logger = testFixture.logger.fork('GenerateKeras'),
-        blobClient = new BlobClient(gmeConfig, logger),
-        PluginCliManager = testFixture.WebGME.PluginCliManager,
-        SEED_DIR = path.join(__dirname, '..', '..', '..', 'src', 'seeds', 'tests'),
-        projectName = 'testProject',
-        pluginName = 'GenerateKeras',
-        manager = new PluginCliManager(null, logger, gmeConfig),
-        project,
+    const gmeConfig = testFixture.getGmeConfig();
+    const expect = testFixture.expect;
+    const assert = require('assert');
+    const path = testFixture.path;
+    const BlobClient = require('webgme-engine/src/server/middleware/blob/BlobClientWithFSBackend');
+    const logger = testFixture.logger.fork('GenerateKeras');
+    const blobClient = new BlobClient(gmeConfig, logger);
+    const PluginCliManager = testFixture.WebGME.PluginCliManager;
+    const SEED_DIR = path.join(__dirname, '..', '..', '..', 'src', 'seeds', 'tests');
+    const projectName = 'testProject';
+    const pluginName = 'GenerateKeras';
+    const manager = new PluginCliManager(null, logger, gmeConfig);
+    const ARCHITECTURE = {
+        Basic: '/c',
+        LayerListInput: '/7',
+        MultiArchInputs: '/T',
+        MultiArchOutputs: '/s'
+    };
+
+    let project,
         gmeAuth,
         storage,
         plugin = null,
@@ -70,6 +77,7 @@ describe('GenerateKeras', function () {
                 commitHash: commitHash,
                 branchName: 'test',
                 activeNode: nodeId,
+                namespace: 'keras'
             };
 
         return Q.ninvoke(manager, 'executePlugin', pluginName, pluginConfig, context)
@@ -85,7 +93,7 @@ describe('GenerateKeras', function () {
     describe('code', function() {
         let code;
         before(function(done) {  // run the plugin and get the generated code
-            getGeneratedCode('/D')
+            getGeneratedCode(ARCHITECTURE.Basic)
                 .then(result => code = result)
                 .nodeify(done);
         });
@@ -111,7 +119,7 @@ describe('GenerateKeras', function () {
         let code;
 
         before(function(done) {  // run the plugin and get the generated code
-            getGeneratedCode('/k')
+            getGeneratedCode(ARCHITECTURE.LayerListInput)
                 .then(result => code = result)
                 .nodeify(done);
         });
@@ -135,7 +143,7 @@ describe('GenerateKeras', function () {
         let code;
 
         before(function(done) {  // run the plugin and get the generated code
-            getGeneratedCode('/Q')
+            getGeneratedCode(ARCHITECTURE.MultiArchInputs)
                 .then(result => code = result)
                 .nodeify(done);
         });
@@ -159,6 +167,35 @@ describe('GenerateKeras', function () {
             });
         });
 
+    });
+
+    describe('multi arch output', function() {
+        let code;
+
+        before(function(done) {  // run the plugin and get the generated code
+            getGeneratedCode(ARCHITECTURE.MultiArchOutputs)
+                .then(result => code = result)
+                .nodeify(done);
+        });
+
+        it('should preserve correct order', function() {
+            const lines = code.split('\n');
+            const input1 = lines.find(line => line.includes('Activation'))
+                .split(' ')[0];
+            const input2 = lines.find(line => line.includes('Dense'))
+                .split(' ')[0];
+            const input3 = lines.find(line => line.includes('Dropout'))
+                .split(' ')[0];
+            const createModelLine = lines.find(line => line.includes('Model('));
+            const inputs = [input1, input2, input3];
+            const indices = inputs.map(name => createModelLine.indexOf(name));
+            const order = createModelLine.split('[')[1].split(']')[0];
+
+            indices.reduce((index, nextIndex) => {  // compare pairs
+                assert(index < nextIndex, `model outputs are out of order: ${order}`);
+                return nextIndex;
+            });
+        });
     });
 
     describe('layer args', function() {

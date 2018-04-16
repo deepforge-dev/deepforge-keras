@@ -94,7 +94,7 @@ define([
         const connections = desc.inputs
             .map(node => {
                 const dstId = node.getId();
-                const ids = node.getMemberIds('source');
+                const ids = this.getSortedSetIds(dstId, 'source');
 
                 return ids.map(srcId => [
                     this.getParentAtDepth(srcId),
@@ -206,8 +206,15 @@ define([
     KerasArchEditorControl.prototype.onActiveNodeUpdate = function (id) {
         // Update the input nodes (their index may have changed)
         const node = this._client.getNode(id);
-        const inputIds = node.getMemberIds('inputs');
-        inputIds.forEach(id => this._onUpdate(id));
+        const setsToUpdate = ['inputs', 'outputs'];
+        setsToUpdate.forEach(set => {
+            const memberIds = node.getMemberIds(set);
+            memberIds.forEach(id => {
+                // Update the node
+                const desc = this._getObjectDescriptor(id);
+                this._widget.updateNode(desc);
+            });
+        });
     };
 
     KerasArchEditorControl.prototype._onUnload = function (gmeId) {
@@ -234,10 +241,10 @@ define([
         desc.inputs = [];
         desc.outputs = [];
         if (node.getSetNames().includes('inputs')) {
-            desc.inputs = node.getMemberIds('inputs');
+            desc.inputs = this.getSortedSetIds(id, 'inputs');
         }
         if (node.getSetNames().includes('outputs')) {
-            desc.outputs = node.getMemberIds('outputs');
+            desc.outputs = this.getSortedSetIds(id, 'outputs');
         }
 
         desc.attributes = {};
@@ -309,6 +316,11 @@ define([
         const inputs = this.getCurrentNodeInputs();
         desc.index = inputs.length > 1 ? inputs.indexOf(id) : -1;
 
+        if (desc.index === -1) {
+            const outputs = this.getSortedSetIds(this._currentNodeId, 'outputs');
+            desc.index = outputs.length > 1 ? outputs.indexOf(id) : -1;
+        }
+
         if (desc.inputs) {
             desc.inputs = desc.inputs.map(id => this._client.getNode(id));
         }
@@ -323,9 +335,10 @@ define([
     };
 
     KerasArchEditorControl.prototype.getCurrentNodeInputs = function() {
-        const node = this._client.getNode(this._currentNodeId);
-        return node.getSetNames().includes('inputs') ?
-            this.getSortedSetIds(this._currentNodeId,'inputs') : [];
+        return this.getSortedSetIds(this._currentNodeId, 'inputs');
+    };
+
+    KerasArchEditorControl.prototype.getCurrentNodeOutputs = function() {
     };
 
     ////////////////////////// Layer Selection Logic //////////////////////////
@@ -363,8 +376,10 @@ define([
 
     KerasArchEditorControl.prototype.getPairDesc = function(node) {
         const nodeId = node.getId();
+        // this will need to be updated when we add multi input type support to UI
+        // TODO
         return {
-            node: this._getMetaObjectDescriptor(this.getParentAtDepth(nodeId)),
+            node: this._getMetaObjectDescriptor(nodeId),
             arg: this._getMetaObjectDescriptor(nodeId)
         };
     };
@@ -528,17 +543,22 @@ define([
         });
     };
 
-    KerasArchEditorControl.prototype.updateArchInputIndices = function(archId) {
-        const inputIds = this.getSortedSetIds(archId, 'inputs');
+    KerasArchEditorControl.prototype.updateArchIndices = function(archId, set) {
+        const inputIds = this.getSortedSetIds(archId, set);
         inputIds.forEach((inputId, index) => {
             this._client.setMemberAttribute(
                 archId,
                 inputId,
-                'inputs',
+                set,
                 'index',
                 index
             );
         });
+    };
+
+    KerasArchEditorControl.prototype.updateArchIOIndices = function(archId) {
+        this.updateArchIndices(archId, 'inputs');
+        this.updateArchIndices(archId, 'outputs');
     };
 
     KerasArchEditorControl.prototype.isInArchitecture = function(id) {
@@ -561,11 +581,30 @@ define([
 
         // If removing an Input layer, update the indices
         if (this.isInArchitecture(nodeId)) {
-            this.updateArchInputIndices(node.getParentId());
+            if (this.isInputLayer(nodeId)) {
+                this.updateArchIndices(node.getParentId(), 'inputs');
+            } else if (this.isOutputLayer(nodeId)) {
+                this.updateArchIndices(node.getParentId(), 'outputs');
+            }
         }
 
         if (!silent) this._client.completeTransaction();
 
+    };
+
+    KerasArchEditorControl.prototype.isInputLayer = function(id) {
+        const metaType = this.getMetaTypeName(id);
+        return metaType === 'Input';
+    };
+
+    KerasArchEditorControl.prototype.isOutputLayer = function(id) {
+        const metaType = this.getMetaTypeName(id);
+        return metaType === 'Output';
+    };
+
+    KerasArchEditorControl.prototype.isInputOrOutputLayer = function(id) {
+        const metaType = this.getMetaTypeName(id);
+        return metaType === 'Input' || metaType === 'Output';
     };
 
     KerasArchEditorControl.prototype._getLayerArgInputIds = function(argId) {
@@ -574,7 +613,8 @@ define([
 
     KerasArchEditorControl.prototype.getSortedSetIds = function(id, name) {
         const dstNode = this._client.getNode(id);
-        const existingInputs = dstNode.getMemberIds(name);
+        const existingInputs = dstNode.getSetNames().includes(name) ? 
+            dstNode.getMemberIds(name) : [];
 
         existingInputs.sort((idA, idB) => {  // sort by the index
             // Get the indices and compare
@@ -696,16 +736,20 @@ define([
                             index
                         );
 
-                        // If it is an Input layer, set the index for the arch node
-                        if (reverse) {
-                            const newLayerNode = core.getParent(outputNode);
+                        // If it is an Input/Output layer, set the index for the arch node
+                        const newLayerNode = core.getParent(reverse ? outputNode : inputNode);
+                        const parentNode = core.getParent(newLayerNode);
+                        const parentMeta = core.getMetaType(parentNode);
+                        const isInArchitecture = core.getAttribute(parentMeta, 'name') === 'Architecture';
+                        if (isInArchitecture) {
                             const newLayerMeta = core.getMetaType(newLayerNode);
-                            const parentNode = core.getParent(newLayerNode);
-                            const parentMeta = core.getMetaType(parentNode);
-                            const isInArchitecture = core.getAttribute(parentMeta, 'name') === 'Architecture';
                             const isInputLayer = core.getAttribute(newLayerMeta, 'name') === 'Input';
-                            if (isInputLayer && isInArchitecture) {
-                                this.addArchInputWithCore(core, newLayerNode);
+                            const isOutputLayer = core.getAttribute(newLayerMeta, 'name') === 'Output';
+                            // Check for new Input/Output Layer
+                            if (isInputLayer && reverse) {
+                                this.addArchIOWithCore(core, newLayerNode, 'inputs');
+                            } else if (isOutputLayer && !reverse) {
+                                this.addArchIOWithCore(core, newLayerNode, 'outputs');
                             }
                         }
 
@@ -722,16 +766,16 @@ define([
             .catch(err => this._logger.error(err));
     };
 
-    KerasArchEditorControl.prototype.addArchInputWithCore = function(core, layerNode) {
+    KerasArchEditorControl.prototype.addArchIOWithCore = function(core, layerNode, set) {
         const archNode = core.getParent(layerNode);
-        const archInputCount = core.getMemberPaths(archNode, 'inputs').length;
-        core.addMember(archNode, 'inputs', layerNode);
+        const nextIndex = core.getMemberPaths(archNode, set).length;
+        core.addMember(archNode, set, layerNode);
         core.setMemberAttribute(
             archNode,
-            'inputs',
+            set,
             core.getPath(layerNode),
             'index',
-            archInputCount
+            nextIndex
         );
     };
 
@@ -749,24 +793,31 @@ define([
     };
 
     KerasArchEditorControl.prototype.onAddItem = function(id, baseId, parentId) {
-        const isInputLayer = this.getMetaTypeName(id) === 'Input';
         const isInArchitecture = this.getMetaTypeName(parentId) === 'Architecture';
 
-        if (isInArchitecture && isInputLayer) {
-            // Add the node to the parent's 'inputs' set
-            // TODO
-            const archNode = this._client.getNode(parentId);
-            const index = archNode.getMemberIds('inputs').length;
-            this._client.addMember(parentId, id, 'inputs');
-            // Set the 'index' member attribute
-            this._client.setMemberRegistry(
-                parentId,
-                id,
-                'inputs',
-                'index',
-                index
-            );
+        if (isInArchitecture) {  // detect adding input/output to the architecture
+            const isInputLayer = this.getMetaTypeName(id) === 'Input';
+            const isOutputLayer = this.getMetaTypeName(id) === 'Output';
+            if (isInputLayer) {
+                this.addArchIOWithClient(parentId, id, 'inputs');
+            } else if (isOutputLayer) {
+                this.addArchIOWithClient(parentId, id, 'outputs');
+            }
         }
+    };
+
+    KerasArchEditorControl.prototype.addArchIOWithClient = function(archId, layerId, set) {
+        const archNode = this._client.getNode(archId);
+        const index = archNode.getMemberIds(set).length;
+        this._client.addMember(archId, layerId, set);
+        // Set the 'index' member attribute
+        this._client.setMemberRegistry(
+            archId,
+            layerId,
+            set,
+            'index',
+            index
+        );
     };
 
     KerasArchEditorControl.prototype.getAllLayers = function() {
