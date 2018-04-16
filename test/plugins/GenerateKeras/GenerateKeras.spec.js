@@ -169,6 +169,35 @@ describe('GenerateKeras', function () {
 
     });
 
+    describe('multi arch output', function() {
+        let code;
+
+        before(function(done) {  // run the plugin and get the generated code
+            getGeneratedCode(ARCHITECTURE.MultiArchOutputs)
+                .then(result => code = result)
+                .nodeify(done);
+        });
+
+        it('should preserve correct order', function() {
+            const lines = code.split('\n');
+            const input1 = lines.find(line => line.includes('Activation'))
+                .split(' ')[0];
+            const input2 = lines.find(line => line.includes('Dense'))
+                .split(' ')[0];
+            const input3 = lines.find(line => line.includes('Dropout'))
+                .split(' ')[0];
+            const createModelLine = lines.find(line => line.includes('Model('));
+            const inputs = [input1, input2, input3];
+            const indices = inputs.map(name => createModelLine.indexOf(name));
+            const order = createModelLine.split('[')[1].split(']')[0];
+
+            indices.reduce((index, nextIndex) => {  // compare pairs
+                assert(index < nextIndex, `model outputs are out of order: ${order}`);
+                return nextIndex;
+            });
+        });
+    });
+
     describe('layer args', function() {
         const testCases = [  // [string, shouldBeQuoted]
             ['valid', true],
