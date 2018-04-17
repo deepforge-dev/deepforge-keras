@@ -9,6 +9,7 @@ define([
 
     var client = WebGMEGlobal.Client;
     var ConnectToInput = function(params) {
+        this.scale = params.scale || 1.0;
         Buttons.ButtonBase.call(this, params);
     };
     ConnectToInput.SIZE = 10;
@@ -26,12 +27,12 @@ define([
 
         this.$el
             .append('circle')
-            .attr('r', ConnectToInput.SIZE)
+            .attr('r', ConnectToInput.SIZE * this.scale)
             .attr('fill', btnColor);
 
         // Show the 'code' icon
         Icons.addIcon('chevron-bottom', this.$el, {
-            radius: lineRadius
+            radius: lineRadius * this.scale
         });
     };
 
@@ -55,31 +56,15 @@ define([
     Buttons.ConnectToInput = ConnectToInput;
 
     var ConnectToOutput = function(params) {
+        this.scale = params.scale || 1.0;
         Buttons.ButtonBase.call(this, params);
     };
     ConnectToOutput.SIZE = 10;
     ConnectToOutput.BORDER = 1;
-    ConnectToOutput.prototype.BTN_CLASS = 'connect-to-input';
+    ConnectToOutput.prototype.BTN_CLASS = 'connect-to-output';
     ConnectToOutput.prototype = new Buttons.ButtonBase();
 
-    ConnectToOutput.prototype._render = function() {
-        var lineRadius = ConnectToOutput.SIZE - ConnectToOutput.BORDER,
-            btnColor = '#90caf9';
-
-        if (this.disabled) {
-            btnColor = '#e0e0e0';
-        }
-
-        this.$el
-            .append('circle')
-            .attr('r', ConnectToOutput.SIZE)
-            .attr('fill', btnColor);
-
-        // Show the 'code' icon
-        Icons.addIcon('chevron-bottom', this.$el, {
-            radius: lineRadius
-        });
-    };
+    ConnectToOutput.prototype._render = ConnectToInput.prototype._render;
 
     ConnectToOutput.prototype._onClick = function(inputId) {
         if (d3.event.shiftKey) {
