@@ -52,13 +52,14 @@ define([
     KerasArchEditorControl.prototype.selectedObjectChanged = function(id) {
         this.nestedLevel = typeof id === 'string' ?
             Math.floor(id.split('/').length/2) % 2 : 0;
+
+        this.connections = [];
         ThumbnailControl.prototype.selectedObjectChanged.call(this, id);
 
         if (typeof id === 'string') {
             var name = this._client.getNode(id).getAttribute('name');
             this._widget.setTitle(name);
         }
-        this.connections = [];
     };
 
     KerasArchEditorControl.prototype.getCurrentDepth = function () {
@@ -79,7 +80,6 @@ define([
     };
 
     KerasArchEditorControl.prototype.updateConnections = function (desc) {
-        // TODO: detect if we need to add/remove a connection
         // Get the inputs of the given node
         const srcIdsForId = {};
 
