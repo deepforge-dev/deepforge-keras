@@ -97,8 +97,7 @@ define([
 
     KerasArchEditorWidget.prototype.showHoverButtons = function(layer) {
         var btn,
-            height = layer.height,
-            cx = layer.width/2;
+            height = layer.height;
 
         if (this.$hoverBtns) {
             this.hideHoverButtons();
@@ -110,8 +109,8 @@ define([
 
         // Adjust the position of the inputs/outputs so they are visible
         const outputs = layer.getOutputs();
-        const startX = layer.width/(outputs.length + 1);
-        const dx = startX;
+        let startX = layer.width/(outputs.length + 1);
+        let dx = startX;
         outputs.forEach((output, index) => {
             const id = output.getId();
             const name = output.getAttribute('name');
@@ -126,13 +125,19 @@ define([
             });
         });
 
-        layer.getInputs().forEach(input => {
-            const inputId = input.getId();
+        const inputs = layer.getInputs();
+        startX = layer.width/(inputs.length + 1);
+        dx = startX;
+        inputs.forEach((input, index) => {
+            const id = input.getId();
+            const name = input.getAttribute('name');
             btn = new Buttons.ConnectToInput({
                 context: this,
                 $pEl: this.$hoverBtns,
-                item: inputId,
-                x: cx,
+                item: id,
+                title: name,
+                scale: index === 0 ? 1 : 0.9,
+                x: startX + dx * index,
                 y: 0
             });
         });
