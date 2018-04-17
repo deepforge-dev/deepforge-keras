@@ -925,7 +925,7 @@ define([
 
         return targets.map(id => {
             return {
-                node: this._getObjectDescriptor(id)
+                node: this._getMetaObjectDescriptor(id)
             };
         });
     };
