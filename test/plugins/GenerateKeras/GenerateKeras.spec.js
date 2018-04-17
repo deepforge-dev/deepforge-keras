@@ -114,6 +114,16 @@ describe('GenerateKeras', function () {
         it('should resolve activation pointers', function() {
             assert(!code.includes('[object Object]'));
         });
+
+        it('should name custom fns by parameters', function() {
+            const lines = code.split('\n');
+            const custom_relu = lines
+                .find(line => line.includes('custom_objects') && line.includes('relu'))
+                .split('\'')[1];
+
+            // Check that it has a 0 (from it's alpha arg)
+            assert(custom_relu.includes('0'));
+        });
     });
 
     describe('ordered list input', function() {

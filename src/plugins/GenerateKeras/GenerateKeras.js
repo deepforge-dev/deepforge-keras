@@ -188,7 +188,7 @@ define([
         this.sortLayerInputsByIndex(layer);
 
         const ctor = layer[SimpleConstants.BASE].name;
-        const args = this.getArguments(layer);
+        const args = this.getArgumentsString(layer);
 
         return `${ctor}(${args})`;
     };
@@ -264,10 +264,19 @@ define([
     GenerateKeras.prototype.getArguments = function(layer) {
         // We need to know which arguments are required and which are optional...
         // maybe ctor_arg_order should only contain the required arguments
-        var argNames = layer[Constants.ATTR.CTOR_ARGS].split(',');
-        var argString = argNames
+        const argNames = layer[Constants.ATTR.CTOR_ARGS].split(',');
+        return argNames
             .filter(arg => layer[arg] !== undefined)
-            .map(arg => `${arg}=${this.getArgumentValue(layer[arg])}`).join(', ');
+            .map(arg => [arg, this.getArgumentValue(layer[arg])]);
+    };
+
+
+    GenerateKeras.prototype.getArgumentsString = function(layer) {
+        const argString = this.getArguments(layer)
+            .map(pair => {
+                const [name, value] = pair;
+                return `${name}=${value}`;
+            }).join(', ');
 
         this.logger.debug(`getting arguments for ${layer.variableName} (${layer.name}): ${argString}`);
         return argString;
@@ -278,18 +287,24 @@ define([
         if (rawArgType === 'object') {  // pointer
             const node = this.getNode(value[SimpleConstants.NODE_PATH]);
             const isLayer = this.core.isTypeOf(node, this.META.Layer);
-
             let target = value;
-            let args = this.getArguments(target);
 
             if (isLayer) {  // wrapped layer
                 return this.generateLayerCtor(target);
             } else {  // activation, regularization, etc function
                 let type = this.getFunctionType(target);
+                let args = this.getArgumentsString(target);
 
                 // activation fns need to be wrapped in a lambda
                 if (type === 'keras.activations') {
-                    let name = this.generateVariableName(`custom_${target.name}`);
+                    const argValues = this.getArguments(target).map(pair => {
+                        const [name, value] = pair;
+                        const safeValue = (value + '').replace(/[^a-zA-Z0-9]/g, '_');
+                        return `${name}_${safeValue}`;
+                    }).join('__');
+
+                    const basename = `custom_${target.name}_${argValues}`;
+                    let name = this.generateVariableName(basename);
                     const code = `def ${name}(x):\n    return ${type}.${target.name}(x, ${args})`;
                     this.defineCustomObject(name, code);
 
