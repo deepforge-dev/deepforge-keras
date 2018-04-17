@@ -81,11 +81,20 @@ define([
                 attributes: {}
             };
 
-            node.getAttributeNames().forEach(name => {
-                var info = node.getAttributeMeta(name);
-                info.value = node.getAttribute(name);
-                desc.attributes[name] = info;
-            });
+            const attrs = node.getValidAttributeNames();
+            const args = attrs.includes(Constants.ATTR.CTOR_ARGS) ?
+                node.getAttribute(Constants.ATTR.CTOR_ARGS).split(',') : [];
+
+            attrs
+                .sort((name1, name2) => {
+                    const [index1, index2] = [name1, name2].map(name => args.indexOf(name));
+                    return index1 < index2 ? -1 : 1;
+                })
+                .forEach(name => {
+                    var info = node.getAttributeMeta(name);
+                    info.value = node.getAttribute(name);
+                    desc.attributes[name] = info;
+                });
             var hiddenAttrs = Object.keys(Constants.ATTR).map(key => Constants.ATTR[key]);
             hiddenAttrs.forEach(name => delete desc.attributes[name]);
             delete desc.attributes.name;
