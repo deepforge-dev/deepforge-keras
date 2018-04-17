@@ -327,8 +327,7 @@ define([
 
         if (desc.outputs) {
             desc.outputs = desc.outputs
-                .map(id => this._client.getNode(id))
-                .sort((a, b) => a.getAttribute('index') < b.getAttribute('index') ? -1 : 1);
+                .map(id => this._client.getNode(id));
         }
 
         return desc;
