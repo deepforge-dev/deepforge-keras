@@ -80,7 +80,6 @@ define([
     };
 
     KerasArchEditorControl.prototype.updateConnections = function (desc) {
-        // TODO: detect if we need to add/remove a connection
         // Get the inputs of the given node
         const srcIdsForId = {};
 
