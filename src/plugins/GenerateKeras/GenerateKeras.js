@@ -184,23 +184,28 @@ define([
         return name;
     };
 
-    GenerateKeras.prototype.generateLayerCode = function(layer) {
-        var name = this.generateLayerName(layer);
-        var ctor = layer[SimpleConstants.BASE].name;
-        var args = this.getArguments(layer);
-
+    GenerateKeras.prototype.generateLayerCtor = function(layer) {
         this.sortLayerInputsByIndex(layer);
 
+        const ctor = layer[SimpleConstants.BASE].name;
+        const args = this.getArguments(layer);
+
+        return `${ctor}(${args})`;
+    };
+
+    GenerateKeras.prototype.generateLayerCode = function(layer) {
+        const name = this.generateLayerName(layer);
+        const ctor = this.generateLayerCtor(layer);
         if (layer[SimpleConstants.BASE].name === 'Input') {
-            return `${name} = ${ctor}(${args})`;
-        } else {
+            return `${name} = ${ctor}`;
+        } else {  // add the inputs
             let inputs = layer[SimpleConstants.PREV].map(node => node.variableName);
             let inputCode = inputs.join(', ');
             if (inputs.length > 1) {
                 inputCode = `[${inputCode}]`;
             }
 
-            return `${name} = ${ctor}(${args})(${inputCode})`;
+            return `${name} = ${ctor}(${inputCode})`;
         }
     };
 
@@ -271,19 +276,27 @@ define([
     GenerateKeras.prototype.getArgumentValue = function(value) {
         const rawArgType = typeof value;
         if (rawArgType === 'object') {  // pointer
+            const node = this.getNode(value[SimpleConstants.NODE_PATH]);
+            const isLayer = this.core.isTypeOf(node, this.META.Layer);
+
             let target = value;
             let args = this.getArguments(target);
-            let type = this.getFunctionType(target);
 
-            // activation fns need to be wrapped in a lambda
-            if (type === 'keras.activations') {
-                let name = this.generateVariableName(`custom_${target.name}`);
-                const code = `def ${name}(x):\n    return ${type}.${target.name}(x, ${args})`;
-                this.defineCustomObject(name, code);
+            if (isLayer) {  // wrapped layer
+                return this.generateLayerCtor(target);
+            } else {  // activation, regularization, etc function
+                let type = this.getFunctionType(target);
 
-                return name;
+                // activation fns need to be wrapped in a lambda
+                if (type === 'keras.activations') {
+                    let name = this.generateVariableName(`custom_${target.name}`);
+                    const code = `def ${name}(x):\n    return ${type}.${target.name}(x, ${args})`;
+                    this.defineCustomObject(name, code);
+
+                    return name;
+                }
+                return `${type}.${target.name}(${args})`;
             }
-            return `${type}.${target.name}(${args})`;
         } else if (rawArgType === 'string'){
             // Trim whitespace
             value = value.replace(/^\s*/, '').replace(/\s*$/, '');
