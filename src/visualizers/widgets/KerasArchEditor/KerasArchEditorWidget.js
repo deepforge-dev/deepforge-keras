@@ -108,14 +108,21 @@ define([
             .append('g')
             .attr('class', 'hover-container');
 
-        layer.getOutputs().forEach(output => {
+        // Adjust the position of the inputs/outputs so they are visible
+        const outputs = layer.getOutputs();
+        const startX = layer.width/(outputs.length + 1);
+        const dx = startX;
+        outputs.forEach((output, index) => {
             const id = output.getId();
+            const name = output.getAttribute('name');
             btn = new Buttons.ConnectToOutput({
                 context: this,
+                title: name,
                 $pEl: this.$hoverBtns,
                 item: id,
-                x: cx,
-                y: height
+                x: startX + dx * index,
+                y: height,
+                scale: index === 0 ? 1 : 0.9
             });
         });
 
