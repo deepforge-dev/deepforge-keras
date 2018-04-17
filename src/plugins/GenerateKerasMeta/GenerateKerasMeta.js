@@ -33,7 +33,16 @@ define([
 
     pluginMetadata = JSON.parse(pluginMetadata);
     const AdditionalLayers = JSON.parse(AdditionalLayerTxt);
-    const ALL_LAYERS = JSON.parse(LayerTxt).concat(AdditionalLayers);
+    const ALL_LAYERS = JSON.parse(LayerTxt).concat(AdditionalLayers)
+        .map(layer => {  // apply any special case patching
+            if (layer.name === 'Wrapper') {
+                layer.arguments[1].type = 'Layer';
+            }
+            if (layer.name === 'Bidirectional') {
+                layer.arguments[1].type = 'Recurrent';
+            }
+            return layer;
+        });
     const LAYERS = ALL_LAYERS.filter(schema => !schema.abstract);
     const TYPES = {
         activation: JSON.parse(ActivationsTxt),
@@ -504,9 +513,13 @@ define([
         var type = schema.type;
 
         // Check if it should be a pointer or an attribute
-        if (TYPES[type]) {  // should be ptr to another node
-            let baseName = this.getSpecialTypeBaseName(type);
-            this.core.setPointerMetaTarget(node, name, this.META[baseName], 1, 1);
+        if (TYPES[type]) {  // look up node for special types
+            type = this.getSpecialTypeBaseName(type);
+        }
+
+        const isNodeRefType = !!this.META[type];
+        if (isNodeRefType) {  // should be ptr to another node
+            this.core.setPointerMetaTarget(node, name, this.META[type], 1, 1);
             this.core.setPointerMetaLimits(node, name, 1, 1);
 
             if (defVal && defVal !== 'None') {

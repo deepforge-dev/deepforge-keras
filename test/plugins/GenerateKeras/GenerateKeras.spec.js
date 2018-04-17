@@ -21,7 +21,8 @@ describe('GenerateKeras', function () {
         Basic: '/c',
         LayerListInput: '/7',
         MultiArchInputs: '/T',
-        MultiArchOutputs: '/s'
+        MultiArchOutputs: '/s',
+        NestedLayers: '/z'
     };
 
     let project,
@@ -157,7 +158,7 @@ describe('GenerateKeras', function () {
             const input3 = lines.find(line => line.includes('300'))
                 .split(' ')[0];
             const createModelLine = lines.find(line => line.includes('Model('));
-            const inputs = [input1, input2, input3];
+            const inputs = [input2, input1, input3];
             const indices = inputs.map(name => createModelLine.indexOf(name));
             const order = createModelLine.split('[')[1].split(']')[0];
 
@@ -195,6 +196,26 @@ describe('GenerateKeras', function () {
                 assert(index < nextIndex, `model outputs are out of order: ${order}`);
                 return nextIndex;
             });
+        });
+    });
+
+    describe('nested (wrapped) layers', function() {
+        let code;
+
+        before(function(done) {  // run the plugin and get the generated code
+            getGeneratedCode(ARCHITECTURE.NestedLayers)
+                .then(result => code = result)
+                .nodeify(done);
+        });
+
+        it('should recognize layer is not retrievable fn (like activations)', function() {
+            const convRegex = /TimeDistributed\((layer=)?Conv2D/;
+            assert(convRegex.test(code), 'Generated bad code for wrapped layer');
+        });
+
+        it('should not pass inputs to wrapped layer', function() {
+            const nestedInputRegex = /Zeros\(\)\)\(\)\)/;
+            assert(!nestedInputRegex.test(code), 'Generated inputs for wrapped layer');
         });
     });
 

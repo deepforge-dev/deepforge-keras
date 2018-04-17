@@ -785,6 +785,14 @@ define([
         return metaType.getAttribute('name');
     };
 
+    KerasArchEditorControl.prototype._getValidTargetsFor = function() {
+        return ThumbnailControl.prototype._getValidTargetsFor.apply(this, arguments)
+            .filter(target => {
+                const node = this._client.getNode(target.node.id);
+                return !node.getRegistry('isAbstract');
+            });
+    };
+
     KerasArchEditorControl.prototype._createNode = function(baseId) {
         const type = this._client.getNode(baseId).getAttribute('name');
         this._client.startTransaction(`Creating ${type} layer`);
@@ -925,7 +933,7 @@ define([
 
         return targets.map(id => {
             return {
-                node: this._getObjectDescriptor(id)
+                node: this._getMetaObjectDescriptor(id)
             };
         });
     };
