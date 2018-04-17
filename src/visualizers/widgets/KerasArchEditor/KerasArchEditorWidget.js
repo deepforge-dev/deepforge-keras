@@ -293,6 +293,27 @@ define([
         return deferred.promise;
     };
 
+    KerasArchEditorWidget.prototype.selectTargetFor = function(id, ptr, filter) {
+        const validTargets = this.getValidTargetsFor(id, ptr, filter);
+        const areLayers = validTargets.length && validTargets.every(target => target.node.layerType);
+
+        // If they are layers, use promptLayer (for categories)
+        if (areLayers) {
+            return this.promptLayer(validTargets)
+                .then(selected => {
+                    const item = this.items[id];
+                    const layerId = selected.node.id;
+                    if (item.decorator.savePointer) {
+                        item.decorator.savePointer(ptr, layerId);
+                    } else {
+                        this.setPointerForNode(id, ptr, layerId);
+                    }
+                });
+        } else {
+            return ThumbnailWidget.prototype.selectTargetFor.apply(this, arguments);
+        }
+    };
+
     KerasArchEditorWidget.prototype.updateNode = function(desc) {
         var item = this.items[desc.id];
         item.update(desc);
