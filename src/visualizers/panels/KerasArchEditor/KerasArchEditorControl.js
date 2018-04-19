@@ -338,9 +338,6 @@ define([
         return this.getSortedSetIds(this._currentNodeId, 'inputs');
     };
 
-    KerasArchEditorControl.prototype.getCurrentNodeOutputs = function() {
-    };
-
     ////////////////////////// Layer Selection Logic //////////////////////////
     KerasArchEditorControl.prototype._getValidInitialNodes = function() {
         // Return all (non-criterion) layer types
