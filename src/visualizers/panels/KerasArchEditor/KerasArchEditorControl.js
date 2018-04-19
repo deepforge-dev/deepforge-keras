@@ -39,6 +39,7 @@ define([
         this.validateLayers = _.debounce(() => this.validateKerasArchitecture(), 500);
 
         this.connections = [];
+        this.newconnections = [];
     };
 
     _.extend(KerasArchEditorControl.prototype, ThumbnailControl.prototype);
@@ -145,7 +146,7 @@ define([
         existingPairs.forEach(conn => this._widget.updateConnection(conn));
 
         // Add the new connections
-        newPairs.forEach(conn => this.connections.push(conn));
+        newPairs.forEach(conn => this.newconnections.push(conn));
 
         // Remove any connections with the same dst but different source
         const ids = srcIdsForId[desc.id] || [];
@@ -900,14 +901,13 @@ define([
     };
 
     KerasArchEditorControl.prototype._eventCallback = function() {
-        const existingConnIds = this.connections.map(conn => conn.id);
         ThumbnailControl.prototype._eventCallback.apply(this, arguments);
 
-        this.connections.forEach(conn => {
-            if (!existingConnIds.includes(conn.id)) {
-                this._widget.addConnection(conn);
-            }
+        this.newconnections.forEach(conn => {
+            this._widget.addConnection(conn);
+            this.connections.push(conn);
         });
+        this.newconnections = [];
     };
 
     // TODO: Move this to a webhook...
