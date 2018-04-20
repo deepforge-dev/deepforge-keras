@@ -83,5 +83,19 @@ define([
         return this.desc.outputs;
     };
 
+    //////////////////////// Port Positioning ////////////////////////
+    Layer.prototype.getPortLocation = function(id, isInput=false) {
+        const ports = isInput ? this.getInputs() : this.getOutputs();
+        const index = ports.findIndex(port => port.getId() === id);
+
+        const startX = this.width/(ports.length + 1);
+        const dx = startX;
+
+        const x = startX + dx * index;
+        const y = isInput ? 0 : this.height;
+
+        return {x, y};
+    };
+
     return Layer;
 });

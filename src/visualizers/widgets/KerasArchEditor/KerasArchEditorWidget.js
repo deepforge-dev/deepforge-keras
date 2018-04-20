@@ -7,6 +7,7 @@ define([
     //'deepforge/viz/widgets/Thumbnail',
     'widgets/EasyDAG/EasyDAGWidget',
     'widgets/EasyDAG/AddNodeDialog',
+    './KerasArchEditorWidget.Layout',
     './SelectionManager',
     './Layer',
     './Connection',
@@ -18,6 +19,7 @@ define([
     Buttons,
     ThumbnailWidget,
     AddNodeDialog,
+    KerasArchEditorWidgetLayout,
     SelectionManager,
     Layer,
     Connection,
@@ -52,9 +54,14 @@ define([
         ThumbnailWidget.apply(this, arguments);
         this._emptyMsg = 'Click to add a new layer';
         this.hasError = {};
+        KerasArchEditorWidgetLayout.call(this);
     };
 
-    _.extend(KerasArchEditorWidget.prototype, ThumbnailWidget.prototype);
+    _.extend(
+        KerasArchEditorWidget.prototype,
+        ThumbnailWidget.prototype,
+        KerasArchEditorWidgetLayout.prototype
+    );
 
     KerasArchEditorWidget.prototype.ItemClass = Layer;
     KerasArchEditorWidget.prototype.Connection = Connection;
