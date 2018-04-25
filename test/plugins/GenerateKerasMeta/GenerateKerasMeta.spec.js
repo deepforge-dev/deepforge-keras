@@ -114,6 +114,18 @@ describe('GenerateKerasMeta', function () {
             assert(attrs.includes('ctor_arg_order'));
         });
 
+        describe('layer io', () => {
+            it('should create a single output for Conv2D', function () {
+                let node = getMetaNode('Conv2D');
+                return plugin.core.loadChildren(node)
+                    .then(children => {
+                        const names = children.map(child => plugin.core.getAttribute(child, 'name'));
+                        const outputs = names.filter(name => name === 'output');
+                        assert.equal(outputs.length, 1);
+                    });
+            });
+        });
+
         describe('functions', () => {
 
             it('should create nodes for activation fns', function () {
