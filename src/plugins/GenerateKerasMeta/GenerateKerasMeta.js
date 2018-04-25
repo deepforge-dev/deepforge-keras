@@ -380,7 +380,7 @@ define([
 
         // Also shouldn't add these to any of the activation, reg, init functions
         // TODO
-        if (layer.name !== 'Output') {
+        if (layer.name !== 'Output' && !data.length) {
             data.push({name: 'output'});
         }
 
