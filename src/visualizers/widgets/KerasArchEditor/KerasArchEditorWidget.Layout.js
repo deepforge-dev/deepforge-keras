@@ -11,8 +11,7 @@ define([
 
     // Changing the layout to klayjs
     KerasArchEditorWidgetLayout.prototype.refreshScreen = function() {
-        console.log('this.active', this.active);
-        if (!this.active) {  // can I keep this?
+        if (!this.active) {
             return;
         }
 
