@@ -231,21 +231,41 @@ describe('GenerateKeras', function () {
     });
 
     describe.only('multiple types of layer IO (seq2seq)', function() {
-        let code;
+        let code,
+            decoder,
+            encoder;
 
         before(function(done) {  // run the plugin and get the generated code
             getGeneratedCode(ARCHITECTURE.Seq2Seq)
-                .then(result => code = result)
+                .then(result => {
+                    code = result;
+
+                    const lines = code.split('\n');
+                    encoder = lines.find(line => line.includes('return_sequences=False'));
+                    decoder = lines.find(line => line.includes('return_sequences=True'));
+                })
                 .nodeify(done);
         });
 
-        it('should pass inputs as named args', function() {
-            // Check that the second LSTM (return_sequences=True) sets the initial_state
-            // TODO
-            console.log(code); 
+        it('should return multi values from LSTM', function() {
+            const returnVals = encoder.split('=')[0].split(',');
+            assert.equal(returnVals.length, 3);
         });
 
-        it('should not concat different input types in list', function() {
+        it('should sort outputs', function() {
+            console.log(code);
+            const returnVals = encoder.split('=')[0].split(/,\s*/);
+            assert.equal(returnVals[0], 'output');
+            assert.equal(returnVals[1], 'hidden_state');
+        });
+
+        it.skip('should pass inputs as named args', function() {
+        });
+
+        it.skip('should set initial_state in decoder', function() {
+            // Check that the decoder sets the initial_state
+            // TODO
+        });
 
     });
 

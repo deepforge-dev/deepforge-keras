@@ -138,16 +138,7 @@ define([
     };
 
     GenerateKeras.prototype.getModelIODefinition = function(layers) {
-        const inputs = layers
-            .filter(layer => layer[SimpleConstants.PREV].length === 0);
-
-        const inputIndexDict = this.getMemberIndicesDict(this.activeNode, 'inputs');
-        inputs.sort((layer1, layer2) => {
-            const [index1, index2] = [layer1, layer2]
-                .map(layer => layer[SimpleConstants.NODE_PATH])
-                .map(id => inputIndexDict[id]);
-            return index1 < index2 ? -1 : 1;
-        });
+        const inputs = this.getSortedMembers(this.activeNode, 'inputs');
         const inputNames = inputs.map(layer => layer.variableName)
             .join(',');
 
@@ -194,10 +185,10 @@ define([
     };
 
     GenerateKeras.prototype.generateLayerCode = function(layer) {
-        const name = this.generateLayerName(layer);
+        const outputs = this.generateOutputNames(layer);
         const ctor = this.generateLayerCtor(layer);
         if (layer[SimpleConstants.BASE].name === 'Input') {
-            return `${name} = ${ctor}`;
+            return `${outputs} = ${ctor}`;
         } else {  // add the inputs
             // Add different types of inputs
             // TODO
@@ -209,7 +200,22 @@ define([
 
             // Add multiple outputs support
             // TODO
-            return `${name} = ${ctor}(${inputCode})`;
+            return `${outputs} = ${ctor}(${inputCode})`;
+        }
+    };
+
+    GenerateKeras.prototype.generateOutputNames = function(layer) {
+        const layerId = layer[SimpleConstants.NODE_PATH];
+        const node = this.getNode(layerId);
+        const outputs = this.getSortedMembers(node, 'outputs');
+
+        if (outputs.length === 1) {
+            return this.generateVariableName(layer.name);
+        } else {
+            // Generate variable names for each
+            return outputs.map(node => this.core.getAttribute(node, 'name'))
+                .map(name => this.generateVariableName(name))
+                .join(', ');
         }
     };
 
@@ -224,6 +230,26 @@ define([
         });
 
         return sourceIndicesDict;
+    };
+
+    GenerateKeras.prototype.getSortedMembers = function(node, set) {
+        const members = this.core.getMemberPaths(node, set).map(id => this.getNode(id));
+
+        const memberIndices = {};
+        members.forEach(member => {
+            const id = this.core.getPath(member);
+            const index = this.core.getMemberAttribute(node, set, id, 'index');
+            memberIndices[id] = index;
+        });
+
+        members.sort((layer1, layer2) => {
+            const [index1, index2] = [layer1, layer2]
+                .map(layer => this.core.getPath(layer))
+                .map(id => memberIndices[id]);
+            return index1 < index2 ? -1 : 1;
+        });
+
+        return members;
     };
 
     GenerateKeras.prototype.sortLayerInputsByIndex = function(layer) {
