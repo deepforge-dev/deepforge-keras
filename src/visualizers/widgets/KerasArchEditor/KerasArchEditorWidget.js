@@ -225,14 +225,16 @@ define([
         const tuples = dstItems.map((item, i) => {
             let arg = dsts[i].arg;
             const position = item.getRelativePortLocation(arg.id);
+            const icon = item.showIcon({
+                x: position.x,
+                y: position.y,
+                icon: 'chevron-bottom'
+            });
+            icon.append('title').text(arg.name);
             return [
                 arg,
                 item,
-                item.showIcon({
-                    x: position.x,
-                    y: position.y,
-                    icon: 'chevron-bottom'
-                })
+                icon
             ];
         });
         tuples.forEach(pair => pair[2].on('click', () => onClick(pair[0])));
