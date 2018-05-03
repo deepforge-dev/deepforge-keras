@@ -23,7 +23,9 @@ define([
             id: 'root',
             layoutOptions: {
                 'elk.algorithm': 'Draw2D',
-                'org.eclipse.elk.direction': 'DOWN'
+                'org.eclipse.elk.direction': 'DOWN',
+                'de.cau.cs.kieler.spacing': 25,
+                'org.eclipse.elk.spacing.nodeNode': 40
             },
             /*
             properties: {
@@ -52,9 +54,9 @@ define([
                 height: item.height,
                 width: item.width,
                 ports: ports,
-                //properties: {
-                    //'de.cau.cs.kieler.portConstraints': 'FIXED_POS'
-                //}
+                properties: {
+                    'org.eclipse.elk.portConstraints': 'FIXED_POS'
+                }
             };
         });
 
@@ -64,8 +66,8 @@ define([
                 id: connId,
                 source: conn.src,
                 target: conn.dst,
-                sources: [conn.src],
-                targets: [conn.dst],
+                source: conn.src,
+                target: conn.dst,
                 sourcePort: conn.desc.srcArgId,
                 targetPort: conn.desc.dstArgId
             };
@@ -97,7 +99,7 @@ define([
             width: 1,  // Ports are rendered outside the node in this library;
             height: 1,  // we want it to look like it goes right up to the node
             properties: {
-                'de.cau.cs.kieler.portSide': side
+                'org.eclipse.elk.port.side': side
             },
             x: position.x,
             y: position.y
