@@ -103,9 +103,6 @@ define([
     };
 
     KerasArchEditorWidget.prototype.showHoverButtons = function(layer) {
-        var btn,
-            height = layer.height;
-
         if (this.$hoverBtns) {
             this.hideHoverButtons();
         }
@@ -114,42 +111,55 @@ define([
             .append('g')
             .attr('class', 'hover-container');
 
+        this.addConnectBtns(layer, this.$hoverBtns);
+    };
+
+    KerasArchEditorWidget.prototype.addConnectBtns = function(layer, $el, opts) {
+        let btns = [];
+
+        opts = opts || {};
+        const offsetX = opts.offsetX || 0;
+        const top = opts.top || 0;
+        const bottom = opts.bottom || layer.height;
+
         // Adjust the position of the inputs/outputs so they are visible
         const outputs = layer.getOutputs();
-        let startX = layer.width/(outputs.length + 1);
-        let dx = startX;
+        let dx = layer.width/(outputs.length + 1);
+        let startX = dx + offsetX;
         outputs.forEach((output, index) => {
             const id = output.getId();
             const name = output.getAttribute('name');
-            btn = new Buttons.ConnectToOutput({
+            const btn = new Buttons.ConnectToOutput({
                 context: this,
                 title: name,
-                $pEl: this.$hoverBtns,
+                $pEl: $el,
                 item: id,
                 x: startX + dx * index,
-                y: height,
+                y: bottom,
                 scale: index === 0 ? 1 : 0.9
             });
+            btns.push(btn);
         });
 
         const inputs = layer.getInputs();
-        startX = layer.width/(inputs.length + 1);
-        dx = startX;
+        dx = layer.width/(inputs.length + 1);
+        startX = dx + offsetX;
         inputs.forEach((input, index) => {
             const id = input.getId();
             const name = input.getAttribute('name');
-            btn = new Buttons.ConnectToInput({
+            const btn = new Buttons.ConnectToInput({
                 context: this,
-                $pEl: this.$hoverBtns,
+                $pEl: $el,
                 item: id,
                 title: name,
                 scale: index === 0 ? 1 : 0.9,
                 x: startX + dx * index,
-                y: 0
+                y: top
             });
+            btns.push(btn);
         });
 
-        return btn;
+        return btns;
     };
 
     KerasArchEditorWidget.prototype.hideHoverButtons = function() {
