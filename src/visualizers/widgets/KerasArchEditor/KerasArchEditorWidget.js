@@ -224,12 +224,13 @@ define([
         this.resetConnectingState();
         const tuples = dstItems.map((item, i) => {
             let arg = dsts[i].arg;
+            const position = item.getRelativePortLocation(arg.id);
             return [
                 arg,
                 item,
                 item.showIcon({
-                    x: 0.5,
-                    y: !reverse ? 0 : 1,
+                    x: position.x,
+                    y: position.y,
                     icon: 'chevron-bottom'
                 })
             ];
@@ -237,9 +238,10 @@ define([
         tuples.forEach(pair => pair[2].on('click', () => onClick(pair[0])));
 
         // Create the 'create-new' icon for the src
+        const position = src.getRelativePortLocation(srcId);
         const srcIcon = src.showIcon({
-            x: 0.5,
-            y: !reverse ? 1 : 0,
+            x: position.x,
+            y: position.y,
             icon: 'plus'
         }).on('click', () => {
             d3.event.stopPropagation();
