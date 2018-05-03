@@ -22,10 +22,10 @@ define([
         const graph = {
             id: 'root',
             layoutOptions: {
-                'elk.algorithm': 'Draw2D',
+                'elk.algorithm': 'layered',
                 'org.eclipse.elk.direction': 'DOWN',
-                'de.cau.cs.kieler.spacing': 25,
-                'org.eclipse.elk.spacing.nodeNode': 40
+                'org.eclipse.elk.spacing.nodeNode': 40,
+                'org.eclipse.elk.layered.spacing.nodeNodeBetweenLayers': 40
             },
             /*
             properties: {
@@ -66,8 +66,6 @@ define([
                 id: connId,
                 source: conn.src,
                 target: conn.dst,
-                source: conn.src,
-                target: conn.dst,
                 sourcePort: conn.desc.srcArgId,
                 targetPort: conn.desc.dstArgId
             };
@@ -86,7 +84,8 @@ define([
                     this.updateContainerWidth.bind(this),
                     this.refreshExtras.bind(this)
                 ]);
-            });
+            })
+            .catch(err => console.error(err));
     };
 
     KerasArchEditorWidgetLayout.prototype._getPortInfo = function(item, port, isInput) {

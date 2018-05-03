@@ -113,7 +113,7 @@ define([
                     srcArgId,
                     dstArgId,
                     index: null,
-                    id: `${src}-${dst}`
+                    id: `${srcArgId}-${dstArgId}`
                 };
 
                 const inputIds = this._getLayerArgInputIds(dstArgId);
