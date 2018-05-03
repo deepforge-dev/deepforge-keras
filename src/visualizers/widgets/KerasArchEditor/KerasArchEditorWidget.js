@@ -7,6 +7,7 @@ define([
     //'deepforge/viz/widgets/Thumbnail',
     'widgets/EasyDAG/EasyDAGWidget',
     'widgets/EasyDAG/AddNodeDialog',
+    './KerasArchEditorWidget.Layout',
     './SelectionManager',
     './Layer',
     './Connection',
@@ -18,6 +19,7 @@ define([
     Buttons,
     ThumbnailWidget,
     AddNodeDialog,
+    KerasArchEditorWidgetLayout,
     SelectionManager,
     Layer,
     Connection,
@@ -52,9 +54,14 @@ define([
         ThumbnailWidget.apply(this, arguments);
         this._emptyMsg = 'Click to add a new layer';
         this.hasError = {};
+        KerasArchEditorWidgetLayout.call(this);
     };
 
-    _.extend(KerasArchEditorWidget.prototype, ThumbnailWidget.prototype);
+    _.extend(
+        KerasArchEditorWidget.prototype,
+        ThumbnailWidget.prototype,
+        KerasArchEditorWidgetLayout.prototype
+    );
 
     KerasArchEditorWidget.prototype.ItemClass = Layer;
     KerasArchEditorWidget.prototype.Connection = Connection;
@@ -96,10 +103,6 @@ define([
     };
 
     KerasArchEditorWidget.prototype.showHoverButtons = function(layer) {
-        var btn,
-            height = layer.height,
-            cx = layer.width/2;
-
         if (this.$hoverBtns) {
             this.hideHoverButtons();
         }
@@ -108,29 +111,55 @@ define([
             .append('g')
             .attr('class', 'hover-container');
 
-        layer.getOutputs().forEach(output => {
+        this.addConnectBtns(layer, this.$hoverBtns);
+    };
+
+    KerasArchEditorWidget.prototype.addConnectBtns = function(layer, $el, opts) {
+        let btns = [];
+
+        opts = opts || {};
+        const offsetX = opts.offsetX || 0;
+        const top = opts.top || 0;
+        const bottom = opts.bottom || layer.height;
+
+        // Adjust the position of the inputs/outputs so they are visible
+        const outputs = layer.getOutputs();
+        let dx = layer.width/(outputs.length + 1);
+        let startX = dx + offsetX;
+        outputs.forEach((output, index) => {
             const id = output.getId();
-            btn = new Buttons.ConnectToOutput({
+            const name = output.getAttribute('name');
+            const btn = new Buttons.ConnectToOutput({
                 context: this,
-                $pEl: this.$hoverBtns,
+                title: name,
+                $pEl: $el,
                 item: id,
-                x: cx,
-                y: height
+                x: startX + dx * index,
+                y: bottom,
+                scale: index === 0 ? 1 : 0.9
             });
+            btns.push(btn);
         });
 
-        layer.getInputs().forEach(input => {
-            const inputId = input.getId();
-            btn = new Buttons.ConnectToInput({
+        const inputs = layer.getInputs();
+        dx = layer.width/(inputs.length + 1);
+        startX = dx + offsetX;
+        inputs.forEach((input, index) => {
+            const id = input.getId();
+            const name = input.getAttribute('name');
+            const btn = new Buttons.ConnectToInput({
                 context: this,
-                $pEl: this.$hoverBtns,
-                item: inputId,
-                x: cx,
-                y: 0
+                $pEl: $el,
+                item: id,
+                title: name,
+                scale: index === 0 ? 1 : 0.9,
+                x: startX + dx * index,
+                y: top
             });
+            btns.push(btn);
         });
 
-        return btn;
+        return btns;
     };
 
     KerasArchEditorWidget.prototype.hideHoverButtons = function() {
@@ -195,22 +224,26 @@ define([
         this.resetConnectingState();
         const tuples = dstItems.map((item, i) => {
             let arg = dsts[i].arg;
+            const position = item.getRelativePortLocation(arg.id);
+            const icon = item.showIcon({
+                x: position.x,
+                y: position.y,
+                icon: 'chevron-bottom'
+            });
+            icon.append('title').text(arg.name);
             return [
                 arg,
                 item,
-                item.showIcon({
-                    x: 0.5,
-                    y: !reverse ? 0 : 1,
-                    icon: 'chevron-bottom'
-                })
+                icon
             ];
         });
         tuples.forEach(pair => pair[2].on('click', () => onClick(pair[0])));
 
         // Create the 'create-new' icon for the src
+        const position = src.getRelativePortLocation(srcId);
         const srcIcon = src.showIcon({
-            x: 0.5,
-            y: !reverse ? 1 : 0,
+            x: position.x,
+            y: position.y,
             icon: 'plus'
         }).on('click', () => {
             d3.event.stopPropagation();

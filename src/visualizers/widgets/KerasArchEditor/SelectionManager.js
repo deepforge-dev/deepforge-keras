@@ -17,30 +17,17 @@ define([
         var btn;
         // Check if the selected item can have successors
         if (!this.selectedItem.isConnection) {
-            var layer = this.selectedItem,
-                cx = width/2;
+            const layer = this.selectedItem;
+            const opts = {
+                bottom: height,
+                offsetX: (width - layer.width)/2
+            };
 
-            layer.getOutputs().forEach(output => {
-                const id = output.getId();
-                btn = new Buttons.ConnectToOutput({
-                    context: this._widget,
-                    $pEl: this.$selection,
-                    item: id,
-                    x: cx,
-                    y: height
-                });
-            });
-
-            layer.getInputs().forEach(input => {
-                const inputId = input.getId();
-                btn = new Buttons.ConnectToInput({
-                    context: this._widget,
-                    $pEl: this.$selection,
-                    item: inputId,
-                    x: cx,
-                    y: 0
-                });
-            });
+            this._widget.addConnectBtns(
+                layer,
+                this.$selection,
+                opts
+            );
 
             btn = new Buttons.DeleteOne({
                 context: this._widget,

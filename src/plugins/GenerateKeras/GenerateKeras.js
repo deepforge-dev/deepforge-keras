@@ -92,10 +92,31 @@ define([
         return id.split('/').slice(0, depth+1).join('/');
     };
 
+    GenerateKeras.prototype.getJsonNode = function(id) {
+        return this._jsonNodesById[id];
+    };
+
+    GenerateKeras.prototype.registerJsonNodes = function(node) {
+        let current = [node];
+        let next = [];
+
+        this._jsonNodesById = {};
+        while (current.length) {
+            for (let i = current.length; i--;) {
+                this._jsonNodesById[current[i][SimpleConstants.NODE_PATH]] = current[i];
+                next = next.concat(current[i][SimpleConstants.CHILDREN]);
+            }
+            current = next;
+            next = [];
+        }
+    };
+
     /* * * * * * * * Main Code Generation Logic * * * * * * * */
     GenerateKeras.prototype.createOutputFiles = function(activeNode) {
         var outputFiles = {};
         var code;
+
+        this.registerJsonNodes(activeNode);
 
         const allLayers = activeNode[SimpleConstants.CHILDREN];
         const layers = allLayers.filter(layer => layer.base.name !== 'Output');
@@ -112,6 +133,7 @@ define([
         // Define the custom_objects dict
         code.push('');
         code.push(`${customObjs} = {}`);
+        code.unshift('');
         this.customObjects.forEach(pair => {
             let [name, def] = pair;
             code.unshift(def);  // prepend definition
@@ -148,8 +170,7 @@ define([
                 .map(id => inputIndexDict[id]);
             return index1 < index2 ? -1 : 1;
         });
-        const inputNames = inputs.map(layer => layer.variableName)
-            .join(',');
+        const inputNames = inputs.map(layer => layer.variableName).join(',');
 
         // Order the outputs by their 'index' as well
         const outputIndexDict = this.getMemberIndicesDict(this.activeNode, 'outputs');
@@ -194,18 +215,48 @@ define([
     };
 
     GenerateKeras.prototype.generateLayerCode = function(layer) {
-        const name = this.generateLayerName(layer);
+        const outputs = this.generateOutputNames(layer);
         const ctor = this.generateLayerCtor(layer);
         if (layer[SimpleConstants.BASE].name === 'Input') {
-            return `${name} = ${ctor}`;
+            return `${outputs} = ${ctor}`;
         } else {  // add the inputs
-            let inputs = layer[SimpleConstants.PREV].map(node => node.variableName);
-            let inputCode = inputs.join(', ');
-            if (inputs.length > 1) {
-                inputCode = `[${inputCode}]`;
-            }
+            // Add different types of inputs
+            let args = this.getSortedMembers(layer, 'inputs')
+                .map(input => {
+                    const inputVals = this.getSortedMembers(input, 'source')
+                        .map(input => this.getVariableForNode(input));
 
-            return `${name} = ${ctor}(${inputCode})`;
+                    let inputCode = inputVals.join(', ');
+                    if (inputVals.length > 1) {
+                        inputCode = `[${inputCode}]`;
+                    }
+
+                    if (inputVals.length >= 1) {
+                        return `${input.name}=${inputCode}`;
+                    }
+
+                })
+                .filter(input => !!input)
+                .join(', ');
+            // Add multiple outputs support
+            return `${outputs} = ${ctor}(${args})`;
+        }
+    };
+
+    GenerateKeras.prototype.generateOutputNames = function(layer) {
+        const outputs = this.getSortedMembers(layer, 'outputs');
+
+        if (outputs.length === 1) {
+            // use the same variable for the output and layer since they are
+            // basically the same
+            const name = this.getVariableForNode(layer);
+            outputs[0].variableName = name;
+            return name;
+        } else {
+            // Generate variable names for each
+            // Add these variable names to the children json nodes
+            return outputs.map(output => this.getVariableForNode(output))
+                .join(', ');
         }
     };
 
@@ -220,6 +271,30 @@ define([
         });
 
         return sourceIndicesDict;
+    };
+
+    GenerateKeras.prototype.getSortedMembers = function(json, set) {
+        const node = this.getNode(json[SimpleConstants.NODE_PATH]);
+        const members = this.core.getMemberPaths(node, set).map(id => this.getNode(id));
+
+        const memberIndices = {};
+        members.forEach(member => {
+            const id = this.core.getPath(member);
+            const index = this.core.getMemberAttribute(node, set, id, 'index');
+            memberIndices[id] = index;
+        });
+
+        members.sort((layer1, layer2) => {
+            const [index1, index2] = [layer1, layer2]
+                .map(layer => this.core.getPath(layer))
+                .map(id => memberIndices[id]);
+            return index1 < index2 ? -1 : 1;
+        });
+
+        return members.map(gmeNode => {
+            const id = this.core.getPath(gmeNode);
+            return this.getJsonNode(id);
+        });
     };
 
     GenerateKeras.prototype.sortLayerInputsByIndex = function(layer) {
@@ -255,9 +330,11 @@ define([
         return name;
     };
 
-    GenerateKeras.prototype.generateLayerName = function(layer) {
-        var basename = layer.name.toLowerCase();
-        layer.variableName = this.generateVariableName(basename);
+    GenerateKeras.prototype.getVariableForNode = function(layer, basename) {
+        if (!layer.variableName) {
+            basename = basename || layer.name.toLowerCase();
+            layer.variableName = this.generateVariableName(basename);
+        }
         return layer.variableName;
     };
 
@@ -274,7 +351,18 @@ define([
     GenerateKeras.prototype.getArgumentsString = function(layer) {
         const argString = this.getArguments(layer)
             .map(pair => {
-                const [name, value] = pair;
+                let [name, value] = pair;
+                // Add special case for recurrent layers -> always return_state
+                // when in an architecture node
+                if (name === 'return_state') {
+                    const pathChunks = layer[SimpleConstants.NODE_PATH].split('/');
+                    pathChunks.pop();
+                    const parentId = pathChunks.join('/');
+                    const parent = this.getJsonNode(parentId);
+                    if (parent.base.name === 'Architecture') {
+                        value = 'True';
+                    }
+                }
                 return `${name}=${value}`;
             }).join(', ');
 

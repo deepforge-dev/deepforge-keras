@@ -22,7 +22,8 @@ describe('GenerateKeras', function () {
         LayerListInput: '/7',
         MultiArchInputs: '/T',
         MultiArchOutputs: '/s',
-        NestedLayers: '/z'
+        NestedLayers: '/z',
+        Seq2Seq: '/4'
     };
 
     let project,
@@ -227,6 +228,69 @@ describe('GenerateKeras', function () {
             const nestedInputRegex = /Zeros\(\)\)\(\)\)/;
             assert(!nestedInputRegex.test(code), 'Generated inputs for wrapped layer');
         });
+    });
+
+    describe('multiple types of layer IO (seq2seq)', function() {
+        let code,
+            decoder,
+            encoder;
+
+        before(function(done) {  // run the plugin and get the generated code
+            getGeneratedCode(ARCHITECTURE.Seq2Seq)
+                .then(result => {
+                    code = result;
+
+                    const lines = code.split('\n');
+                    encoder = lines.find(line => line.includes('return_sequences=False'));
+                    decoder = lines.find(line => line.includes('return_sequences=True'));
+                })
+                .nodeify(done);
+        });
+
+        it('should return multi values from LSTM', function() {
+            const returnVals = encoder.split('=')[0].split(',');
+            assert.equal(returnVals.length, 3);
+        });
+
+        it('should sort outputs', function() {
+            const returnVals = encoder.split('=')[0].split(/,\s*/);
+            assert.equal(returnVals[0], 'output');
+            assert.equal(returnVals[1], 'hidden_state');
+        });
+
+        it('should pass "hidden_state" to decoder', function() {
+            const inputVals = decoder.split(/[(]+/).pop();
+            assert(
+                inputVals.includes('hidden_state'),
+                'hidden_state not passed to decoder'
+            );
+        });
+
+        it('should pass inputs as named args', function() {
+            const inputVals = decoder.split(/[(]+/).pop();
+            assert(
+                inputVals.includes('initial_state='),
+                'initial_state keyword arg not found for decoder'
+            );
+        });
+
+        it('should set initial_state to list in decoder', function() {
+            // Check that the decoder sets the initial_state
+            const inputVals = decoder.split(/[(]+/).pop();
+            const hasListInitState = /initial_state=\[\w+,\s*\w+\]/;
+            assert(
+                hasListInitState.test(inputVals),
+                'initial_state not receiving list input in decoder'
+            );
+        });
+
+        describe('special cases', function() {
+            it('should set return_state to true in recurrent layers', function() {
+                assert(encoder.includes('return_state=True'), 'encoder not returning state');
+                assert(decoder.includes('return_state=True'), 'decoder not returning state');
+            });
+        });
+
     });
 
     describe('layer args', function() {

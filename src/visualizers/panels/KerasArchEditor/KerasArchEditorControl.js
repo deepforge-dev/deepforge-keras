@@ -39,6 +39,7 @@ define([
         this.validateLayers = _.debounce(() => this.validateKerasArchitecture(), 500);
 
         this.connections = [];
+        this.newconnections = [];
     };
 
     _.extend(KerasArchEditorControl.prototype, ThumbnailControl.prototype);
@@ -84,9 +85,9 @@ define([
         const srcIdsForId = {};
 
         this.connections.forEach(conn => {
-            const {src, dst} = conn;
-            srcIdsForId[dst] = srcIdsForId[dst] || [];
-            srcIdsForId[dst].push(src);
+            const {srcArgId, dstArgId} = conn;
+            srcIdsForId[dstArgId] = srcIdsForId[dstArgId] || [];
+            srcIdsForId[dstArgId].push(srcArgId);
         });
 
         // Update the ids to ignore ports and stuff
@@ -112,7 +113,7 @@ define([
                     srcArgId,
                     dstArgId,
                     index: null,
-                    id: `${src}-${dst}`
+                    id: `${srcArgId}-${dstArgId}`
                 };
 
                 const inputIds = this._getLayerArgInputIds(dstArgId);
@@ -124,38 +125,43 @@ define([
 
         // For all pairs, remove them if they already exist
         // They should be updated
-        const newPairs = [];
-        const existingPairs = [];
-        connections.forEach(pair => {
-            const {src, dst} = pair;
+        const newConns = [];
+        const existingConns = [];
+        connections.forEach(conn => {
+            const {srcArgId, dstArgId} = conn;
 
-            if (srcIdsForId[dst]) {
-                const index = srcIdsForId[dst].indexOf(src);
+            if (srcIdsForId[dstArgId]) {
+                const index = srcIdsForId[dstArgId].indexOf(srcArgId);
 
                 if (index > -1) {  // exists
-                    srcIdsForId[dst].splice(index, 1);
-                    return existingPairs.push(pair);
+                    srcIdsForId[dstArgId].splice(index, 1);
+                    return existingConns.push(conn);
                 }
             }
 
-            return newPairs.push(pair);  // new connection
+            return newConns.push(conn);  // new connection
         });
 
         // Update the existing connections if index should no longer be shown
-        existingPairs.forEach(conn => this._widget.updateConnection(conn));
+        existingConns.forEach(conn => this._widget.updateConnection(conn));
 
         // Add the new connections
-        newPairs.forEach(conn => this.connections.push(conn));
+        newConns.forEach(conn => this.newconnections.push(conn));
 
         // Remove any connections with the same dst but different source
-        const ids = srcIdsForId[desc.id] || [];
-        ids.forEach(id => this.removeConnectionByEndpoints(id, desc.id));
+        desc.inputs.map(node => node.getId())
+            .forEach(id => {
+                const oldSrcs = srcIdsForId[id] || [];
+                oldSrcs.forEach(
+                    srcArgId => this.removeConnectionByEndpoints(srcArgId, id)
+                );
+            });
     };
 
     KerasArchEditorControl.prototype.removeConnectionByEndpoints = function (src, dst) {
         for (let i = this.connections.length; i--;) {
             const conn = this.connections[i];
-            if (conn.src === src && conn.dst === dst) {
+            if (conn.srcArgId === src && conn.dstArgId === dst) {
                 this.connections.splice(i, 1);
                 this._widget.removeNode(conn.id);
             }
@@ -327,8 +333,7 @@ define([
 
         if (desc.outputs) {
             desc.outputs = desc.outputs
-                .map(id => this._client.getNode(id))
-                .sort((a, b) => a.getAttribute('index') < b.getAttribute('index') ? -1 : 1);
+                .map(id => this._client.getNode(id));
         }
 
         return desc;
@@ -336,9 +341,6 @@ define([
 
     KerasArchEditorControl.prototype.getCurrentNodeInputs = function() {
         return this.getSortedSetIds(this._currentNodeId, 'inputs');
-    };
-
-    KerasArchEditorControl.prototype.getCurrentNodeOutputs = function() {
     };
 
     ////////////////////////// Layer Selection Logic //////////////////////////
@@ -450,10 +452,9 @@ define([
     KerasArchEditorControl.prototype.getValidExistingNextNodes = function(id, forward=true) {
         const childId = this.getParentAtDepth(id);
         const isInDirection = this.getAllNodesInDirection(childId, !forward);
-        const nodeDict = this.getBidirectionalGraph();
-        const edgeName = forward ? 'next' : 'prev';
         const argsType = forward ? 'inputs' : 'outputs';
-        const alreadyConnectedNodes = nodeDict[childId][edgeName];
+
+        const alreadyConnectedNodes = this.getConnectedArgIds(id);
 
         return this.getCurrentChildren()
             .filter(node => {
@@ -461,21 +462,40 @@ define([
                 if (isInDirection[nodeId]) {
                     return false;
                 }
-
-                // Check if the node is already connected to "childId"
-                const isImmediateNode = alreadyConnectedNodes.includes(nodeId);
-
-                return !isImmediateNode;
+                return true;
             })
             .map(node => {
-                return node.getMemberIds(argsType).map(id => {
-                    return {
-                        node: this._getObjectDescriptor(this.getParentAtDepth(id)),
-                        arg: this._getObjectDescriptor(id)
-                    };
-                });
+                return node.getMemberIds(argsType)
+                    // Check if the node is already connected to "childId"
+                    .filter(id => !alreadyConnectedNodes.includes(id))
+                    .map(id => {
+                        return {
+                            node: this._getObjectDescriptor(this.getParentAtDepth(id)),
+                            arg: this._getObjectDescriptor(id)
+                        };
+                    });
             })
             .reduce((l1, l2) => l1.concat(l2), []);
+    };
+
+    KerasArchEditorControl.prototype.getConnectedArgIds = function(argId) {
+        // Detect if input or output
+        const childId = this.getParentAtDepth(argId);
+        const layer = this._client.getNode(childId);
+        const isInputArg = layer.getMemberIds('inputs').includes(argId);
+
+        if (isInputArg) {
+            const argNode = this._client.getNode(argId);
+            return argNode.getMemberIds('source');
+        } else {  // find all input nodes with a source ref to this id
+            return this.getCurrentChildren()
+                .map(node => node.getMemberIds('inputs'))
+                .reduce((l1, l2) => l1.concat(l2), [])
+                .filter(id => {
+                    const srcIds = this._client.getNode(id).getMemberIds('source');
+                    return srcIds.includes(argId);
+                });
+        }
     };
 
     KerasArchEditorControl.prototype.getCurrentChildren = function() {
@@ -901,14 +921,13 @@ define([
     };
 
     KerasArchEditorControl.prototype._eventCallback = function() {
-        const existingConnIds = this.connections.map(conn => conn.id);
         ThumbnailControl.prototype._eventCallback.apply(this, arguments);
 
-        this.connections.forEach(conn => {
-            if (!existingConnIds.includes(conn.id)) {
-                this._widget.addConnection(conn);
-            }
+        this.newconnections.forEach(conn => {
+            this._widget.addConnection(conn);
+            this.connections.push(conn);
         });
+        this.newconnections = [];
     };
 
     // TODO: Move this to a webhook...
