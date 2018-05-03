@@ -1,3 +1,4 @@
 src/skulpt.min.js
 src/visualizers/Visualizers.json
 config/config.webgme.js
+src/visualizers/widgets/KerasArchEditor/lib/elk.bundled.js

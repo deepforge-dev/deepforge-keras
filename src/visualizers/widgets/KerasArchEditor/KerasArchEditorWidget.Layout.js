@@ -26,14 +26,6 @@ define([
                 'org.eclipse.elk.spacing.nodeNode': 40,
                 'org.eclipse.elk.layered.spacing.nodeNodeBetweenLayers': 40
             },
-            /*
-            properties: {
-                direction: 'DOWN',
-                'de.cau.cs.kieler.spacing': 25,
-                'de.cau.cs.kieler.edgeRouting': 'ORTHOGONAL'
-                //'de.cau.cs.kieler.klay.layered.nodePlace': 'INTERACTIVE'
-            },
-            */
             edges: [],
             children: []
         };
@@ -70,7 +62,6 @@ define([
             };
         });
 
-        console.log(graph);
         this.elk.layout(graph)
             .then(graph => {
                 this.resultGraph = graph;
@@ -83,8 +74,7 @@ define([
                     this.updateContainerWidth.bind(this),
                     this.refreshExtras.bind(this)
                 ]);
-            })
-            .catch(err => console.error(err));
+            });
     };
 
     KerasArchEditorWidgetLayout.prototype._getPortInfo = function(item, port, isInput) {
