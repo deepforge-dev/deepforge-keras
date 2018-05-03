@@ -447,10 +447,9 @@ define([
     KerasArchEditorControl.prototype.getValidExistingNextNodes = function(id, forward=true) {
         const childId = this.getParentAtDepth(id);
         const isInDirection = this.getAllNodesInDirection(childId, !forward);
-        const nodeDict = this.getBidirectionalGraph();
-        const edgeName = forward ? 'next' : 'prev';
         const argsType = forward ? 'inputs' : 'outputs';
-        const alreadyConnectedNodes = nodeDict[childId][edgeName];
+
+        const alreadyConnectedNodes = this.getConnectedArgIds(id);
 
         return this.getCurrentChildren()
             .filter(node => {
@@ -458,21 +457,40 @@ define([
                 if (isInDirection[nodeId]) {
                     return false;
                 }
-
-                // Check if the node is already connected to "childId"
-                const isImmediateNode = alreadyConnectedNodes.includes(nodeId);
-
-                return !isImmediateNode;
+                return true;
             })
             .map(node => {
-                return node.getMemberIds(argsType).map(id => {
-                    return {
-                        node: this._getObjectDescriptor(this.getParentAtDepth(id)),
-                        arg: this._getObjectDescriptor(id)
-                    };
-                });
+                return node.getMemberIds(argsType)
+                    // Check if the node is already connected to "childId"
+                    .filter(id => !alreadyConnectedNodes.includes(id))
+                    .map(id => {
+                        return {
+                            node: this._getObjectDescriptor(this.getParentAtDepth(id)),
+                            arg: this._getObjectDescriptor(id)
+                        };
+                    });
             })
             .reduce((l1, l2) => l1.concat(l2), []);
+    };
+
+    KerasArchEditorControl.prototype.getConnectedArgIds = function(argId) {
+        // Detect if input or output
+        const childId = this.getParentAtDepth(argId);
+        const layer = this._client.getNode(childId);
+        const isInputArg = layer.getMemberIds('inputs').includes(argId);
+
+        if (isInputArg) {
+            const argNode = this._client.getNode(argId);
+            return argNode.getMemberIds('source');
+        } else {  // find all input nodes with a source ref to this id
+            return this.getCurrentChildren()
+                .map(node => node.getMemberIds('inputs'))
+                .reduce((l1, l2) => l1.concat(l2), [])
+                .filter(id => {
+                    const srcIds = this._client.getNode(id).getMemberIds('source');
+                    return srcIds.includes(argId);
+                });
+        }
     };
 
     KerasArchEditorControl.prototype.getCurrentChildren = function() {
