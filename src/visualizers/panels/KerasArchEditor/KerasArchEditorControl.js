@@ -85,9 +85,9 @@ define([
         const srcIdsForId = {};
 
         this.connections.forEach(conn => {
-            const {src, dst} = conn;
-            srcIdsForId[dst] = srcIdsForId[dst] || [];
-            srcIdsForId[dst].push(src);
+            const {srcArgId, dstArgId} = conn;
+            srcIdsForId[dstArgId] = srcIdsForId[dstArgId] || [];
+            srcIdsForId[dstArgId].push(srcArgId);
         });
 
         // Update the ids to ignore ports and stuff
@@ -125,38 +125,43 @@ define([
 
         // For all pairs, remove them if they already exist
         // They should be updated
-        const newPairs = [];
-        const existingPairs = [];
-        connections.forEach(pair => {
-            const {src, dst} = pair;
+        const newConns = [];
+        const existingConns = [];
+        connections.forEach(conn => {
+            const {srcArgId, dstArgId} = conn;
 
-            if (srcIdsForId[dst]) {
-                const index = srcIdsForId[dst].indexOf(src);
+            if (srcIdsForId[dstArgId]) {
+                const index = srcIdsForId[dstArgId].indexOf(srcArgId);
 
                 if (index > -1) {  // exists
-                    srcIdsForId[dst].splice(index, 1);
-                    return existingPairs.push(pair);
+                    srcIdsForId[dstArgId].splice(index, 1);
+                    return existingConns.push(conn);
                 }
             }
 
-            return newPairs.push(pair);  // new connection
+            return newConns.push(conn);  // new connection
         });
 
         // Update the existing connections if index should no longer be shown
-        existingPairs.forEach(conn => this._widget.updateConnection(conn));
+        existingConns.forEach(conn => this._widget.updateConnection(conn));
 
         // Add the new connections
-        newPairs.forEach(conn => this.newconnections.push(conn));
+        newConns.forEach(conn => this.newconnections.push(conn));
 
         // Remove any connections with the same dst but different source
-        const ids = srcIdsForId[desc.id] || [];
-        ids.forEach(id => this.removeConnectionByEndpoints(id, desc.id));
+        desc.inputs.map(node => node.getId())
+            .forEach(id => {
+                const oldSrcs = srcIdsForId[id] || [];
+                oldSrcs.forEach(
+                    srcArgId => this.removeConnectionByEndpoints(srcArgId, id)
+                );
+            });
     };
 
     KerasArchEditorControl.prototype.removeConnectionByEndpoints = function (src, dst) {
         for (let i = this.connections.length; i--;) {
             const conn = this.connections[i];
-            if (conn.src === src && conn.dst === dst) {
+            if (conn.srcArgId === src && conn.dstArgId === dst) {
                 this.connections.splice(i, 1);
                 this._widget.removeNode(conn.id);
             }
