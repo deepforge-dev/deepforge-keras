@@ -22,7 +22,8 @@ describe('GenerateKeras', function () {
         LayerListInput: '/7',
         MultiArchInputs: '/T',
         MultiArchOutputs: '/s',
-        NestedLayers: '/z'
+        NestedLayers: '/z',
+        Seq2Seq: '/4'
     };
 
     let project,
@@ -227,6 +228,25 @@ describe('GenerateKeras', function () {
             const nestedInputRegex = /Zeros\(\)\)\(\)\)/;
             assert(!nestedInputRegex.test(code), 'Generated inputs for wrapped layer');
         });
+    });
+
+    describe.only('multiple types of layer IO (seq2seq)', function() {
+        let code;
+
+        before(function(done) {  // run the plugin and get the generated code
+            getGeneratedCode(ARCHITECTURE.Seq2Seq)
+                .then(result => code = result)
+                .nodeify(done);
+        });
+
+        it('should pass inputs as named args', function() {
+            // Check that the second LSTM (return_sequences=True) sets the initial_state
+            // TODO
+            console.log(code); 
+        });
+
+        it('should not concat different input types in list', function() {
+
     });
 
     describe('layer args', function() {

@@ -199,12 +199,16 @@ define([
         if (layer[SimpleConstants.BASE].name === 'Input') {
             return `${name} = ${ctor}`;
         } else {  // add the inputs
+            // Add different types of inputs
+            // TODO
             let inputs = layer[SimpleConstants.PREV].map(node => node.variableName);
             let inputCode = inputs.join(', ');
             if (inputs.length > 1) {
                 inputCode = `[${inputCode}]`;
             }
 
+            // Add multiple outputs support
+            // TODO
             return `${name} = ${ctor}(${inputCode})`;
         }
     };
