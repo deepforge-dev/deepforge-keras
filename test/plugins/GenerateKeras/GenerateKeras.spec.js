@@ -230,7 +230,7 @@ describe('GenerateKeras', function () {
         });
     });
 
-    describe.only('multiple types of layer IO (seq2seq)', function() {
+    describe('multiple types of layer IO (seq2seq)', function() {
         let code,
             decoder,
             encoder;
@@ -253,18 +253,42 @@ describe('GenerateKeras', function () {
         });
 
         it('should sort outputs', function() {
-            console.log(code);
             const returnVals = encoder.split('=')[0].split(/,\s*/);
             assert.equal(returnVals[0], 'output');
             assert.equal(returnVals[1], 'hidden_state');
         });
 
-        it.skip('should pass inputs as named args', function() {
+        it('should pass "hidden_state" to decoder', function() {
+            const inputVals = decoder.split(/[(]+/).pop();
+            assert(
+                inputVals.includes('hidden_state'),
+                'hidden_state not passed to decoder'
+            );
         });
 
-        it.skip('should set initial_state in decoder', function() {
+        it('should pass inputs as named args', function() {
+            const inputVals = decoder.split(/[(]+/).pop();
+            assert(
+                inputVals.includes('initial_state='),
+                'initial_state keyword arg not found for decoder'
+            );
+        });
+
+        it('should set initial_state to list in decoder', function() {
             // Check that the decoder sets the initial_state
-            // TODO
+            const inputVals = decoder.split(/[(]+/).pop();
+            const hasListInitState = /initial_state=\[\w+,\s*\w+\]/;
+            assert(
+                hasListInitState.test(inputVals),
+                'initial_state not receiving list input in decoder'
+            );
+        });
+
+        describe('special cases', function() {
+            it('should set return_state to true in recurrent layers', function() {
+                assert(encoder.includes('return_state=True'), 'encoder not returning state');
+                assert(decoder.includes('return_state=True'), 'decoder not returning state');
+            });
         });
 
     });
