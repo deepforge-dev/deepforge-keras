@@ -38,9 +38,14 @@ define([
     ValidateKeras.prototype = Object.create(PluginBase.prototype);
     ValidateKeras.prototype.constructor = ValidateKeras;
 
+    const indent = function(code) {
+        return '    ' + code.replace(/\n/mg, '\n    ');
+    };
+
     ValidateKeras.prototype.createOutputFiles = function(activeNode) {
         const files = PluginBase.prototype.createOutputFiles.call(this, activeNode);
         let code = files['output.py'];
+        const results = this.generateVariableName('results');
 
         // Add the initialization (register_layer fn)
         const initCode = [
@@ -48,7 +53,9 @@ define([
             'def register_layer(name, node_id):',
             '    layer_registry[name] = node_id',
             '',
-            'errors = []',
+            `${results} = {}`,
+            `${results}['errors'] = []`,
+            `${results}['dimensions'] = {}`,
             'def record_error(e):',
             '    info = {}',
             '    info[\'nodeId\'] = layer_registry[current_layer_name]',
@@ -59,14 +66,34 @@ define([
             '    if hasattr(e, \'args\'):',
             '        info[\'message\'] = e.args[0]',
             '    print(info)',
-            '    errors.append(info)',
+            `    ${results}['errors'].append(info)`,
             '',
-            'has_bad_layer = False',
+            'def record_dimensions(model):',
+            '    for layer in model.layers:',
+            '        layer_name = layer.name',
+            '        node_id = layer_registry[layer.name]',
+            `        ${results}['dimensions'][node_id] = layer.output_shape`,
             '',
+            'has_bad_layer = False'
         ].join('\n');
-        code = initCode + code;
 
-        console.log(code);
+        const reportCode = [
+            'import json',
+            `print(json.dumps(${results}))`
+        ].join('\n');
+
+        // Report the errors and dimensions somehow...
+        code = [
+            initCode,
+            'try:',
+            indent(code),
+            indent('record_dimensions(model)'),
+            'except:',
+            indent('pass'),
+            reportCode
+        ].join('\n');
+
+        files['output.py'] = code;
         return files;
     };
 
@@ -97,7 +124,8 @@ define([
     ValidateKeras.prototype.getArguments = function(layer) {
         const args = PluginBase.prototype.getArguments.call(this, layer);
         // Add the 'name' argument to all layers
-        if (layer.base.name === 'Layer') {
+        const node = this.getNode(layer[SimpleConstants.NODE_PATH]);
+        if (this.core.isTypeOf(node, this.META.Layer)) {
             args.push(['name', `'${this.getLayerName(layer)}'`]);
         }
         return args;
