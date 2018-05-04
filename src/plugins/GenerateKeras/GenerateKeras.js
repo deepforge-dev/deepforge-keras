@@ -160,17 +160,7 @@ define([
     };
 
     GenerateKeras.prototype.getModelIODefinition = function(layers) {
-        const inputs = layers
-            .filter(layer => layer[SimpleConstants.PREV].length === 0);
-
-        const inputIndexDict = this.getMemberIndicesDict(this.activeNode, 'inputs');
-        inputs.sort((layer1, layer2) => {
-            const [index1, index2] = [layer1, layer2]
-                .map(layer => layer[SimpleConstants.NODE_PATH])
-                .map(id => inputIndexDict[id]);
-            return index1 < index2 ? -1 : 1;
-        });
-        const inputNames = inputs.map(layer => layer.variableName).join(',');
+        const inputNames = this.getModelInputs(layers);
 
         // Order the outputs by their 'index' as well
         const outputIndexDict = this.getMemberIndicesDict(this.activeNode, 'outputs');
@@ -199,6 +189,20 @@ define([
         return `Model(inputs=[${inputNames}], outputs=[${outputNames}])`;
     };
 
+    GenerateKeras.prototype.getModelInputs = function(layers) {
+        const inputs = layers
+            .filter(layer => layer[SimpleConstants.PREV].length === 0);
+
+        const inputIndexDict = this.getMemberIndicesDict(this.activeNode, 'inputs');
+        inputs.sort((layer1, layer2) => {
+            const [index1, index2] = [layer1, layer2]
+                .map(layer => layer[SimpleConstants.NODE_PATH])
+                .map(id => inputIndexDict[id]);
+            return index1 < index2 ? -1 : 1;
+        });
+        return inputs.map(layer => layer.variableName).join(',');
+    };
+
     GenerateKeras.prototype.defineCustomObject = function(name, def) {
         // 'name' must be a valid variable name
         this.customObjects.push([name, def]);
@@ -221,26 +225,30 @@ define([
             return `${outputs} = ${ctor}`;
         } else {  // add the inputs
             // Add different types of inputs
-            let args = this.getSortedMembers(layer, 'inputs')
-                .map(input => {
-                    const inputVals = this.getSortedMembers(input, 'source')
-                        .map(input => this.getVariableForNode(input));
-
-                    let inputCode = inputVals.join(', ');
-                    if (inputVals.length > 1) {
-                        inputCode = `[${inputCode}]`;
-                    }
-
-                    if (inputVals.length >= 1) {
-                        return `${input.name}=${inputCode}`;
-                    }
-
-                })
-                .filter(input => !!input)
-                .join(', ');
             // Add multiple outputs support
+            const args = this.generateInputValues(layer);
             return `${outputs} = ${ctor}(${args})`;
         }
+    };
+
+    GenerateKeras.prototype.generateInputValues = function(layer) {
+        return this.getSortedMembers(layer, 'inputs')
+            .map(input => {
+                const inputVals = this.getSortedMembers(input, 'source')
+                    .map(input => this.getVariableForNode(input));
+
+                let inputCode = inputVals.join(', ');
+                if (inputVals.length > 1) {
+                    inputCode = `[${inputCode}]`;
+                }
+
+                if (inputVals.length >= 1) {
+                    return `${input.name}=${inputCode}`;
+                }
+
+            })
+            .filter(input => !!input)
+            .join(', ');
     };
 
     GenerateKeras.prototype.generateOutputNames = function(layer) {
