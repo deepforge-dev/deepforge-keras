@@ -93,6 +93,9 @@ define([
             reportCode
         ].join('\n');
 
+        // Store it as a message?
+        // We need to execute this somewhere
+        // TODO
         files['output.py'] = code;
         return files;
     };

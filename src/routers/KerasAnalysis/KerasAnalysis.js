@@ -53,6 +53,9 @@ function initialize(middlewareOpts) {
     // Use ensureAuthenticated if the routes require authentication. (Can be set explicitly for each route.)
     router.use('*', ensureAuthenticated);
 
+    // In the future, it may be better to simply retrieve the results from the database
+    // and perform the computation in a webhook
+    // TODO
     router.get('/:projectId/:nodeId', function (req, res/*, next*/) {
         // For the first pass, we should just run the plugin and get the results
         // TODO
