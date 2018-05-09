@@ -37,7 +37,13 @@
     },
     "addons": {},
     "layouts": {},
-    "routers": {},
+    "routers": {
+      "KerasAnalysis": {
+        "src": "src/routers/KerasAnalysis",
+        "test": "test/routers/KerasAnalysis",
+        "mount": "routers/KerasAnalysis"
+      }
+    },
     "seeds": {
       "dev": {
         "src": "src/seeds/dev"
