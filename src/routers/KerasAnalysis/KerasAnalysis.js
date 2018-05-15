@@ -16,9 +16,14 @@
 // http://expressjs.com/en/guide/routing.html
 const Q = require('q');
 const path = require('path');
-const spawn = require('child_process').spawn;
+const fs = require('fs');
+const os = require('os');
+const childProcess = require('child_process');
 const express = require('express');
 const router = express.Router();
+const PLUGIN_NAME = 'ValidateKeras';
+const rm_rf = require('rimraf');
+let logger = null;
 
 /**
  * Called when the server is created but before it starts to listening to incoming requests.
@@ -35,9 +40,9 @@ const router = express.Router();
  * @param {object} middlewareOpts.workerManager - Spawns and keeps track of "worker" sub-processes.
  */
 function initialize(middlewareOpts) {
-    var logger = middlewareOpts.logger.fork('KerasAnalysis'),
-        ensureAuthenticated = middlewareOpts.ensureAuthenticated,
-        getUserId = middlewareOpts.getUserId;
+    logger = middlewareOpts.logger.fork('KerasAnalysis');
+    const ensureAuthenticated = middlewareOpts.ensureAuthenticated;
+    const getUserId = middlewareOpts.getUserId;
 
     logger.debug('initializing ...');
 
@@ -56,50 +61,74 @@ function initialize(middlewareOpts) {
     // In the future, it may be better to simply retrieve the results from the database
     // and perform the computation in a webhook
     // TODO
-    router.get('/:projectId/:nodeId', function (req, res/*, next*/) {
+    router.get('/:projectId/:commitHash/:nodeId', function (req, res/*, next*/) {
         // For the first pass, we should just run the plugin and get the results
         // TODO
-        const userId = getUserId(req);
-        console.log('projectId', req.params.projectId);
-        console.log('nodeId', req.params.nodeId);
         // Make sure the user has permission to view the project
         // TODO
-        return getTestCode(projectId, nodeId)
-            .then(code => executeTestCode(code))
-            .then(results => res.json(results));
+        const userId = getUserId(req);
+        const {projectId, commitHash, nodeId} = req.params;
 
-        //res.json({userId: userId, message: 'get request was handled'});
+        logger.debug(`Requesting analysis for ${nodeId} in ${projectId} at ${commitHash}`);
+        return analyzeSubmodel(projectId, commitHash, nodeId)
+            .then(results => res.json(results))
+            .catch(err => logger.error(err));
     });
 
     logger.debug('ready');
 }
 
-function executeTestCode(code) {
-    // Run the code and get the results
-    // TODO
-}
-
-function getTestCode(projectId, nodeId) {
+function spawn(cmd, args) {
     const deferred = Q.defer();
+    const execPlugin = childProcess.spawn(cmd, args);
+    let stdout = '';
+    let stderr = '';
 
-    const webgmeEnginePath = path.join(__dirname, '..', '..', '..',
-        'node_modules', 'webgme-engine');
-    const args = [
-        path.join(webgmeEnginePath, 'src', 'bin', 'run_plugin.js'),
-    ];
-    const execPlugin = spawn('node', args);
-
-    // How can I get the test code? stdout? blob?
-    // TODO
+    logger.debug(`Running ${cmd} ${args.join(' ')}`);
+    execPlugin.stdout.on('data', data => stdout += data);
+    execPlugin.stderr.on('data', data => stderr += data);
     execPlugin.on('close', code => {
         if (code === 0) {
-            deferred.resolve();
+            deferred.resolve(stdout);
         } else {
-            deferred.reject();
+            logger.debug(`Plugin execution failed. Exit code: ${code}`);
+            logger.debug(stderr);
+            deferred.reject(stderr);
         }
     });
 
     return deferred.promise;
+}
+
+function analyzeSubmodel(projectId, commitHash, nodeId) {
+    const tmpdir = path.join(os.tmpdir(), `${commitHash}_${nodeId.replace('/', '-')}`);
+    const pythonFile = path.join(tmpdir, 'output.py');
+
+    const webgmeEnginePath =  path.join(require.resolve('webgme-engine'), '..');
+    const args = [
+        path.join(webgmeEnginePath, 'src', 'bin', 'run_plugin.js'),
+        PLUGIN_NAME,
+        projectId,
+        '--commitHash',
+        commitHash,
+        '--activeNode',
+        nodeId,
+        '--namespace',
+        'keras',
+        '-w',
+        path.relative(process.cwd(), tmpdir)
+    ];
+
+    logger.debug(`about to make tmpdir ${tmpdir}`);
+    return Q.ninvoke(fs, 'mkdir', tmpdir)
+        .then(() => spawn('node', args))
+        .then(() => spawn('python', [pythonFile]))
+        .then(stdout => {  // Call the python file and capture the last line from stdout
+            const data = stdout.split('\n').filter(line => !!line).pop();
+            const report = JSON.parse(data);
+            return Q.nfcall(rm_rf, tmpdir)
+                .then(() => report);
+        });
 }
 
 /**
