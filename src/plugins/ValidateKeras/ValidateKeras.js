@@ -65,7 +65,6 @@ define([
             '        info[\'message\'] = e.strerror',
             '    if hasattr(e, \'args\'):',
             '        info[\'message\'] = e.args[0]',
-            '    print(info)',
             `    ${results}['errors'].append(info)`,
             '',
             'def record_dimensions(model):',
