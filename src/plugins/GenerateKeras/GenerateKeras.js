@@ -219,7 +219,7 @@ define([
     };
 
     GenerateKeras.prototype.generateLayerCode = function(layer) {
-        const outputs = this.generateOutputNames(layer);
+        const outputs = this.generateOutputNames(layer).join(', ');
         const ctor = this.generateLayerCtor(layer);
         if (layer[SimpleConstants.BASE].name === 'Input') {
             return `${outputs} = ${ctor}`;
@@ -259,12 +259,11 @@ define([
             // basically the same
             const name = this.getVariableForNode(layer);
             outputs[0].variableName = name;
-            return name;
+            return [name];
         } else {
             // Generate variable names for each
             // Add these variable names to the children json nodes
-            return outputs.map(output => this.getVariableForNode(output))
-                .join(', ');
+            return outputs.map(output => this.getVariableForNode(output));
         }
     };
 

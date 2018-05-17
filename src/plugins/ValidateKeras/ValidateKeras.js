@@ -101,7 +101,7 @@ define([
 
     ValidateKeras.prototype.generateLayerCode = function(layer) {
         let code = PluginBase.prototype.generateLayerCode.call(this, layer);
-        //const outputs = this.generateOutputNames(layer);
+        const outputs = this.generateOutputNames(layer);
         const ctor = this.generateLayerCtor(layer);
         const layerName = this.getLayerName(layer);
         const layerId = layer[SimpleConstants.NODE_PATH];
@@ -113,7 +113,7 @@ define([
             `    register_layer(current_layer_name, '${layerId}')`,
             '    if not has_bad_layer:',
             `        ${code}`,
-            `        last_layer = ${this.getVariableForNode(layer)}`,
+            `        last_layer = ${outputs[0]}`,
             '    else:',
             `        ${ctor}`,
             'except Exception as e:',
