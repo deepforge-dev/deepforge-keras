@@ -373,6 +373,16 @@ define([
             .then(selected => this.insertLayer(selected.node.id, item.id));
     };
 
+    KerasArchEditorWidget.prototype.showAnalysisResults = function(results) {
+        Object.keys(this.items).map(id => this.items[id])
+            .forEach(item => item.clear());
+
+        results.errors.forEach(error => {
+            const {nodeId, message} = error;
+            this.items[nodeId].error(message);
+        });
+    };
+
     KerasArchEditorWidget.prototype.displayErrors = function(errors) {
         // For each of the errors, highlight the given nodes
         var oldErrored = Object.keys(this.hasError),
