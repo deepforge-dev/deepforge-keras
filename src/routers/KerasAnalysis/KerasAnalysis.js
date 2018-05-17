@@ -72,7 +72,10 @@ function initialize(middlewareOpts) {
         logger.debug(`Requesting analysis for ${nodeId} in ${projectId} at ${commitHash}`);
         return analyzeSubmodel(projectId, commitHash, nodeId)
             .then(results => res.json(results))
-            .catch(err => logger.error(err));
+            .catch(err => {
+                logger.error(err);
+                res.status(500).send(err);
+            });
     });
 
     logger.debug('ready');
@@ -120,7 +123,16 @@ function analyzeSubmodel(projectId, commitHash, nodeId) {
     ];
 
     logger.debug(`about to make tmpdir ${tmpdir}`);
-    return Q.ninvoke(fs, 'mkdir', tmpdir)
+    // only make dir if doesn't exist
+    return Q.invoke(fs, 'exists', tmpdir)
+        .then(exists => {
+            let prepare = Q();
+            if (exists) {
+                prepare = Q.nfcall(rm_rf, tmpdir);
+            }
+
+            return prepare.then(() => Q.ninvoke(fs, 'mkdtemp', tmpdir));
+        })
         .then(() => spawn('node', args))
         .then(() => spawn('python', [pythonFile]))
         .then(stdout => {  // Call the python file and capture the last line from stdout
