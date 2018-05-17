@@ -23,9 +23,30 @@ define([
             .attr('stroke-opacity', 0.01)
             .attr('fill', 'none');
 
-        this.$padding
-            .on('mouseover', () => this.onMouseOver())
-            .on('mouseout', () =>  this.onMouseOut());
+        this.$el
+            .on('mouseenter', () => this.onMouseOver())
+            .on('mouseleave', () =>  this.onMouseOut());
+
+        this.dimensions = null;
+        this.showingDimensions = false;
+        this.$dimensions = this.$el.append('g')
+            .attr('class', 'dimensionality')
+            .attr('opacity', 0);
+
+        this.$dimensionRect = this.$dimensions.append('rect')
+            .attr('stroke', '#dddddd')
+            .attr('fill', '#dddddd')
+            .attr('width', 75)
+            .attr('height', 25)
+            .attr('rx', 10)
+            .attr('ry', 10);
+
+        this.$dimensionText = this.$dimensions.append('text')
+            .attr('x', 37.5)
+            .attr('y', 12.5)
+            .attr('text-anchor', 'middle')
+            .attr('dominant-baseline', 'middle')
+            .text('unavailable');
 
         this.update(desc);
     };
@@ -35,11 +56,42 @@ define([
     Connection.prototype.onClick = function() {};
 
     Connection.prototype.onMouseOver = function() {
+        this.$dimensions
+            .transition()
+            .attr('opacity', 1);
+
         this.$path.attr('stroke-width', 3);
+        this.showingDimensions = true;
     };
 
     Connection.prototype.onMouseOut = function() {
+        this.$dimensions.transition().attr('opacity', 0);
         this.$path.attr('stroke-width', 2);
+        this.showingDimensions = false;
+    };
+
+    Connection.prototype.setDimensionality = function(dims) {
+        // What should I call the second dim?
+        dims = dims.map((dim, i) => dim || (i === 0 ? 'batch size' : 'None'));
+        this.dimensions = dims;
+        this.$dimensionText.text(dims.join(' x '));
+        if (this.showingDimensions) {
+            this.updateDimensionBoxWidth();
+        }
+    };
+
+    Connection.prototype.updateDimensionBoxWidth = function() {
+        const margin = 5;
+        const textWidth = this.$dimensionText.node().getBBox().width;
+        const width = textWidth + 2*margin;
+
+        this.$dimensionRect.attr('width', width);
+        this.$dimensionText.attr('x', width/2);
+
+        this.$dimensions
+            .attr('transform', `translate(${this.x-width/2}, ${this.y-12.5})`);
+
+        return width;
     };
 
     Connection.prototype.redraw = function() {
