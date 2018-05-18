@@ -110,8 +110,14 @@ define([
             .attr('stroke', '#000000ee')
             .attr('fill', 'none');
 
-        this.$index.attr('transform', `translate(${this.x+10}, ${this.y})`);
-        this.updateDimensionBoxPosition();
+        if (this.isPlaced()) {
+            this.$index.attr('transform', `translate(${this.x+10}, ${this.y})`);
+            this.updateDimensionBoxPosition();
+        }
+    };
+
+    Connection.prototype.isPlaced = function() {
+        return !isNaN(this.x) && !isNaN(this.y);
     };
 
     Connection.prototype.update = function(desc) {
