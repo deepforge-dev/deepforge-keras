@@ -33,10 +33,11 @@ define([
             .attr('class', 'dimensionality')
             .attr('opacity', 0);
 
+        this.dimensionBoxWidth = 75;
         this.$dimensionRect = this.$dimensions.append('rect')
             .attr('stroke', '#dddddd')
             .attr('fill', '#dddddd')
-            .attr('width', 75)
+            .attr('width', this.dimensionBoxWidth)
             .attr('height', 25)
             .attr('rx', 10)
             .attr('ry', 10);
@@ -56,6 +57,7 @@ define([
     Connection.prototype.onClick = function() {};
 
     Connection.prototype.onMouseOver = function() {
+        this.updateDimensionBoxWidth();
         this.$dimensions
             .transition()
             .attr('opacity', 1);
@@ -88,10 +90,16 @@ define([
         this.$dimensionRect.attr('width', width);
         this.$dimensionText.attr('x', width/2);
 
-        this.$dimensions
-            .attr('transform', `translate(${this.x-width/2}, ${this.y-12.5})`);
+        this.dimensionBoxWidth = width;
+        this.updateDimensionBoxPosition();
+    };
 
-        return width;
+    Connection.prototype.updateDimensionBoxPosition = function() {
+        const x = this.x-this.dimensionBoxWidth/2;
+        const y = this.y - 12.5;
+
+        this.$dimensions
+            .attr('transform', `translate(${x}, ${y})`);
     };
 
     Connection.prototype.redraw = function() {
@@ -103,6 +111,7 @@ define([
             .attr('fill', 'none');
 
         this.$index.attr('transform', `translate(${this.x+10}, ${this.y})`);
+        this.updateDimensionBoxPosition();
     };
 
     Connection.prototype.update = function(desc) {
