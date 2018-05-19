@@ -42,6 +42,7 @@ let logger = null;
 function initialize(middlewareOpts) {
     logger = middlewareOpts.logger.fork('KerasAnalysis');
     const ensureAuthenticated = middlewareOpts.ensureAuthenticated;
+    const authorizer = middlewareOpts.gmeAuth.authorizer;
     const getUserId = middlewareOpts.getUserId;
 
     logger.debug('initializing ...');
@@ -62,19 +63,28 @@ function initialize(middlewareOpts) {
     // and perform the computation in a webhook
     // TODO
     router.get('/:projectId/:commitHash/:nodeId', function (req, res/*, next*/) {
-        // For the first pass, we should just run the plugin and get the results
-        // TODO
         // Make sure the user has permission to view the project
         // TODO
         const userId = getUserId(req);
+        const authOpts = {entityType: authorizer.ENTITY_TYPES.PROJECT};
         const {projectId, commitHash, nodeId} = req.params;
-
         logger.debug(`Requesting analysis for ${nodeId} in ${projectId} at ${commitHash}`);
-        return analyzeSubmodel(projectId, commitHash, nodeId)
-            .then(results => res.json(results))
-            .catch(err => {
-                logger.error(err);
-                res.status(500).send(err);
+
+        return authorizer.getAccessRights(userId, projectId, authOpts)
+            .then(accessRights => {
+                if (!accessRights.read) {
+                    logger.debug(`Permission denied: ${userId} cannot read ${projectId}`);
+                    return res.status(403).send('Permission denied');
+                }
+
+                // Check for a cached value
+                // TODO
+                return analyzeSubmodel(projectId, commitHash, nodeId)
+                    .then(results => res.json(results))
+                    .catch(err => {
+                        logger.error(err);
+                        res.status(500).send(err);
+                    });
             });
     });
 
@@ -108,10 +118,11 @@ function analyzeSubmodel(projectId, commitHash, nodeId) {
     const pythonFile = path.join(tmpdir, 'output.py');
 
     const webgmeEnginePath =  path.join(require.resolve('webgme-engine'), '..');
+    const projectName = projectId.split('+')[1];
     const args = [
         path.join(webgmeEnginePath, 'src', 'bin', 'run_plugin.js'),
         PLUGIN_NAME,
-        projectId,
+        projectName,
         '--commitHash',
         commitHash,
         '--activeNode',

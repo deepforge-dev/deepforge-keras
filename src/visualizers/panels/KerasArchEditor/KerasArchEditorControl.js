@@ -933,15 +933,15 @@ define([
     };
 
     KerasArchEditorControl.prototype.getLatestAnalysis = function() {
-        // get the node id
-        // FIXME: use the project id instead
-        const projectId = encodeURIComponent(this._client.getActiveProjectName());
+        const projectId = encodeURIComponent(this._client.getProjectInfo()._id);
         const commit = encodeURIComponent(this._client.getActiveCommitHash());
         const nodeId = encodeURIComponent(this._currentNodeId);
 
         // get the analysis
-        return this.request(`/routers/KerasAnalysis/${projectId}/${commit}/${nodeId}`)
-            .then(results => this._widget.showAnalysisResults(results));
+        if (nodeId) {  // (no analysis for the root node)
+            return this.request(`/routers/KerasAnalysis/${projectId}/${commit}/${nodeId}`)
+                .then(results => this._widget.showAnalysisResults(results));
+        }
     };
 
     KerasArchEditorControl.prototype.request = function(url) {
