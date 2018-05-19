@@ -59,28 +59,35 @@ function initialize(middlewareOpts) {
     // Use ensureAuthenticated if the routes require authentication. (Can be set explicitly for each route.)
     router.use('*', ensureAuthenticated);
 
-    // In the future, it may be better to simply retrieve the results from the database
-    // and perform the computation in a webhook
-    // TODO
     router.get('/:projectId/:commitHash/:nodeId', function (req, res/*, next*/) {
         // Make sure the user has permission to view the project
-        // TODO
         const userId = getUserId(req);
         const authOpts = {entityType: authorizer.ENTITY_TYPES.PROJECT};
         const {projectId, commitHash, nodeId} = req.params;
-        logger.debug(`Requesting analysis for ${nodeId} in ${projectId} at ${commitHash}`);
+        const reqName = `${nodeId} in ${projectId} at ${commitHash}`;
+        logger.debug(`Requesting analysis for ${reqName}`);
 
         return authorizer.getAccessRights(userId, projectId, authOpts)
+            .then(() => authorizer.getAccessRights(userId, projectId, authOpts))
             .then(accessRights => {
                 if (!accessRights.read) {
                     logger.debug(`Permission denied: ${userId} cannot read ${projectId}`);
                     return res.status(403).send('Permission denied');
                 }
 
-                // Check for a cached value
-                // TODO
-                return analyzeSubmodel(projectId, commitHash, nodeId)
-                    .then(results => res.json(results))
+                return getFromCache(middlewareOpts.gmeConfig, projectId, commitHash, nodeId)
+                    .then(cachedResults => {
+                        if (cachedResults) {
+                            logger.debug(`Retrieved analysis results from cache (${reqName})`)
+                            return res.json(cachedResults.data);
+                        } else {
+                            return analyzeSubmodel(projectId, commitHash, nodeId)
+                                .then(results => {
+                                    res.json(results);
+                                    return addToCache(projectId, commitHash, nodeId, results);
+                                });
+                        }
+                    })
                     .catch(err => {
                         logger.error(err);
                         res.status(500).send(err);
@@ -89,6 +96,19 @@ function initialize(middlewareOpts) {
     });
 
     logger.debug('ready');
+}
+
+function getFromCache(gmeConfig, projectId, commitHash, nodeId) {
+    return getDataStore(gmeConfig)
+        .then(collection => collection.findOne({projectId, commitHash, nodeId}));
+}
+
+function addToCache(projectId, commitHash, nodeId, data) {
+    let search = {projectId, commitHash, nodeId};
+    let query = {$set: {data}};
+    return getDataStore()
+        .then(collection => collection.update(search, query, {upsert: true}))
+        .then(() => logger.debug(`Cached analysis results for ${nodeId} in ${projectId} at ${commitHash}`));
 }
 
 function spawn(cmd, args) {
@@ -154,6 +174,28 @@ function analyzeSubmodel(projectId, commitHash, nodeId) {
         });
 }
 
+const MongoClient = require('mongodb').MongoClient;
+const getMongoClient = (function() {
+    let clientP = null;
+    return function (gmeConfig) {
+        if (!clientP) {
+            clientP = Q(MongoClient.connect(gmeConfig.mongo.uri, gmeConfig.mongo.options));
+        }
+        return clientP;
+    };
+})();
+
+const getDataStore = (function() {
+    let datastore = null;
+    return function (gmeConfig) {
+        if (!datastore) {
+            datastore = getMongoClient(gmeConfig)
+                .then(client => client.db('deepforge-keras').collection('keras-analytics'));
+        }
+
+        return datastore;
+    };
+})();
 /**
  * Called before the server starts listening.
  * @param {function} callback
@@ -167,7 +209,10 @@ function start(callback) {
  * @param {function} callback
  */
 function stop(callback) {
-    callback();
+    // Close the database connection
+    return getMongoClient()
+        .then(client => client.close(true))
+        .nodeify(callback);
 }
 
 module.exports = {
