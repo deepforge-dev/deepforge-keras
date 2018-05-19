@@ -100,12 +100,16 @@ function initialize(middlewareOpts) {
 
 function getFromCache(gmeConfig, projectId, commitHash, nodeId) {
     return getDataStore(gmeConfig)
-        .then(collection => collection.findOne({projectId, commitHash, nodeId}));
+        .then(collection => {
+            const search = {projectId, commitHash, nodeId};
+            return collection.updateOne(search, {$set: {lastReadTime: new Date()}})
+                .then(() => collection.findOne(search));
+        });
 }
 
 function addToCache(projectId, commitHash, nodeId, data) {
     let search = {projectId, commitHash, nodeId};
-    let query = {$set: {data}};
+    let query = {$set: {data, lastReadTime: new Date()}};
     return getDataStore()
         .then(collection => collection.update(search, query, {upsert: true}))
         .then(() => logger.debug(`Cached analysis results for ${nodeId} in ${projectId} at ${commitHash}`));
