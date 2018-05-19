@@ -185,12 +185,20 @@ const getMongoClient = (function() {
     };
 })();
 
+const getDatabaseName = function (gmeConfig) {
+    return gmeConfig.mongo.uri.replace(/^mongodb:\/\/(localhost|[a-zA-Z\d\.]+|\d+\.\d+\.\d+\.\d+):?\d*\//, '') || 'admin';
+};
+
 const getDataStore = (function() {
     let datastore = null;
     return function (gmeConfig) {
         if (!datastore) {
             datastore = getMongoClient(gmeConfig)
-                .then(client => client.db('deepforge-keras').collection('keras-analytics'));
+                .then(client => {
+                    const dbName = getDatabaseName(gmeConfig);
+                    logger.debug(`Caching analytics in ${dbName}`);
+                    return client.db(dbName).collection('keras-analytics');
+                });
         }
 
         return datastore;
