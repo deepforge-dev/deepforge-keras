@@ -78,7 +78,7 @@ function initialize(middlewareOpts) {
                 return getFromCache(middlewareOpts.gmeConfig, projectId, commitHash, nodeId)
                     .then(cachedResults => {
                         if (cachedResults) {
-                            logger.debug(`Retrieved analysis results from cache (${reqName})`)
+                            logger.debug(`Retrieved analysis results from cache (${reqName})`);
                             return res.json(cachedResults.data);
                         } else {
                             return analyzeSubmodel(projectId, commitHash, nodeId)
