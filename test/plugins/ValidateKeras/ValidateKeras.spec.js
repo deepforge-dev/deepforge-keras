@@ -22,7 +22,6 @@ describe.only(pluginName, function () {
     let project,
         gmeAuth,
         storage,
-        plugin = null,
         commitHash;
 
     before(function (done) {
@@ -50,8 +49,7 @@ describe.only(pluginName, function () {
                 return project.createBranch('test', commitHash);
             })
             .then(() => {
-                return manager.initializePlugin(pluginName)
-                    .then(plugin_ => plugin = plugin_);
+                return manager.initializePlugin(pluginName);
             })
             .nodeify(done);
     });
