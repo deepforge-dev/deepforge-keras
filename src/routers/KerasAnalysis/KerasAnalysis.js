@@ -41,8 +41,6 @@ function initialize(middlewareOpts) {
 
     // Ensure authenticated can be used only after this rule.
     router.use('*', function (req, res, next) {
-        // TODO: set all headers, check rate limit, etc.
-
         // This header ensures that any failures with authentication won't redirect.
         res.setHeader('X-WebGME-Media-Type', 'webgme.v1');
         next();
