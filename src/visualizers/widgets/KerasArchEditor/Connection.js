@@ -73,8 +73,7 @@ define([
     };
 
     Connection.prototype.setDimensionality = function(dims) {
-        // What should I call the second dim?
-        dims = dims.map((dim, i) => dim || (i === 0 ? 'batch size' : 'None'));
+        dims = dims.map(dim => dim || 'None');
         this.dimensions = dims;
         this.$dimensionText.text(dims.join(' x '));
         if (this.showingDimensions) {
