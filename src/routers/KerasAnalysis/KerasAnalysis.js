@@ -181,9 +181,13 @@ function analyzeSubmodel(projectId, commitHash, nodeId) {
 const MongoClient = require('mongodb').MongoClient;
 const getMongoClient = (function() {
     let clientP = null;
-    return function (gmeConfig) {
+    return function (gmeConfig, connectIfNeeded=true) {
         if (!clientP) {
-            clientP = Q(MongoClient.connect(gmeConfig.mongo.uri, gmeConfig.mongo.options));
+            if (connectIfNeeded) {
+                clientP = Q(MongoClient.connect(gmeConfig.mongo.uri, gmeConfig.mongo.options));
+            } else {
+                return Q();
+            }
         }
         return clientP;
     };
@@ -222,8 +226,8 @@ function start(callback) {
  */
 function stop(callback) {
     // Close the database connection
-    return getMongoClient()
-        .then(client => client.close(true))
+    return getMongoClient(null, false)
+        .then(client => client && client.close(true))
         .nodeify(callback);
 }
 
