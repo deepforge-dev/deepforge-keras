@@ -17,10 +17,10 @@
   "devDependencies": {
     "chai": "^3.0.0",
     "mocha": "^2.5.3",
-    "rimraf": "^2.4.0",
     "webgme": "^2.7.1"
   },
   "dependencies": {
+    "rimraf": "^2.4.0",
     "webgme-autoviz": "^2.2.1",
     "webgme-easydag": "github:dfst/webgme-easydag",
     "webgme-simple-nodes": "github:brollb/webgme-simple-nodes"

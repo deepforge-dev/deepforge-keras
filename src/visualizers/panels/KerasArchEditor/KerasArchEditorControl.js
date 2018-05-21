@@ -36,7 +36,6 @@ define([
         ThumbnailControl.call(this, options);
         this._config = DEFAULT_CONFIG;
         ComponentSettings.resolveWithWebGMEGlobal(this._config, this.getComponentId());
-        this.validateLayers = _.debounce(() => this.validateKerasArchitecture(), 500);
 
         this.connections = [];
         this.newconnections = [];
@@ -928,10 +927,45 @@ define([
             this.connections.push(conn);
         });
         this.newconnections = [];
+
+        // Get the validations
+        this.getLatestAnalysis();
     };
 
-    // TODO: Move this to a webhook...
-    KerasArchEditorControl.prototype.validateKerasArchitecture = function() {
+    KerasArchEditorControl.prototype.getLatestAnalysis = function() {
+        const projectId = encodeURIComponent(this._client.getProjectInfo()._id);
+        const commit = encodeURIComponent(this._client.getActiveCommitHash());
+        const nodeId = encodeURIComponent(this._currentNodeId);
+
+        // get the analysis
+        if (nodeId) {  // (no analysis for the root node)
+            return this.request(`/routers/KerasAnalysis/${projectId}/${commit}/${nodeId}`)
+                .then(results => this._widget.showAnalysisResults(results));
+        }
+    };
+
+    KerasArchEditorControl.prototype.request = function(url) {
+        const deferred = Q.defer();
+        const request = new XMLHttpRequest();
+
+        request.open(
+            'GET',
+            url,
+            true
+        );
+        request.send(null);
+
+        request.onreadystatechange = function () {
+            if (request.readyState === 4) {
+                if (request.status === 200) {
+                    deferred.resolve(JSON.parse(request.responseText));
+                } else {
+                    deferred.reject(request.responseText);
+                }
+            }
+        };
+
+        return deferred.promise;
     };
 
     ////////////////////////////// Event Handlers //////////////////////////////

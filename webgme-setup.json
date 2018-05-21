@@ -8,6 +8,10 @@
       "GenerateKeras": {
         "src": "src/plugins/GenerateKeras",
         "test": "test/plugins/GenerateKeras"
+      },
+      "ValidateKeras": {
+        "src": "src/plugins/ValidateKeras",
+        "test": "test/plugins/ValidateKeras"
       }
     },
     "visualizers": {
@@ -33,7 +37,13 @@
     },
     "addons": {},
     "layouts": {},
-    "routers": {},
+    "routers": {
+      "KerasAnalysis": {
+        "src": "src/routers/KerasAnalysis",
+        "test": "test/routers/KerasAnalysis",
+        "mount": "routers/KerasAnalysis"
+      }
+    },
     "seeds": {
       "dev": {
         "src": "src/seeds/dev"

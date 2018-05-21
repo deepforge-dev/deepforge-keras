@@ -16,17 +16,31 @@ var testFixture = require('webgme/test/_globals'),
 var WebGME = testFixture.WebGME,
     gmeConfig = require(WEBGME_CONFIG_PATH),
     getGmeConfig = function getGmeConfig() {
-    'use strict';
-    // makes sure that for each request it returns with a unique object and tests will not interfere
-    if (!gmeConfig) {
-        // if some tests are deleting or unloading the config
-        gmeConfig = require(WEBGME_CONFIG_PATH);
-    }
-    return JSON.parse(JSON.stringify(gmeConfig));
+        'use strict';
+        // makes sure that for each request it returns with a unique object and tests will not interfere
+        if (!gmeConfig) {
+            // if some tests are deleting or unloading the config
+            gmeConfig = require(WEBGME_CONFIG_PATH);
+        }
+        return JSON.parse(JSON.stringify(gmeConfig));
 };
 
 WebGME.addToRequireJsPaths(gmeConfig);
 
 testFixture.getGmeConfig = getGmeConfig;
+
+const path = require('path');
+const SEED_DIR = path.join(__dirname, '..', 'src', 'seeds', 'tests');
+testFixture.testSeedPath = path.join(SEED_DIR, 'tests.webgmex'),
+
+// Add aliases for submodels
+testFixture.ARCHITECTURE = {
+    Basic: '/c',
+    LayerListInput: '/7',
+    MultiArchInputs: '/T',
+    MultiArchOutputs: '/s',
+    NestedLayers: '/z',
+    Seq2Seq: '/4'
+};
 
 module.exports = testFixture;

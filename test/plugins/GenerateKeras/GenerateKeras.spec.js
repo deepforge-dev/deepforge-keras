@@ -2,29 +2,20 @@
 
 'use strict';
 const testFixture = require('../../globals');
+const pluginName = 'GenerateKeras';
 
-describe('GenerateKeras', function () {
+describe(pluginName, function () {
     const Q = require('q');
     const gmeConfig = testFixture.getGmeConfig();
     const expect = testFixture.expect;
     const assert = require('assert');
-    const path = testFixture.path;
     const BlobClient = require('webgme-engine/src/server/middleware/blob/BlobClientWithFSBackend');
-    const logger = testFixture.logger.fork('GenerateKeras');
+    const logger = testFixture.logger.fork(pluginName);
     const blobClient = new BlobClient(gmeConfig, logger);
     const PluginCliManager = testFixture.WebGME.PluginCliManager;
-    const SEED_DIR = path.join(__dirname, '..', '..', '..', 'src', 'seeds', 'tests');
     const projectName = 'testProject';
-    const pluginName = 'GenerateKeras';
     const manager = new PluginCliManager(null, logger, gmeConfig);
-    const ARCHITECTURE = {
-        Basic: '/c',
-        LayerListInput: '/7',
-        MultiArchInputs: '/T',
-        MultiArchOutputs: '/s',
-        NestedLayers: '/z',
-        Seq2Seq: '/4'
-    };
+    const ARCHITECTURE = testFixture.ARCHITECTURE;
 
     let project,
         gmeAuth,
@@ -42,7 +33,7 @@ describe('GenerateKeras', function () {
             })
             .then(function () {
                 var importParam = {
-                    projectSeed: path.join(SEED_DIR, 'tests.webgmex'),
+                    projectSeed: testFixture.testSeedPath,
                     projectName: projectName,
                     branchName: 'master',
                     logger: logger,

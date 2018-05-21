@@ -23,7 +23,11 @@ config.visualization.panelPaths.push(__dirname + '/../node_modules/webgme-autovi
 config.visualization.panelPaths.push(__dirname + '/../src/visualizers/panels');
 
 
-
+config.rest.components['KerasAnalysis'] = {
+  src: __dirname + '/../src/routers/KerasAnalysis/KerasAnalysis.js',
+  mount: 'routers/KerasAnalysis',
+  options: {}
+};
 
 // Visualizer descriptors
 config.visualization.visualizerDescriptors.push(__dirname + '/../src/visualizers/Visualizers.json');

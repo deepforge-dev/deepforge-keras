@@ -373,6 +373,31 @@ define([
             .then(selected => this.insertLayer(selected.node.id, item.id));
     };
 
+    KerasArchEditorWidget.prototype.showAnalysisResults = function(results) {
+        Object.keys(this.items).map(id => this.items[id])
+            .forEach(item => item.clear());
+
+        results.errors.forEach(error => {
+            const {nodeId, message} = error;
+            this.items[nodeId].error(message);
+        });
+
+        // Set the dimensionality info for each connection
+        const conns = Object.keys(this.connections)
+            .map(id => this.connections[id]);
+
+        // Show the dimensionality feedback!
+        conns.forEach(conn => {
+            const srcLayer = this.items[conn.src];
+            const outputIds = srcLayer.getOutputs().map(n => n.getId());
+            const dims = outputIds.length === 1 ?
+                [results.dimensions[conn.src]] : results.dimensions[conn.src];
+
+            const index = outputIds.indexOf(conn.desc.srcArgId);
+            conn.setDimensionality(dims[index]);
+        });
+    };
+
     KerasArchEditorWidget.prototype.displayErrors = function(errors) {
         // For each of the errors, highlight the given nodes
         var oldErrored = Object.keys(this.hasError),
