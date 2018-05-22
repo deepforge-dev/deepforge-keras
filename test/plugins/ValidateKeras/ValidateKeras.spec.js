@@ -6,7 +6,7 @@
 const testFixture = require('../../globals');
 const pluginName = 'ValidateKeras';
 
-describe.only(pluginName, function () {
+describe(pluginName, function () {
     const Q = require('q');
     const gmeConfig = testFixture.getGmeConfig();
     const expect = testFixture.expect;
