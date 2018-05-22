@@ -128,7 +128,7 @@ function spawn(cmd, args) {
 }
 
 function analyzeSubmodel(projectId, commitHash, nodeId) {
-    const tmpdir = path.join(os.tmpdir(), `${commitHash}_${nodeId.replace('/', '-')}`);
+    const tmpdir = path.join(os.tmpdir(), `deepforge-keras-${commitHash}_${nodeId.split('/').join('-')}`);
     const pythonFile = path.join(tmpdir, 'output.py');
 
     const webgmeEnginePath =  path.join(require.resolve('webgme-engine'), '..');
@@ -156,7 +156,7 @@ function analyzeSubmodel(projectId, commitHash, nodeId) {
                 prepare = Q.nfcall(rm_rf, tmpdir);
             }
 
-            return prepare.then(() => Q.ninvoke(fs, 'mkdtemp', tmpdir));
+            return prepare.then(() => Q.ninvoke(fs, 'mkdir', tmpdir));
         })
         .then(() => spawn('node', args))
         .then(() => spawn('python', [pythonFile]))
