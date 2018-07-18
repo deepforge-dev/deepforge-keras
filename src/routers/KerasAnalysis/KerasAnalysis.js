@@ -71,7 +71,7 @@ function initialize(middlewareOpts) {
                             logger.debug(`Retrieved analysis results from cache (${reqName})`);
                             return res.json(cachedResults.data);
                         } else {
-                            return analyzeSubmodel(projectId, commitHash, nodeId)
+                            return analyzeSubmodel(userId, projectId, commitHash, nodeId)
                                 .then(results => {
                                     res.json(results);
                                     return addToCache(projectId, commitHash, nodeId, results);
@@ -127,18 +127,22 @@ function spawn(cmd, args) {
     return deferred.promise;
 }
 
-function analyzeSubmodel(projectId, commitHash, nodeId) {
+function analyzeSubmodel(userId, projectId, commitHash, nodeId) {
     const tmpdir = path.join(os.tmpdir(), `deepforge-keras-${commitHash}_${nodeId.split('/').join('-')}`);
     const pythonFile = path.join(tmpdir, 'output.py');
 
     const webgmeEnginePath =  path.join(require.resolve('webgme-engine'), '..');
-    const projectName = projectId.split('+')[1];
+    const [owner, projectName] = projectId.split('+');
     const args = [
         path.join(webgmeEnginePath, 'src', 'bin', 'run_plugin.js'),
         PLUGIN_NAME,
         projectName,
         '--commitHash',
         commitHash,
+        '--owner',
+        owner,
+        '--user',
+        userId,
         '--activeNode',
         nodeId,
         '--namespace',
