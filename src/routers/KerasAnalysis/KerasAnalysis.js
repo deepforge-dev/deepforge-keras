@@ -14,7 +14,11 @@ const childProcess = require('child_process');
 const express = require('express');
 const router = express.Router();
 const PLUGIN_NAME = 'ValidateKeras';
-const rm_rf = require('rimraf');
+const rimraf = require('rimraf');
+
+const {promisify} = require('util');
+const mkdir = promisify(fs.mkdir);
+const rm_rf = promisify(rimraf);
 let logger = null;
 
 /**
@@ -127,7 +131,7 @@ function spawn(cmd, args) {
     return deferred.promise;
 }
 
-function analyzeSubmodel(userId, projectId, commitHash, nodeId) {
+async function analyzeSubmodel(userId, projectId, commitHash, nodeId) {
     const tmpdir = path.join(os.tmpdir(), `deepforge-keras-${commitHash}_${nodeId.split('/').join('-')}`);
     const pythonFile = path.join(tmpdir, 'output.py');
 
@@ -153,23 +157,24 @@ function analyzeSubmodel(userId, projectId, commitHash, nodeId) {
 
     logger.debug(`about to make tmpdir ${tmpdir}`);
     // only make dir if doesn't exist
-    return Q.invoke(fs, 'exists', tmpdir)
-        .then(exists => {
-            let prepare = Q();
-            if (exists) {
-                prepare = Q.nfcall(rm_rf, tmpdir);
-            }
+    try {
+        await mkdir(tmpdir);
+    } catch (err) {
+        if (err.code === 'EEXIST') {
+            await rm_rf(tmpdir);
+            await mkdir(tmpdir);
+        } else {
+            throw err;
+        }
+    }
+    await spawn('node', args);
+    const stdout = await spawn('python', [pythonFile]);
+    const data = stdout.split('\n').filter(line => !!line).pop();
+    const report = JSON.parse(data);
 
-            return prepare.then(() => Q.ninvoke(fs, 'mkdir', tmpdir));
-        })
-        .then(() => spawn('node', args))
-        .then(() => spawn('python', [pythonFile]))
-        .then(stdout => {  // Call the python file and capture the last line from stdout
-            const data = stdout.split('\n').filter(line => !!line).pop();
-            const report = JSON.parse(data);
-            return Q.nfcall(rm_rf, tmpdir)
-                .then(() => report);
-        });
+    await rm_rf(tmpdir);  // clean up
+
+    return report;
 }
 
 const MongoClient = require('mongodb').MongoClient;
