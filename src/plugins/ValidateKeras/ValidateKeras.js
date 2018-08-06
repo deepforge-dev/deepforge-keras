@@ -71,7 +71,9 @@ define([
             '    for layer in model.layers:',
             '        layer_name = layer.name',
             '        node_id = layer_registry[layer.name]',
-            `        ${results}['dimensions'][node_id] = layer.output_shape`,
+            '        # Convert any int64 to python int',
+            '        shape = [ int(i) if i is not None else None for i in layer.output_shape ]',
+            `        ${results}['dimensions'][node_id] = shape`,
             '',
             'has_bad_layer = False'
         ].join('\n');
