@@ -114,8 +114,15 @@ define([
             lItem = graph.edges[i];
             id = lItem.id;
             item = this.connections[id];
-            item.points = lItem.sections.map(section => section.endPoint);
-            item.points.unshift(lItem.sections[0].startPoint);
+
+            item.points = lItem.sections
+                .map(section => {
+                    const pts = section.bendPoints || [];
+                    pts.push(section.endPoint);
+                    pts.unshift(section.startPoint);
+                    return pts;
+                })
+                .reduce((l1, l2) => l1.concat(l2), []);
         }
     };
 
