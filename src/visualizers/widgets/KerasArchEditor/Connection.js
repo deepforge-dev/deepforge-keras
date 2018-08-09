@@ -94,11 +94,18 @@ define([
     };
 
     Connection.prototype.updateDimensionBoxPosition = function() {
-        const x = this.x-this.dimensionBoxWidth/2;
         const y = this.y - 12.5;
+
+        // Find the edge that is halfway between the top and bottom
+        const minY = Math.min.apply(null, this.points.map(pt => pt.y));
+        const vertMiddle = minY + this._height/2;
+        const midSection = this.points.find(pt => pt.y - vertMiddle > 0);
+
+        const x = midSection.x-this.dimensionBoxWidth/2;
 
         this.$dimensions
             .attr('transform', `translate(${x}, ${y})`);
+
     };
 
     Connection.prototype.redraw = function() {
