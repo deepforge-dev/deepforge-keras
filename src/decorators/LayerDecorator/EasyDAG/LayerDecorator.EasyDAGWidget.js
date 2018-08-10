@@ -24,12 +24,20 @@ define([
     //     - unhighlight ports
     //     - report the location of specific ports
     LayerDecorator = function (options) {
+        this._zoom = 1;
         options.skipAttributes = {name: true};
         this.editor = null;
 
         var skipAttrs = Object.keys(Constants.ATTR).map(key => Constants.ATTR[key]);
         skipAttrs.forEach(attr => options.skipAttributes[attr] = true);
         EllipseDecorator.call(this, options);
+
+        // Enable click to change name
+        this.$name.on('click', () => {
+            if (this.expanded) {
+                this.editLayerName();
+            }
+        });
     };
 
     _.extend(LayerDecorator.prototype, EllipseDecorator.prototype);
@@ -50,6 +58,53 @@ define([
             name += ` (${this._node.index + 1})`;
         }
         return name;
+    };
+
+    LayerDecorator.prototype.editLayerName = function() {
+        var html = this.$name.node(),
+            position = html.getBoundingClientRect(),
+
+            width = Math.max(position.right-position.left, 15),
+            container = $('<div>'),
+            parentHtml = $('body');
+
+        // Using a temp container for the editing
+        container.css('top', position.top/this._zoom);
+        container.css('left', position.left/this._zoom);
+        container.css('position', 'absolute');
+        container.css('width', width/this._zoom);
+        container.css('zoom', this._zoom);
+        container.attr('id', 'CONTAINER-TMP');
+
+        $(parentHtml).append(container);
+
+        container.editInPlace({
+            enableEmpty: true,
+            value: this._node.name,
+            css: {
+                'z-index': 10000,
+                'id': 'asdf',
+                'width': width,
+                'xmlns': 'http://www.w3.org/1999/xhtml'
+            },
+            onChange: (oldValue, newValue) => {
+                const shouldClearName = !newValue || newValue === this._node.baseName;
+                const value = shouldClearName ? null : newValue;
+                const changed = oldValue !== value;
+
+                if (changed) {
+                    this.saveAttribute('name', value);
+                }
+            },
+            onFinish: function () {
+                $(this).remove();
+            }
+        });
+    };
+
+    LayerDecorator.prototype.render = function(zoom) {
+        this._zoom = zoom || 1;
+        return EllipseDecorator.prototype.render.apply(this, arguments);
     };
 
     // Create the pointer fields and change the event handlers
