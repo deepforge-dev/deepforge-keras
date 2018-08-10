@@ -37,8 +37,15 @@ define([
     LayerDecorator.prototype.DECORATOR_ID = DECORATOR_ID;
     LayerDecorator.prototype.PointerField = LayerField;
     LayerDecorator.prototype.getDisplayName = function() {
+        let {name} = this._node;
+        const {baseName} = this._node;
+
+        // if the basename is different from the name, show both
+        if (this._node.baseName !== name) {
+            name += ` (${baseName})`;
+        }
+
         // If it has an index field, add that to the name
-        let name = this._node.name;
         if (this._node.index > -1) {
             name += ` (${this._node.index + 1})`;
         }
