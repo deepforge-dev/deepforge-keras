@@ -3,17 +3,17 @@
 'use strict';
 var testFixture = require('../../globals');
 
-describe('GenerateKerasMeta', function () {
+describe('CreateKerasMeta', function () {
     var gmeConfig = testFixture.getGmeConfig(),
         expect = testFixture.expect,
         path = testFixture.path,
         assert = require('assert'),
-        logger = testFixture.logger.fork('GenerateKerasMeta'),
+        logger = testFixture.logger.fork('CreateKerasMeta'),
         PluginCliManager = testFixture.WebGME.PluginCliManager,
         manager = new PluginCliManager(null, logger, gmeConfig),
         SEED_DIR = path.join(__dirname, '..', '..', '..', 'src', 'seeds'),
         projectName = 'testProject',
-        pluginName = 'GenerateKerasMeta',
+        pluginName = 'CreateKerasMeta',
         project,
         gmeAuth,
         storage,

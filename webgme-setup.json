@@ -1,9 +1,9 @@
 {
   "components": {
     "plugins": {
-      "GenerateKerasMeta": {
-        "src": "src/plugins/GenerateKerasMeta",
-        "test": "test/plugins/GenerateKerasMeta"
+      "CreateKerasMeta": {
+        "src": "src/plugins/CreateKerasMeta",
+        "test": "test/plugins/CreateKerasMeta"
       },
       "GenerateKeras": {
         "src": "src/plugins/GenerateKeras",

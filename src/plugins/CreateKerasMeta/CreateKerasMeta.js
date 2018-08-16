@@ -53,13 +53,13 @@ define([
     const DEFAULT_META_TAB = 'META';
 
     /**
-     * Initializes a new instance of GenerateKerasMeta.
+     * Initializes a new instance of CreateKerasMeta.
      * @class
      * @augments {PluginBase}
-     * @classdesc This class represents the plugin GenerateKerasMeta.
+     * @classdesc This class represents the plugin CreateKerasMeta.
      * @constructor
      */
-    var GenerateKerasMeta = function () {
+    var CreateKerasMeta = function () {
         // Call base class' constructor.
         PluginBase.call(this);
         this.pluginMetadata = pluginMetadata;
@@ -70,11 +70,11 @@ define([
      * This is also available at the instance at this.pluginMetadata.
      * @type {object}
      */
-    GenerateKerasMeta.metadata = pluginMetadata;
+    CreateKerasMeta.metadata = pluginMetadata;
 
     // Prototypical inheritance from PluginBase.
-    GenerateKerasMeta.prototype = Object.create(PluginBase.prototype);
-    GenerateKerasMeta.prototype.constructor = GenerateKerasMeta;
+    CreateKerasMeta.prototype = Object.create(PluginBase.prototype);
+    CreateKerasMeta.prototype.constructor = CreateKerasMeta;
 
     /**
      * Main function for the plugin to execute. This will perform the execution.
@@ -85,7 +85,7 @@ define([
      *
      * @param {function(string, plugin.PluginResult)} callback - the result callback
      */
-    GenerateKerasMeta.prototype.main = function (callback) {
+    CreateKerasMeta.prototype.main = function (callback) {
         this.metaSheets = {};
         this.sheetCounts = {};
         this.nodes = {};
@@ -94,7 +94,7 @@ define([
             .then(() => this.createCategories(LAYERS))
             .then(() => this.createFunctionNodes())
             .then(() => this.updateNodes())
-            .then(() => this.save('GenerateKerasMeta updated metamodel.'))
+            .then(() => this.save('CreateKerasMeta updated metamodel.'))
             .then(() => {
                 this.result.setSuccess(true);
                 callback(null, this.result);
@@ -106,7 +106,7 @@ define([
 
     };
 
-    GenerateKerasMeta.prototype.prepareMetaModel = function () {
+    CreateKerasMeta.prototype.prepareMetaModel = function () {
         // Create the base class, if needed
         this.metaSheets.META = this.createMetaSheetTab('META');
         if (!this.META.Language) {
@@ -130,16 +130,16 @@ define([
         return Q();
     };
 
-    GenerateKerasMeta.prototype.getSpecialTypeNames = function () {
-        return Object.keys(TYPES).map(GenerateKerasMeta.capitalize);
+    CreateKerasMeta.prototype.getSpecialTypeNames = function () {
+        return Object.keys(TYPES).map(CreateKerasMeta.capitalize);
     };
 
-    GenerateKerasMeta.prototype.getSpecialTypeBaseName = function (type) {
-        type = GenerateKerasMeta.capitalize(type);
+    CreateKerasMeta.prototype.getSpecialTypeBaseName = function (type) {
+        type = CreateKerasMeta.capitalize(type);
         return `${type}Function`;
     };
 
-    GenerateKerasMeta.prototype.getCategories = function (schemas) {
+    CreateKerasMeta.prototype.getCategories = function (schemas) {
         let content = {};
 
         schemas = schemas || LAYERS;
@@ -156,7 +156,7 @@ define([
         return Object.keys(content);
     };
 
-    GenerateKerasMeta.prototype.createFunctionNodes = function () {
+    CreateKerasMeta.prototype.createFunctionNodes = function () {
         let specialTypes = this.getSpecialTypeNames();
         // Activation functions nodes
         specialTypes.forEach(type => {
@@ -177,7 +177,7 @@ define([
         });
     };
 
-    GenerateKerasMeta.prototype.createCategories = function (schemas) {
+    CreateKerasMeta.prototype.createCategories = function (schemas) {
         // Get the categories
         // Create the category nodes
         var categories = this.getCategories(schemas);
@@ -200,26 +200,26 @@ define([
 
     };
 
-    GenerateKerasMeta.prototype.getBaseName = function (filename) {
+    CreateKerasMeta.prototype.getBaseName = function (filename) {
         var type = filename.split('/').pop().replace(/\.py$/, '');
         return type[0].toUpperCase() + type.substring(1);
     };
 
-    GenerateKerasMeta.prototype.getBaseFor = function (layer) {
+    CreateKerasMeta.prototype.getBaseFor = function (layer) {
         var type = this.getBaseName(layer.file);
         if (!this.META[type]) type = 'Layer';
         return this.META[type];
     };
 
-    GenerateKerasMeta.prototype.updateNodes = function () {
+    CreateKerasMeta.prototype.updateNodes = function () {
         return Q.all(LAYERS.map(schema => this.updateNode(schema)));
     };
 
-    GenerateKerasMeta.prototype.getLayerSchema = function (name) {
+    CreateKerasMeta.prototype.getLayerSchema = function (name) {
         return ALL_LAYERS.find(layer => layer.name === name);
     };
 
-    GenerateKerasMeta.prototype.updateNode = function (layer) {
+    CreateKerasMeta.prototype.updateNode = function (layer) {
         // Create the actual nodes
         this.logger.debug(`adding "${layer.name}" layer`);
         let node = this.createMetaLayer(layer);
@@ -231,7 +231,7 @@ define([
         }
     };
 
-    GenerateKerasMeta.prototype.removeFromMeta = function (nodeId) {
+    CreateKerasMeta.prototype.removeFromMeta = function (nodeId) {
         var sheets = this.core.getRegistry(this.rootNode, Constants.REGISTRY.META_SHEETS),
             sheet;
 
@@ -249,7 +249,7 @@ define([
         }
     };
 
-    GenerateKerasMeta.prototype.createMetaSheetTab = function (name) {
+    CreateKerasMeta.prototype.createMetaSheetTab = function (name) {
         var sheets = this.core.getRegistry(this.rootNode, Constants.REGISTRY.META_SHEETS),
             id = Constants.META_ASPECT_SHEET_NAME_PREFIX + generateGuid(),
             sheet,
@@ -271,7 +271,7 @@ define([
     };
 
     // Some helper methods w/ attribute handling
-    GenerateKerasMeta.prototype.createMetaLayer = function (layer, baseName, category) {
+    CreateKerasMeta.prototype.createMetaLayer = function (layer, baseName, category) {
         // create a meta node for the given layer
         category = category || this.getBaseName(layer.file);
         baseName = baseName || this.getBaseName(layer.file);
@@ -310,7 +310,7 @@ define([
         return node;
     };
 
-    GenerateKerasMeta.prototype.getArgumentType = function (layer, name) {
+    CreateKerasMeta.prototype.getArgumentType = function (layer, name) {
         let arg, type;
 
         // For now, we assume that arguments used by both a child and base class
@@ -327,13 +327,13 @@ define([
         return type;
     };
 
-    GenerateKerasMeta.prototype.createIOSet = function (node, name) {
+    CreateKerasMeta.prototype.createIOSet = function (node, name) {
         this.core.setPointerMetaTarget(node, name, this.META.LayerData);
         this.core.setPointerMetaLimits(node, name, -1, -1);
         this.core.createSet(node, name);
     };
 
-    GenerateKerasMeta.prototype.addLayerInputs = function (node, layer) {
+    CreateKerasMeta.prototype.addLayerInputs = function (node, layer) {
         if (!this.getLayerProperty(layer, 'inputs')) {
             this.logger.error(`${layer.name} is missing inputs`);
         }
@@ -365,12 +365,12 @@ define([
         return data;
     };
 
-    GenerateKerasMeta.prototype.isRecurrentLayer = function (layer) {
+    CreateKerasMeta.prototype.isRecurrentLayer = function (layer) {
         const args = layer.arguments || [];
         return !!args.find(arg => arg.name === 'return_state');
     };
 
-    GenerateKerasMeta.prototype.addLayerOutputs = function (node, layer) {
+    CreateKerasMeta.prototype.addLayerOutputs = function (node, layer) {
         if (!this.getLayerProperty(layer, 'outputs')) {
             this.logger.error(`${layer.name} is missing outputs`);
         }
@@ -406,7 +406,7 @@ define([
         });
     };
 
-    GenerateKerasMeta.prototype.getLayerProperty = function (layer, prop) {
+    CreateKerasMeta.prototype.getLayerProperty = function (layer, prop) {
         if (layer[prop]) {
             return layer[prop];
         }
@@ -419,7 +419,7 @@ define([
         return null;
     };
 
-    GenerateKerasMeta.prototype.createMetaNode = function (name, base, tabName) {
+    CreateKerasMeta.prototype.createMetaNode = function (name, base, tabName) {
         var node = this.META[name],
             nodeId = node && this.core.getPath(node);
 
@@ -444,7 +444,7 @@ define([
         return node;
     };
 
-    GenerateKerasMeta.prototype.addNodeToMeta = function(node, tabName) {
+    CreateKerasMeta.prototype.addNodeToMeta = function(node, tabName) {
         tabName = tabName || DEFAULT_META_TAB;
         let tabId = this.metaSheets[tabName];
         let position = this.getNextPositionFor(tabName);
@@ -478,7 +478,7 @@ define([
         this.logger.debug(`added ${name} to the meta`);
     };
 
-    GenerateKerasMeta.prototype.getNextPositionFor = function(tabName) {
+    CreateKerasMeta.prototype.getNextPositionFor = function(tabName) {
         var index = this.sheetCounts[tabName] || 0,
             position,
             dx = 140,
@@ -502,14 +502,14 @@ define([
         return position;
     };
 
-    GenerateKerasMeta.prototype.addLayerAttribute = function (name, node) {
+    CreateKerasMeta.prototype.addLayerAttribute = function (name, node) {
         // No default value support for now...
         // Create a pointer of the given type on the node
         this.core.setPointerMetaTarget(node, name, this.META.Architecture, 1, 1);
         this.core.setPointerMetaLimits(node, name, 1, 1);
     };
 
-    GenerateKerasMeta.prototype.addParameter = function (node, name, schema, defVal) {
+    CreateKerasMeta.prototype.addParameter = function (node, name, schema, defVal) {
         var type = schema.type;
 
         // Check if it should be a pointer or an attribute
@@ -538,7 +538,7 @@ define([
         }
     };
 
-    GenerateKerasMeta.prototype.addAttribute = function (node, name, schema, defVal) {
+    CreateKerasMeta.prototype.addAttribute = function (node, name, schema, defVal) {
         schema.type = schema.type || 'string';
 
         if (schema.min !== undefined) {
@@ -564,13 +564,13 @@ define([
     };
 
     // Helpers for testing
-    GenerateKerasMeta.prototype.getSchemas = function () {
+    CreateKerasMeta.prototype.getSchemas = function () {
         return LAYERS;
     };
 
-    GenerateKerasMeta.capitalize = function (str) {
+    CreateKerasMeta.capitalize = function (str) {
         return str[0].toUpperCase() + str.slice(1);
     };
 
-    return GenerateKerasMeta;
+    return CreateKerasMeta;
 });
