@@ -1,6 +1,6 @@
 {
-  "id": "GenerateKerasMeta",
-  "name": "GenerateKerasMeta",
+  "id": "CreateKerasMeta",
+  "name": "CreateKerasMeta",
   "version": "0.1.0",
   "description": "",
   "icon": {
