@@ -37,7 +37,12 @@ define([
     LayerDecorator.prototype.DECORATOR_ID = DECORATOR_ID;
     LayerDecorator.prototype.PointerField = LayerField;
     LayerDecorator.prototype.getDisplayName = function() {
-        return this._node.name;
+        // If it has an index field, add that to the name
+        let name = this._node.name;
+        if (this._node.index > -1) {
+            name += ` (${this._node.index + 1})`;
+        }
+        return name;
     };
 
     // Create the pointer fields and change the event handlers

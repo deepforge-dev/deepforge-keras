@@ -14,33 +14,52 @@ define([
     _.extend(SelectionManager.prototype, ManagerBase.prototype);
 
     SelectionManager.prototype.createActionButtons = function(width, height, transition) {
-        // Check if the selected item can have successors
         var btn;
-
+        // Check if the selected item can have successors
         if (!this.selectedItem.isConnection) {
-            this.selectedItem.showHoverButtons();
-        }
+            const layer = this.selectedItem;
+            const opts = {
+                bottom: height,
+                offsetX: (width - layer.width)/2
+            };
 
-        if (this.selectedItem.desc.docs) {
-            btn = new Buttons.ShowDocs({
+            this._widget.addConnectBtns(
+                layer,
+                this.$selection,
+                opts
+            );
+
+            btn = new Buttons.DeleteOne({
                 context: this._widget,
                 $pEl: this.$selection,
                 item: this.selectedItem,
                 transition: transition,
-                x: width,
+                x: 0,
+                y: 0
+            });
+
+            if (this.selectedItem.desc.docs) {
+                btn = new Buttons.ShowDocs({
+                    context: this._widget,
+                    $pEl: this.$selection,
+                    item: this.selectedItem,
+                    transition: transition,
+                    x: width,
+                    y: 0
+                });
+            }
+
+        } else {
+            // Remove button
+            btn = new Buttons.DisconnectLayers({
+                context: this._widget,
+                $pEl: this.$selection,
+                item: this.selectedItem,
+                transition: transition,
+                x: 0,
                 y: 0
             });
         }
-
-        // Remove button
-        btn = new Buttons.DeleteOne({
-            context: this._widget,
-            $pEl: this.$selection,
-            item: this.selectedItem,
-            transition: transition,
-            x: 0,
-            y: 0
-        });
     };
 
     SelectionManager.prototype.select = function(item) {

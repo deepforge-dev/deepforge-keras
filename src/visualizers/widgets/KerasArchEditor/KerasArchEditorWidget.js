@@ -7,17 +7,19 @@ define([
     //'deepforge/viz/widgets/Thumbnail',
     'widgets/EasyDAG/EasyDAGWidget',
     'widgets/EasyDAG/AddNodeDialog',
+    './KerasArchEditorWidget.Layout',
     './SelectionManager',
     './Layer',
     './Connection',
     'q',
     'underscore',
-    'css!./styles/ArchEditorWidget.css'
+    'css!./styles/KerasArchEditorWidget.css'
 ], function (
     //DeepForge,
     Buttons,
     ThumbnailWidget,
     AddNodeDialog,
+    KerasArchEditorWidgetLayout,
     SelectionManager,
     Layer,
     Connection,
@@ -26,18 +28,25 @@ define([
 ) {
     'use strict';
 
-    var ArchEditorWidget,
+    var KerasArchEditorWidget,
         WIDGET_CLASS = 'keras-arch-editor',
-        LAYER_TAB_ORDER = [  // TODO: FIXME
-            'Simple',
-            'Transfer',
-            'Convolution',
-            'RNN',
-            'Container',
-            'Misc'
+        LAYER_TAB_ORDER = [
+            'Core',
+            'Convolutional',
+            'Pooling',
+            'Normalization',
+            'Embeddings',
+            'Advanced_activations',
+            'Recurrent',
+            'Local',
+            'Merge',
+            'Noise',
+            'Cudnn_recurrent',
+            'Topology',
+            'Wrappers'
         ];
 
-    ArchEditorWidget = function () {
+    KerasArchEditorWidget = function () {
         var container = arguments[1];
         if (container) {
             container.addClass(WIDGET_CLASS);
@@ -45,19 +54,24 @@ define([
         ThumbnailWidget.apply(this, arguments);
         this._emptyMsg = 'Click to add a new layer';
         this.hasError = {};
+        KerasArchEditorWidgetLayout.call(this);
     };
 
-    _.extend(ArchEditorWidget.prototype, ThumbnailWidget.prototype);
+    _.extend(
+        KerasArchEditorWidget.prototype,
+        ThumbnailWidget.prototype,
+        KerasArchEditorWidgetLayout.prototype
+    );
 
-    ArchEditorWidget.prototype.ItemClass = Layer;
-    ArchEditorWidget.prototype.Connection = Connection;
-    ArchEditorWidget.prototype.SelectionManager = SelectionManager;
+    KerasArchEditorWidget.prototype.ItemClass = Layer;
+    KerasArchEditorWidget.prototype.Connection = Connection;
+    KerasArchEditorWidget.prototype.SelectionManager = SelectionManager;
 
-    ArchEditorWidget.prototype.getComponentId = function() {
-        return 'ArchEditor';
+    KerasArchEditorWidget.prototype.getComponentId = function() {
+        return 'KerasArchEditor';
     };
 
-    ArchEditorWidget.prototype.setupItemCallbacks = function() {
+    KerasArchEditorWidget.prototype.setupItemCallbacks = function() {
         ThumbnailWidget.prototype.setupItemCallbacks.apply(this, arguments);
         // Add the hover button functions
         this.ItemClass.prototype.showHoverButtons = function() {
@@ -88,11 +102,7 @@ define([
         };
     };
 
-    ArchEditorWidget.prototype.showHoverButtons = function(layer) {
-        var btn,
-            height = layer.height,
-            cx = layer.width/2;
-
+    KerasArchEditorWidget.prototype.showHoverButtons = function(layer) {
         if (this.$hoverBtns) {
             this.hideHoverButtons();
         }
@@ -101,38 +111,153 @@ define([
             .append('g')
             .attr('class', 'hover-container');
 
-        btn = new Buttons.Connect.From({
-            context: this,
-            $pEl: this.$hoverBtns,
-            item: layer,
-            x: cx,
-            y: height
-        });
-
-        btn = new Buttons.Connect.To({
-            context: this,
-            $pEl: this.$hoverBtns,
-            item: layer,
-            x: cx,
-            y: 0
-        });
-
-        return btn;
+        this.addConnectBtns(layer, this.$hoverBtns);
     };
 
-    ArchEditorWidget.prototype.hideHoverButtons = function() {
+    KerasArchEditorWidget.prototype.addConnectBtns = function(layer, $el, opts) {
+        let btns = [];
+
+        opts = opts || {};
+        const offsetX = opts.offsetX || 0;
+        const top = opts.top || 0;
+        const bottom = opts.bottom || layer.height;
+
+        // Adjust the position of the inputs/outputs so they are visible
+        const outputs = layer.getOutputs();
+        let dx = layer.width/(outputs.length + 1);
+        let startX = dx + offsetX;
+        outputs.forEach((output, index) => {
+            const id = output.getId();
+            const name = output.getAttribute('name');
+            const btn = new Buttons.ConnectToOutput({
+                context: this,
+                title: name,
+                $pEl: $el,
+                item: id,
+                x: startX + dx * index,
+                y: bottom,
+                scale: index === 0 ? 1 : 0.9
+            });
+            btns.push(btn);
+        });
+
+        const inputs = layer.getInputs();
+        dx = layer.width/(inputs.length + 1);
+        startX = dx + offsetX;
+        inputs.forEach((input, index) => {
+            const id = input.getId();
+            const name = input.getAttribute('name');
+            const btn = new Buttons.ConnectToInput({
+                context: this,
+                $pEl: $el,
+                item: id,
+                title: name,
+                scale: index === 0 ? 1 : 0.9,
+                x: startX + dx * index,
+                y: top
+            });
+            btns.push(btn);
+        });
+
+        return btns;
+    };
+
+    KerasArchEditorWidget.prototype.hideHoverButtons = function() {
         if (this.$hoverBtns) {
             this.$hoverBtns.remove();
             this.$hoverBtns = null;
         }
     };
 
-    ArchEditorWidget.prototype.startConnection = function () {
+    KerasArchEditorWidget.prototype.onDeselect = function() {
         this.hideHoverButtons();
+    };
+
+    KerasArchEditorWidget.prototype.startConnection = function () {
+        this.hideHoverButtons();
+
+        // The first input will be an inputId instead of item
+        // TODO
+
         ThumbnailWidget.prototype.startConnection.apply(this, arguments);
     };
 
-    ArchEditorWidget.prototype.onCreateInitialNode = function() {
+    KerasArchEditorWidget.prototype.getItemContaining = function (id) {
+        let itemId = id;
+        const chunks = id.split('/');
+
+        while (chunks.length) {
+            itemId = chunks.join('/');
+            if (this.items[itemId]) {
+                return this.items[itemId];
+            }
+            chunks.pop();
+        }
+        return null;
+    };
+
+    KerasArchEditorWidget.prototype.startConnectionFrom = function (dataId) {
+        const targets = this.getValidExistingSuccessors(dataId);
+        const item = this.getItemContaining(dataId);
+
+        this.startConnection(item, dataId, targets);
+    };
+
+    KerasArchEditorWidget.prototype.startConnectionTo = function (dataId) {
+        const targets = this.getValidExistingPredecessors(dataId);
+        const item = this.getItemContaining(dataId);
+
+        this.startConnection(item, dataId, targets, true);
+    };
+
+    KerasArchEditorWidget.prototype.startConnection = function (src, srcId, dsts, reverse) {
+        var onClick = arg => {
+                const startId = !reverse ? srcId : arg.id;
+                const dstId = !reverse ? arg.id : srcId;
+
+                d3.event.stopPropagation();
+                this.resetConnectingState();
+                this.connectNodes(startId, dstId);
+            },
+            dstItems = dsts.map(pair => this.items[pair.node.id]);
+
+        this.resetConnectingState();
+        const tuples = dstItems.map((item, i) => {
+            let arg = dsts[i].arg;
+            const position = item.getRelativePortLocation(arg.id);
+            const icon = item.showIcon({
+                x: position.x,
+                y: position.y,
+                icon: 'chevron-bottom'
+            });
+            icon.append('title').text(arg.name);
+            return [
+                arg,
+                item,
+                icon
+            ];
+        });
+        tuples.forEach(pair => pair[2].on('click', () => onClick(pair[0])));
+
+        // Create the 'create-new' icon for the src
+        const position = src.getRelativePortLocation(srcId);
+        const srcIcon = src.showIcon({
+            x: position.x,
+            y: position.y,
+            icon: 'plus'
+        }).on('click', () => {
+            d3.event.stopPropagation();
+            this.resetConnectingState();
+            this.onAddButtonClicked(srcId, reverse);
+        });
+
+        this._connectionOptions = tuples.map(tuple => tuple.slice(1));
+        this._connectionSrc = [src, srcIcon];
+
+        this._connecting = true;
+    };
+
+    KerasArchEditorWidget.prototype.onCreateInitialNode = function() {
         var nodes = this.getValidInitialNodes();
         if (nodes.length === 1) {
             this.createNode(nodes[0].node.id);
@@ -142,21 +267,28 @@ define([
         }
     };
 
-    ArchEditorWidget.prototype.onAddButtonClicked = function(item, reverse) {
-        var nodes = this.getValidSuccessors(item.id);
+    KerasArchEditorWidget.prototype.onAddButtonClicked = function(srcId, reverse) {
+        // TODO: Should this accept the id of the input/output node, too?
+        var nodes = reverse ? this.getValidPredecessors(srcId) :
+            this.getValidSuccessors(srcId);
 
         return this.promptLayer(nodes)
-            .then(selected => this.onAddItemSelected(item, selected, reverse));
+            .then(selected => this.onAddItemSelected(srcId, selected, reverse));
     };
 
-    ArchEditorWidget.prototype.getLayerCategoryTabs = function(types) {
+    KerasArchEditorWidget.prototype.onAddItemSelected = function(srcId, selected, reverse) {
+        // For now, just connect to the first input/output
+        // FIXME
+        this.createConnectedNode(srcId, selected.node.id, reverse);
+    };
+
+    KerasArchEditorWidget.prototype.getLayerCategoryTabs = function(types) {
         var tabs = [],
             allTabs = {},
             tab,
             i;
 
         Object.keys(types).forEach(type => allTabs[type] = true);
-        delete allTabs.Criterion;
 
         // Add the ordered tabs
         for (i = LAYER_TAB_ORDER.length; i--;) {
@@ -173,7 +305,7 @@ define([
         return tabs;
     };
 
-    ArchEditorWidget.prototype.promptLayer = function(nodes) {
+    KerasArchEditorWidget.prototype.promptLayer = function(nodes) {
         var deferred = Q.defer(),
             types = {},
             opts = {};  // 'create new' nodes
@@ -194,13 +326,39 @@ define([
         return deferred.promise;
     };
 
-    ArchEditorWidget.prototype.updateNode = function(desc) {
+    KerasArchEditorWidget.prototype.selectTargetFor = function(id, ptr, filter) {
+        const validTargets = this.getValidTargetsFor(id, ptr, filter);
+        const areLayers = validTargets.length && validTargets.every(target => target.node.layerType);
+
+        // If they are layers, use promptLayer (for categories)
+        if (areLayers) {
+            return this.promptLayer(validTargets)
+                .then(selected => {
+                    const item = this.items[id];
+                    const layerId = selected.node.id;
+                    if (item.decorator.savePointer) {
+                        item.decorator.savePointer(ptr, layerId);
+                    } else {
+                        this.setPointerForNode(id, ptr, layerId);
+                    }
+                });
+        } else {
+            return ThumbnailWidget.prototype.selectTargetFor.apply(this, arguments);
+        }
+    };
+
+    KerasArchEditorWidget.prototype.updateNode = function(desc) {
         var item = this.items[desc.id];
         item.update(desc);
         this.refreshUI();
     };
 
-    ArchEditorWidget.prototype.expandAllNodes = function(reverse) {
+    KerasArchEditorWidget.prototype.updateConnection = function(desc) {
+        ThumbnailWidget.prototype.updateConnection.apply(this, arguments);
+        this.connections[desc.id].update(desc);
+    };
+
+    KerasArchEditorWidget.prototype.expandAllNodes = function(reverse) {
         var itemIds = Object.keys(this.items),
             method = reverse ? 'condenseAll' : 'expandAll';
 
@@ -209,13 +367,38 @@ define([
         }
     };
 
-    ArchEditorWidget.prototype.onInsertButtonClicked = function(item) {
+    KerasArchEditorWidget.prototype.onInsertButtonClicked = function(item) {
         var nodes = this.getValidInitialNodes();
         return this.promptLayer(nodes)
             .then(selected => this.insertLayer(selected.node.id, item.id));
     };
 
-    ArchEditorWidget.prototype.displayErrors = function(errors) {
+    KerasArchEditorWidget.prototype.showAnalysisResults = function(results) {
+        Object.keys(this.items).map(id => this.items[id])
+            .forEach(item => item.clear());
+
+        results.errors.forEach(error => {
+            const {nodeId, message} = error;
+            this.items[nodeId].error(message);
+        });
+
+        // Set the dimensionality info for each connection
+        const conns = Object.keys(this.connections)
+            .map(id => this.connections[id]);
+
+        // Show the dimensionality feedback!
+        conns.forEach(conn => {
+            const srcLayer = this.items[conn.src];
+            const outputIds = srcLayer.getOutputs().map(n => n.getId());
+            const dims = outputIds.length === 1 ?
+                [results.dimensions[conn.src]] : results.dimensions[conn.src];
+
+            const index = outputIds.indexOf(conn.desc.srcArgId);
+            conn.setDimensionality(dims[index]);
+        });
+    };
+
+    KerasArchEditorWidget.prototype.displayErrors = function(errors) {
         // For each of the errors, highlight the given nodes
         var oldErrored = Object.keys(this.hasError),
             currentErrored = errors.map(err => err.id),
@@ -238,5 +421,5 @@ define([
         });
     };
 
-    return ArchEditorWidget;
+    return KerasArchEditorWidget;
 });

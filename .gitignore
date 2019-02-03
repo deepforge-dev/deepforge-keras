@@ -29,3 +29,4 @@ build/Release
 node_modules
 tmp/
 blob-local-storage/
+notes/

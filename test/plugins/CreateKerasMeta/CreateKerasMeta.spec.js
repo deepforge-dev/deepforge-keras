@@ -3,15 +3,17 @@
 'use strict';
 var testFixture = require('../../globals');
 
-describe('GenerateKerasMeta', function () {
+describe('CreateKerasMeta', function () {
     var gmeConfig = testFixture.getGmeConfig(),
         expect = testFixture.expect,
+        path = testFixture.path,
         assert = require('assert'),
-        logger = testFixture.logger.fork('GenerateKerasMeta'),
+        logger = testFixture.logger.fork('CreateKerasMeta'),
         PluginCliManager = testFixture.WebGME.PluginCliManager,
         manager = new PluginCliManager(null, logger, gmeConfig),
+        SEED_DIR = path.join(__dirname, '..', '..', '..', 'src', 'seeds'),
         projectName = 'testProject',
-        pluginName = 'GenerateKerasMeta',
+        pluginName = 'CreateKerasMeta',
         project,
         gmeAuth,
         storage,
@@ -28,7 +30,7 @@ describe('GenerateKerasMeta', function () {
             })
             .then(function () {
                 var importParam = {
-                    projectSeed: testFixture.path.join(testFixture.SEED_DIR, 'EmptyProject.webgmex'),
+                    projectSeed: path.join(SEED_DIR, 'base', 'base.webgmex'),
                     projectName: projectName,
                     branchName: 'master',
                     logger: logger,
@@ -112,6 +114,18 @@ describe('GenerateKerasMeta', function () {
             assert(attrs.includes('ctor_arg_order'));
         });
 
+        describe('layer io', () => {
+            it('should create a single output for Conv2D', function () {
+                let node = getMetaNode('Conv2D');
+                return plugin.core.loadChildren(node)
+                    .then(children => {
+                        const names = children.map(child => plugin.core.getAttribute(child, 'name'));
+                        const outputs = names.filter(name => name === 'output');
+                        assert.equal(outputs.length, 1);
+                    });
+            });
+        });
+
         describe('functions', () => {
 
             it('should create nodes for activation fns', function () {
@@ -158,6 +172,14 @@ describe('GenerateKerasMeta', function () {
                 let meta = plugin.core.getPointerMeta(node, 'activation');
                 assert(meta[fnId]);
             });
+
+            it('should detect types from base layer args (`activation`/Conv2D)', function () {
+                let node = getMetaNode('Conv2D');
+                let fn = getMetaNode('ActivationFunction');
+                let fnId = plugin.core.getPath(fn);
+                let meta = plugin.core.getPointerMeta(node, 'activation');
+                assert(meta[fnId]);
+            });
         });
     });
 
@@ -165,6 +187,15 @@ describe('GenerateKerasMeta', function () {
         it('should filter out abstract schemas', function () {
             var abs = plugin.getSchemas().find(schema => schema.abstract);
             expect(abs).to.equal(undefined);
+        });
+
+        it('should look up inherited layer props', function () {
+            const mockLayer = {
+                name: 'TestLayer',
+                base: 'Dense'
+            };
+            const inputs = plugin.getLayerProperty(mockLayer, 'inputs');
+            assert(inputs);
         });
     });
 });
