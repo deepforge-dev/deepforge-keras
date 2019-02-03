@@ -6,15 +6,15 @@ define([
     'panels/EasyDAG/EasyDAGControl',
     'js/NodePropertyNames',
     'js/Utils/ComponentSettings',
-    'underscore',
-    'q'
+    'q',
+    'underscore'
 ], function (
     Constants,
     ThumbnailControl,
     nodePropertyNames,
     ComponentSettings,
-    _,
-    Q
+    Q,
+    _
 ) {
 
     'use strict';
@@ -241,6 +241,8 @@ define([
             ctorAttrs = ctorInfo ? ctorInfo.value.split(','): [],
             schema,
             i;
+
+        desc.docs = node.getAttribute(Constants.ATTR.DOC);
 
         // Add information about the LayerData inputs and outputs
         desc.inputs = [];

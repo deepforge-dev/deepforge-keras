@@ -8,7 +8,7 @@ define([], function() {
 
     Constants.ATTR = {};
     Constants.ATTR.CTOR_ARGS = 'ctor_arg_order';
-    Constants.ATTR.DOC = 'doc_string';
+    Constants.ATTR.DOC = 'docstring';
 
     // Registry
     Constants.REGISTRY = {};

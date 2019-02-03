@@ -1,10 +1,14 @@
-/*globals define, WebGMEGlobal, d3*/
+/*globals define, WebGMEGlobal, $, d3*/
 define([
     'widgets/EasyDAG/Buttons',
-    'webgme-easydag/Icons'
+    'webgme-easydag/Icons',
+    'underscore',
+    './lib/showdown.min'
 ], function(
     Buttons,
-    Icons
+    Icons,
+    _,
+    showdown
 ) {
 
     var client = WebGMEGlobal.Client;
@@ -148,6 +152,92 @@ define([
     };
 
     Buttons.GoToBase = GoToBase;
+
+    const mdConverter = new showdown.Converter();
+    const ShowHelpDocs = function(params) {
+        Buttons.ButtonBase.call(this, params);
+    };
+
+    ShowHelpDocs.SIZE = 10;
+    ShowHelpDocs.BORDER = 1;
+    ShowHelpDocs.prototype.BTN_CLASS = 'show-help-docs';
+    ShowHelpDocs.prototype = new Buttons.ButtonBase();
+
+    ShowHelpDocs.prototype._render = function() {
+        var lineRadius = ShowHelpDocs.SIZE - ShowHelpDocs.BORDER,
+            btnColor = '#e3f2fd';
+
+        this.$el
+            .append('circle')
+            .attr('r', ShowHelpDocs.SIZE)
+            .attr('fill', btnColor);
+
+        // Show the 'code' icon
+        Icons.addIcon('question-mark', this.$el, {
+            radius: lineRadius
+        });
+    };
+
+    ShowHelpDocs.convertDocsToHtml = function(docs) {
+        // First preprocess the docstring to (nice) markdown
+        docs = docs
+            .replace(/^\s*/mg, '')  // default indentation creates code blocks
+            // Convert the arguments to a list
+            .replace(/^([a-zA-Z_]+):/mg, (match, argName) => `- ${argName}:`);
+
+        return mdConverter.makeHtml(docs);
+    };
+
+    ShowHelpDocs.prototype._onClick = function(item) {
+        const docs = ShowHelpDocs.convertDocsToHtml(item.desc.docs);
+
+        // Remove old docs dialogs
+        $('#show-docs').remove();
+
+        const docsDialog = $(modalTpl({desc: item.desc, docs: docs}));
+
+        // Remove the Example section
+        let isExampleSection = false;
+        const elements = docsDialog.find('.modal-body').children();
+        for (let i = 0; i < elements.length; i++) {
+            if (elements[i].nodeName === 'H1') {
+                isExampleSection = elements[i].innerText.toLowerCase() === 'example';
+            }
+
+            if (isExampleSection) {
+                elements[i].remove();
+            }
+        }
+
+        // Update the urls to point to the keras site
+        const anchors = docsDialog.find('a');
+        for (let i = anchors.length; i--;) {
+            const url = anchors[i].getAttribute('href');
+            if (/^\.\.\/.*\.md$/.test(url)) {  // is reference to "local" docs
+                anchors[i].setAttribute('href', `https://keras.io/${url.replace('.md', '')}/`);
+            }
+
+            anchors[i].setAttribute('target', '_blank');
+        }
+        docsDialog.modal('show');
+    };
+
+    const modalTpl = _.template(`
+    <div class="show-docs modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title"><%= desc.name %> Documentation</h3>
+                </div>
+                <div class="modal-body">
+                <%= docs %>
+                </div>
+            </div>
+        </div>
+    </div>
+    `);
+
+    Buttons.ShowDocs = ShowHelpDocs;
 
     return Buttons;
 });
