@@ -211,7 +211,7 @@ define([
 
         // Update the urls to point to the keras site
         const anchors = docsDialog.find('a');
-        for (let i = anchors.length-1; i--;) {
+        for (let i = anchors.length; i--;) {
             const url = anchors[i].getAttribute('href');
             if (/^\.\.\/.*\.md$/.test(url)) {  // is reference to "local" docs
                 anchors[i].setAttribute('href', `https://keras.io/${url.replace('.md', '')}/`);
