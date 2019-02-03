@@ -44,12 +44,13 @@ define([
 
     LayerDecorator.prototype.DECORATOR_ID = DECORATOR_ID;
     LayerDecorator.prototype.PointerField = LayerField;
-    LayerDecorator.prototype.getDisplayName = function() {
+    LayerDecorator.prototype.getDisplayName = function(detailed) {
         let {name} = this._node;
         const {baseName} = this._node;
+        detailed = detailed === undefined ? this.expanded : detailed;
 
         // if the basename is different from the name, show both
-        if (this._node.baseName !== name) {
+        if (this._node.baseName !== name && detailed) {
             name += ` (${baseName})`;
         }
 
@@ -136,6 +137,7 @@ define([
     };
 
     LayerDecorator.prototype.update = function() {
+        this.updateDisplayName();
         let result =  EllipseDecorator.prototype.update.apply(this, arguments);
         if (this.editor) {
             let ptr = this.editor.ptrName;
@@ -178,7 +180,7 @@ define([
             .join(' ');
 
         this.editor = FloatingEditor.open(tgtId, position.right, position.top, 300, 130);
-        this.editor.setTitlePrefix(`${ptrName} for ${this.getDisplayName()}: `);
+        this.editor.setTitlePrefix(`${ptrName} for ${this.getDisplayName(false)}: `);
         this.editor.setTitle(field.value);
         this.editor.ptrName = ptr;
 
@@ -230,8 +232,24 @@ define([
         return container;
     };
 
+    LayerDecorator.prototype.updateDisplayName = function(detailed=false) {
+        const displayName = this.getDisplayName(detailed);
+        if (this.name !== displayName) {
+            this.name = displayName;
+            this.nameWidth = null;
+            this.updateWidth();
+            console.log('-- width', this.width);
+        }
+    };
+
+    LayerDecorator.prototype.expand = function() {
+        this.updateDisplayName(true);
+        return EllipseDecorator.prototype.expand.apply(this, arguments);
+    };
+
     LayerDecorator.prototype.condense = function() {
         this.closeEditor();
+        this.updateDisplayName();
         return EllipseDecorator.prototype.condense.apply(this, arguments);
     };
 
