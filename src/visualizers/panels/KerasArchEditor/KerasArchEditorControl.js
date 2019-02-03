@@ -6,12 +6,14 @@ define([
     'panels/EasyDAG/EasyDAGControl',
     'js/NodePropertyNames',
     'js/Utils/ComponentSettings',
+    'q',
     'underscore'
 ], function (
     Constants,
     ThumbnailControl,
     nodePropertyNames,
     ComponentSettings,
+    Q,
     _
 ) {
 
