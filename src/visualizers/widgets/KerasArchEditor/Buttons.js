@@ -213,7 +213,11 @@ define([
         const anchors = docsDialog.find('a');
         for (let i = anchors.length-1; i--;) {
             const url = anchors[i].getAttribute('href');
-            anchors[i].setAttribute('href', `https://keras.io/${url.replace('.md', '')}/`);
+            if (/^\.\.\/.*\.md$/.test(url)) {  // is reference to "local" docs
+                anchors[i].setAttribute('href', `https://keras.io/${url.replace('.md', '')}/`);
+            }
+
+            anchors[i].setAttribute('target', '_blank');
         }
         docsDialog.modal('show');
     };
