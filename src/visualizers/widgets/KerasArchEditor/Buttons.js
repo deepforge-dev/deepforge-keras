@@ -182,9 +182,9 @@ define([
         // First preprocess the docstring to (nice) markdown
         docs = docs
             .replace(/^\s*/mg, '')  // default indentation creates code blocks
+            // Convert the arguments to a list
             .replace(/^([a-zA-Z_]+):/mg, (match, argName) => `- ${argName}:`);
 
-        // Convert the arguments to a list
         return mdConverter.makeHtml(docs);
     };
 
