@@ -195,6 +195,26 @@ define([
         $('#show-docs').remove();
 
         const docsDialog = $(modalTpl({desc: item.desc, docs: docs}));
+
+        // Remove the Example section
+        let isExampleSection = false;
+        const elements = docsDialog.find('.modal-body').children();
+        for (let i = 0; i < elements.length; i++) {
+            if (elements[i].nodeName === 'H1') {
+                isExampleSection = elements[i].innerText.toLowerCase() === 'example';
+            }
+
+            if (isExampleSection) {
+                elements[i].remove();
+            }
+        }
+
+        // Update the urls to point to the keras site
+        const anchors = docsDialog.find('a');
+        for (let i = anchors.length-1; i--;) {
+            const url = anchors[i].getAttribute('href');
+            anchors[i].setAttribute('href', `https://keras.io/${url.replace('.md', '')}/`);
+        }
         docsDialog.modal('show');
     };
 
