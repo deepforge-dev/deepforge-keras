@@ -62,7 +62,7 @@ define([
 
             for (let i = 0; i < argsDocs.length; i += 2) {
                 const argName = argsDocs[i];
-                const hint = argsDocs[i+1];
+                const hint = this.getCleanHintText(argsDocs[i+1]);
                 hints[argName] = hint;
             }
 
@@ -70,6 +70,12 @@ define([
         }
 
         return LayerDecorator.LayerHintCache[node.baseName];
+    };
+
+    LayerDecorator.prototype.getCleanHintText = function(rawHint) {
+        // Remove references to external link - we can't click it in hover box anyway!
+        // Remove parentheses with links in them
+        return rawHint.replace(/\([^\)]*?\[.+?\]\(.+?\).*?\)/, '');
     };
 
     LayerDecorator.prototype.getDisplayName = function() {
