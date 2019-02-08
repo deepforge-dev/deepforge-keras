@@ -66,7 +66,7 @@ define([
                 hints[argName] = hint;
             }
 
-            LayerDecorator.LayerHintCache[node.baseName] = hints
+            LayerDecorator.LayerHintCache[node.baseName] = hints;
         }
 
         return LayerDecorator.LayerHintCache[node.baseName];
