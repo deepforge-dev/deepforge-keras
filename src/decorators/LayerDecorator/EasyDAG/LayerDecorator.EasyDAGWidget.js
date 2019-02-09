@@ -29,13 +29,55 @@ define([
 
         var skipAttrs = Object.keys(Constants.ATTR).map(key => Constants.ATTR[key]);
         skipAttrs.forEach(attr => options.skipAttributes[attr] = true);
+
+        options.hints = this.getHintsFromDocs(options.node);
         EllipseDecorator.call(this, options);
     };
 
     _.extend(LayerDecorator.prototype, EllipseDecorator.prototype);
 
+    LayerDecorator.LayerHintCache = {};
     LayerDecorator.prototype.DECORATOR_ID = DECORATOR_ID;
     LayerDecorator.prototype.PointerField = LayerField;
+
+    LayerDecorator.prototype.getHintsFromDocs = function(node) {
+        if (!LayerDecorator.LayerHintCache[node.baseName]) {
+            // Get the "arguments" section from the docs
+            const hints = {};
+            const docs = node.docs || '';
+            const argsDocs = docs.split(/.*^\s*# Arguments/m).pop()
+                .split(/^\s*# [A-Z]/m).shift()
+                .split('\n')
+                .map(line => line.replace(/^\s*/, ''))  // remove leading whitespace
+                .filter(line => !!line)
+                .reduce((docs, line) => {
+                    if (line.includes(': ')) {  // new doc line
+                        const [argName, doc] = line.split(':');
+                        docs.push(argName, doc);
+                    } else {
+                        docs[docs.length-1] += ' ' + line;
+                    }
+                    return docs;
+                }, []);
+
+            for (let i = 0; i < argsDocs.length; i += 2) {
+                const argName = argsDocs[i];
+                const hint = this.getCleanHintText(argsDocs[i+1]);
+                hints[argName] = hint;
+            }
+
+            LayerDecorator.LayerHintCache[node.baseName] = hints;
+        }
+
+        return LayerDecorator.LayerHintCache[node.baseName];
+    };
+
+    LayerDecorator.prototype.getCleanHintText = function(rawHint) {
+        // Remove references to external link - we can't click it in hover box anyway!
+        // Remove parentheses with links in them
+        return rawHint.replace(/\([^\)]*?\[.+?\]\(.+?\).*?\)/, '');
+    };
+
     LayerDecorator.prototype.getDisplayName = function() {
         // If it has an index field, add that to the name
         let name = this._node.name;
