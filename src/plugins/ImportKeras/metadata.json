@@ -1,0 +1,29 @@
+{
+  "id": "ImportKeras",
+  "name": "ImportKeras",
+  "version": "0.1.0",
+  "description": "",
+  "icon": {
+    "class": "glyphicon glyphicon-download-alt",
+    "src": ""
+  },
+  "disableServerSideExecution": false,
+  "disableBrowserSideExecution": false,
+  "dependencies": [],
+  "writeAccessRequired": false,
+  "configStructure": [{
+    "name": "srcModel",
+    "displayName": "Keras Model JSON File",
+    "description": "The keras model as a JSON file to convert to deepforge.",
+    "valueType": "asset",
+    "readOnly": false
+  },
+    {
+      "name": "archName",
+      "displayName": "Model Name",
+      "description": "Name of the imported model",
+      "valueType": "string",
+      "readOnly": false
+    }
+  ]
+}

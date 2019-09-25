@@ -2,6 +2,10 @@
   "name": "deepforge-keras",
   "scripts": {
     "start": "node app.js",
+<<<<<<< HEAD
+=======
+    "debug:start": "nodemon app.js",
+>>>>>>> ce28c3e... Refactor Model Parsing to a new file
     "test": "node ./node_modules/mocha/bin/mocha --recursive test",
     "apply": "node ./node_modules/webgme-engine/src/bin/apply.js",
     "diff": "node ./node_modules/webgme-engine/src/bin/diff.js",
@@ -17,7 +21,12 @@
   "devDependencies": {
     "chai": "^3.0.0",
     "mocha": "^5.2.0",
+<<<<<<< HEAD
     "webgme": "^2.26.0"
+=======
+    "nodemon": "^1.19.2",
+    "webgme": "^2.38.0"
+>>>>>>> ce28c3e... Refactor Model Parsing to a new file
   },
   "dependencies": {
     "rimraf": "^2.4.0",

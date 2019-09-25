@@ -1,0 +1,439 @@
+{
+    "class_name": "Sequential",
+    "keras_version": "2.3.0",
+    "config": {
+        "name": "sequential_7",
+        "layers": [
+            {
+                "class_name": "ConvLSTM2D",
+                "config": {
+                    "recurrent_constraint": null,
+                    "unit_forget_bias": true,
+                    "strides": [
+                        1,
+                        1
+                    ],
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "activation": "tanh",
+                    "recurrent_regularizer": null,
+                    "stateful": false,
+                    "bias_regularizer": null,
+                    "unroll": false,
+                    "dtype": "float32",
+                    "name": "conv_lst_m2d_1",
+                    "filters": 40,
+                    "trainable": true,
+                    "go_backwards": false,
+                    "kernel_constraint": null,
+                    "use_bias": true,
+                    "return_state": false,
+                    "activity_regularizer": null,
+                    "data_format": "channels_last",
+                    "recurrent_activation": "hard_sigmoid",
+                    "padding": "same",
+                    "dropout": 0.0,
+                    "kernel_size": [
+                        3,
+                        3
+                    ],
+                    "bias_constraint": null,
+                    "recurrent_initializer": {
+                        "class_name": "Orthogonal",
+                        "config": {
+                            "seed": null,
+                            "gain": 1.0
+                        }
+                    },
+                    "batch_input_shape": [
+                        null,
+                        null,
+                        40,
+                        40,
+                        1
+                    ],
+                    "kernel_initializer": {
+                        "class_name": "VarianceScaling",
+                        "config": {
+                            "scale": 1.0,
+                            "distribution": "uniform",
+                            "mode": "fan_avg",
+                            "seed": null
+                        }
+                    },
+                    "kernel_regularizer": null,
+                    "dilation_rate": [
+                        1,
+                        1
+                    ],
+                    "recurrent_dropout": 0.0,
+                    "return_sequences": true
+                }
+            },
+            {
+                "class_name": "BatchNormalization",
+                "config": {
+                    "beta_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "name": "batch_normalization_1",
+                    "moving_variance_initializer": {
+                        "class_name": "Ones",
+                        "config": {}
+                    },
+                    "momentum": 0.99,
+                    "gamma_initializer": {
+                        "class_name": "Ones",
+                        "config": {}
+                    },
+                    "center": true,
+                    "dtype": "float32",
+                    "gamma_regularizer": null,
+                    "beta_constraint": null,
+                    "axis": -1,
+                    "scale": true,
+                    "moving_mean_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "trainable": true,
+                    "beta_regularizer": null,
+                    "epsilon": 0.001,
+                    "gamma_constraint": null
+                }
+            },
+            {
+                "class_name": "ConvLSTM2D",
+                "config": {
+                    "recurrent_constraint": null,
+                    "unit_forget_bias": true,
+                    "strides": [
+                        1,
+                        1
+                    ],
+                    "activity_regularizer": null,
+                    "recurrent_regularizer": null,
+                    "stateful": false,
+                    "bias_regularizer": null,
+                    "unroll": false,
+                    "dropout": 0.0,
+                    "name": "conv_lst_m2d_2",
+                    "filters": 40,
+                    "trainable": true,
+                    "go_backwards": false,
+                    "kernel_constraint": null,
+                    "use_bias": true,
+                    "return_state": false,
+                    "data_format": "channels_last",
+                    "recurrent_activation": "hard_sigmoid",
+                    "padding": "same",
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "dtype": "float32",
+                    "kernel_size": [
+                        3,
+                        3
+                    ],
+                    "bias_constraint": null,
+                    "recurrent_initializer": {
+                        "class_name": "Orthogonal",
+                        "config": {
+                            "seed": null,
+                            "gain": 1.0
+                        }
+                    },
+                    "activation": "tanh",
+                    "kernel_initializer": {
+                        "class_name": "VarianceScaling",
+                        "config": {
+                            "scale": 1.0,
+                            "distribution": "uniform",
+                            "mode": "fan_avg",
+                            "seed": null
+                        }
+                    },
+                    "kernel_regularizer": null,
+                    "dilation_rate": [
+                        1,
+                        1
+                    ],
+                    "recurrent_dropout": 0.0,
+                    "return_sequences": true
+                }
+            },
+            {
+                "class_name": "BatchNormalization",
+                "config": {
+                    "beta_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "name": "batch_normalization_2",
+                    "moving_variance_initializer": {
+                        "class_name": "Ones",
+                        "config": {}
+                    },
+                    "momentum": 0.99,
+                    "gamma_initializer": {
+                        "class_name": "Ones",
+                        "config": {}
+                    },
+                    "center": true,
+                    "dtype": "float32",
+                    "gamma_regularizer": null,
+                    "beta_constraint": null,
+                    "axis": -1,
+                    "scale": true,
+                    "moving_mean_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "trainable": true,
+                    "beta_regularizer": null,
+                    "epsilon": 0.001,
+                    "gamma_constraint": null
+                }
+            },
+            {
+                "class_name": "ConvLSTM2D",
+                "config": {
+                    "recurrent_constraint": null,
+                    "unit_forget_bias": true,
+                    "strides": [
+                        1,
+                        1
+                    ],
+                    "activity_regularizer": null,
+                    "recurrent_regularizer": null,
+                    "stateful": false,
+                    "bias_regularizer": null,
+                    "unroll": false,
+                    "dropout": 0.0,
+                    "name": "conv_lst_m2d_3",
+                    "filters": 40,
+                    "trainable": true,
+                    "go_backwards": false,
+                    "kernel_constraint": null,
+                    "use_bias": true,
+                    "return_state": false,
+                    "data_format": "channels_last",
+                    "recurrent_activation": "hard_sigmoid",
+                    "padding": "same",
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "dtype": "float32",
+                    "kernel_size": [
+                        3,
+                        3
+                    ],
+                    "bias_constraint": null,
+                    "recurrent_initializer": {
+                        "class_name": "Orthogonal",
+                        "config": {
+                            "seed": null,
+                            "gain": 1.0
+                        }
+                    },
+                    "activation": "tanh",
+                    "kernel_initializer": {
+                        "class_name": "VarianceScaling",
+                        "config": {
+                            "scale": 1.0,
+                            "distribution": "uniform",
+                            "mode": "fan_avg",
+                            "seed": null
+                        }
+                    },
+                    "kernel_regularizer": null,
+                    "dilation_rate": [
+                        1,
+                        1
+                    ],
+                    "recurrent_dropout": 0.0,
+                    "return_sequences": true
+                }
+            },
+            {
+                "class_name": "BatchNormalization",
+                "config": {
+                    "beta_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "name": "batch_normalization_3",
+                    "moving_variance_initializer": {
+                        "class_name": "Ones",
+                        "config": {}
+                    },
+                    "momentum": 0.99,
+                    "gamma_initializer": {
+                        "class_name": "Ones",
+                        "config": {}
+                    },
+                    "center": true,
+                    "dtype": "float32",
+                    "gamma_regularizer": null,
+                    "beta_constraint": null,
+                    "axis": -1,
+                    "scale": true,
+                    "moving_mean_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "trainable": true,
+                    "beta_regularizer": null,
+                    "epsilon": 0.001,
+                    "gamma_constraint": null
+                }
+            },
+            {
+                "class_name": "ConvLSTM2D",
+                "config": {
+                    "recurrent_constraint": null,
+                    "unit_forget_bias": true,
+                    "strides": [
+                        1,
+                        1
+                    ],
+                    "activity_regularizer": null,
+                    "recurrent_regularizer": null,
+                    "stateful": false,
+                    "bias_regularizer": null,
+                    "unroll": false,
+                    "dropout": 0.0,
+                    "name": "conv_lst_m2d_4",
+                    "filters": 40,
+                    "trainable": true,
+                    "go_backwards": false,
+                    "kernel_constraint": null,
+                    "use_bias": true,
+                    "return_state": false,
+                    "data_format": "channels_last",
+                    "recurrent_activation": "hard_sigmoid",
+                    "padding": "same",
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "dtype": "float32",
+                    "kernel_size": [
+                        3,
+                        3
+                    ],
+                    "bias_constraint": null,
+                    "recurrent_initializer": {
+                        "class_name": "Orthogonal",
+                        "config": {
+                            "seed": null,
+                            "gain": 1.0
+                        }
+                    },
+                    "activation": "tanh",
+                    "kernel_initializer": {
+                        "class_name": "VarianceScaling",
+                        "config": {
+                            "scale": 1.0,
+                            "distribution": "uniform",
+                            "mode": "fan_avg",
+                            "seed": null
+                        }
+                    },
+                    "kernel_regularizer": null,
+                    "dilation_rate": [
+                        1,
+                        1
+                    ],
+                    "recurrent_dropout": 0.0,
+                    "return_sequences": true
+                }
+            },
+            {
+                "class_name": "BatchNormalization",
+                "config": {
+                    "beta_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "name": "batch_normalization_4",
+                    "moving_variance_initializer": {
+                        "class_name": "Ones",
+                        "config": {}
+                    },
+                    "momentum": 0.99,
+                    "gamma_initializer": {
+                        "class_name": "Ones",
+                        "config": {}
+                    },
+                    "center": true,
+                    "dtype": "float32",
+                    "gamma_regularizer": null,
+                    "beta_constraint": null,
+                    "axis": -1,
+                    "scale": true,
+                    "moving_mean_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "trainable": true,
+                    "beta_regularizer": null,
+                    "epsilon": 0.001,
+                    "gamma_constraint": null
+                }
+            },
+            {
+                "class_name": "Conv3D",
+                "config": {
+                    "data_format": "channels_last",
+                    "strides": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "bias_constraint": null,
+                    "activity_regularizer": null,
+                    "kernel_regularizer": null,
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "padding": "same",
+                    "dtype": "float32",
+                    "kernel_size": [
+                        3,
+                        3,
+                        3
+                    ],
+                    "bias_regularizer": null,
+                    "dilation_rate": [
+                        1,
+                        1,
+                        1
+                    ],
+                    "kernel_initializer": {
+                        "class_name": "VarianceScaling",
+                        "config": {
+                            "scale": 1.0,
+                            "distribution": "uniform",
+                            "mode": "fan_avg",
+                            "seed": null
+                        }
+                    },
+                    "name": "conv3d_1",
+                    "filters": 1,
+                    "trainable": true,
+                    "kernel_constraint": null,
+                    "activation": "sigmoid",
+                    "use_bias": true
+                }
+            }
+        ]
+    },
+    "backend": "tensorflow"
+}

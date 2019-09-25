@@ -1,0 +1,881 @@
+{
+    "class_name": "Model",
+    "keras_version": "2.3.0",
+    "config": {
+        "name": "model_5",
+        "layers": [
+            {
+                "name": "input_8",
+                "class_name": "InputLayer",
+                "config": {
+                    "name": "input_8",
+                    "sparse": false,
+                    "batch_input_shape": [
+                        null,
+                        100
+                    ],
+                    "dtype": "float32"
+                },
+                "inbound_nodes": []
+            },
+            {
+                "name": "input_9",
+                "class_name": "InputLayer",
+                "config": {
+                    "name": "input_9",
+                    "sparse": false,
+                    "batch_input_shape": [
+                        null,
+                        1
+                    ],
+                    "dtype": "int32"
+                },
+                "inbound_nodes": []
+            },
+            {
+                "name": "model_4",
+                "class_name": "Model",
+                "config": {
+                    "name": "model_4",
+                    "layers": [
+                        {
+                            "name": "input_7",
+                            "class_name": "InputLayer",
+                            "config": {
+                                "name": "input_7",
+                                "sparse": false,
+                                "batch_input_shape": [
+                                    null,
+                                    1
+                                ],
+                                "dtype": "int32"
+                            },
+                            "inbound_nodes": []
+                        },
+                        {
+                            "name": "input_6",
+                            "class_name": "InputLayer",
+                            "config": {
+                                "name": "input_6",
+                                "sparse": false,
+                                "batch_input_shape": [
+                                    null,
+                                    100
+                                ],
+                                "dtype": "float32"
+                            },
+                            "inbound_nodes": []
+                        },
+                        {
+                            "name": "embedding_6",
+                            "class_name": "Embedding",
+                            "config": {
+                                "input_dim": 10,
+                                "input_length": null,
+                                "embeddings_initializer": {
+                                    "class_name": "VarianceScaling",
+                                    "config": {
+                                        "scale": 1.0,
+                                        "distribution": "normal",
+                                        "mode": "fan_avg",
+                                        "seed": null
+                                    }
+                                },
+                                "activity_regularizer": null,
+                                "dtype": "float32",
+                                "batch_input_shape": [
+                                    null,
+                                    null
+                                ],
+                                "mask_zero": false,
+                                "name": "embedding_6",
+                                "trainable": true,
+                                "embeddings_constraint": null,
+                                "embeddings_regularizer": null,
+                                "output_dim": 100
+                            },
+                            "inbound_nodes": [
+                                [
+                                    [
+                                        "input_7",
+                                        0,
+                                        0,
+                                        {}
+                                    ]
+                                ]
+                            ]
+                        },
+                        {
+                            "name": "multiply_1",
+                            "class_name": "Multiply",
+                            "config": {
+                                "name": "multiply_1",
+                                "trainable": true,
+                                "dtype": "float32"
+                            },
+                            "inbound_nodes": [
+                                [
+                                    [
+                                        "input_6",
+                                        0,
+                                        0,
+                                        {}
+                                    ],
+                                    [
+                                        "embedding_6",
+                                        0,
+                                        0,
+                                        {}
+                                    ]
+                                ]
+                            ]
+                        },
+                        {
+                            "name": "sequential_10",
+                            "class_name": "Sequential",
+                            "config": {
+                                "name": "sequential_10",
+                                "layers": [
+                                    {
+                                        "class_name": "Dense",
+                                        "config": {
+                                            "units": 3456,
+                                            "bias_constraint": null,
+                                            "activity_regularizer": null,
+                                            "kernel_regularizer": null,
+                                            "bias_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "dtype": "float32",
+                                            "bias_regularizer": null,
+                                            "batch_input_shape": [
+                                                null,
+                                                100
+                                            ],
+                                            "kernel_initializer": {
+                                                "class_name": "VarianceScaling",
+                                                "config": {
+                                                    "scale": 1.0,
+                                                    "distribution": "uniform",
+                                                    "mode": "fan_avg",
+                                                    "seed": null
+                                                }
+                                            },
+                                            "name": "dense_14",
+                                            "trainable": true,
+                                            "kernel_constraint": null,
+                                            "activation": "relu",
+                                            "use_bias": true
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Reshape",
+                                        "config": {
+                                            "name": "reshape_1",
+                                            "trainable": true,
+                                            "target_shape": [
+                                                3,
+                                                3,
+                                                384
+                                            ],
+                                            "dtype": "float32"
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Conv2DTranspose",
+                                        "config": {
+                                            "data_format": "channels_last",
+                                            "strides": [
+                                                1,
+                                                1
+                                            ],
+                                            "bias_constraint": null,
+                                            "activity_regularizer": null,
+                                            "kernel_regularizer": null,
+                                            "bias_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "padding": "valid",
+                                            "dtype": "float32",
+                                            "kernel_size": [
+                                                5,
+                                                5
+                                            ],
+                                            "bias_regularizer": null,
+                                            "output_padding": null,
+                                            "dilation_rate": [
+                                                1,
+                                                1
+                                            ],
+                                            "kernel_initializer": {
+                                                "class_name": "VarianceScaling",
+                                                "config": {
+                                                    "scale": 1.0,
+                                                    "distribution": "normal",
+                                                    "mode": "fan_avg",
+                                                    "seed": null
+                                                }
+                                            },
+                                            "name": "conv2d_transpose_1",
+                                            "filters": 192,
+                                            "trainable": true,
+                                            "kernel_constraint": null,
+                                            "activation": "relu",
+                                            "use_bias": true
+                                        }
+                                    },
+                                    {
+                                        "class_name": "BatchNormalization",
+                                        "config": {
+                                            "beta_constraint": null,
+                                            "beta_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "name": "batch_normalization_5",
+                                            "momentum": 0.99,
+                                            "gamma_initializer": {
+                                                "class_name": "Ones",
+                                                "config": {}
+                                            },
+                                            "center": true,
+                                            "dtype": "float32",
+                                            "gamma_regularizer": null,
+                                            "moving_variance_initializer": {
+                                                "class_name": "Ones",
+                                                "config": {}
+                                            },
+                                            "axis": -1,
+                                            "scale": true,
+                                            "moving_mean_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "trainable": true,
+                                            "beta_regularizer": null,
+                                            "epsilon": 0.001,
+                                            "gamma_constraint": null
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Conv2DTranspose",
+                                        "config": {
+                                            "data_format": "channels_last",
+                                            "strides": [
+                                                2,
+                                                2
+                                            ],
+                                            "bias_constraint": null,
+                                            "activity_regularizer": null,
+                                            "kernel_regularizer": null,
+                                            "bias_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "padding": "same",
+                                            "dtype": "float32",
+                                            "kernel_size": [
+                                                5,
+                                                5
+                                            ],
+                                            "bias_regularizer": null,
+                                            "output_padding": null,
+                                            "dilation_rate": [
+                                                1,
+                                                1
+                                            ],
+                                            "kernel_initializer": {
+                                                "class_name": "VarianceScaling",
+                                                "config": {
+                                                    "scale": 1.0,
+                                                    "distribution": "normal",
+                                                    "mode": "fan_avg",
+                                                    "seed": null
+                                                }
+                                            },
+                                            "name": "conv2d_transpose_2",
+                                            "filters": 96,
+                                            "trainable": true,
+                                            "kernel_constraint": null,
+                                            "activation": "relu",
+                                            "use_bias": true
+                                        }
+                                    },
+                                    {
+                                        "class_name": "BatchNormalization",
+                                        "config": {
+                                            "beta_constraint": null,
+                                            "beta_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "name": "batch_normalization_6",
+                                            "momentum": 0.99,
+                                            "gamma_initializer": {
+                                                "class_name": "Ones",
+                                                "config": {}
+                                            },
+                                            "center": true,
+                                            "dtype": "float32",
+                                            "gamma_regularizer": null,
+                                            "moving_variance_initializer": {
+                                                "class_name": "Ones",
+                                                "config": {}
+                                            },
+                                            "axis": -1,
+                                            "scale": true,
+                                            "moving_mean_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "trainable": true,
+                                            "beta_regularizer": null,
+                                            "epsilon": 0.001,
+                                            "gamma_constraint": null
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Conv2DTranspose",
+                                        "config": {
+                                            "data_format": "channels_last",
+                                            "strides": [
+                                                2,
+                                                2
+                                            ],
+                                            "bias_constraint": null,
+                                            "activity_regularizer": null,
+                                            "kernel_regularizer": null,
+                                            "bias_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "padding": "same",
+                                            "dtype": "float32",
+                                            "kernel_size": [
+                                                5,
+                                                5
+                                            ],
+                                            "bias_regularizer": null,
+                                            "output_padding": null,
+                                            "dilation_rate": [
+                                                1,
+                                                1
+                                            ],
+                                            "kernel_initializer": {
+                                                "class_name": "VarianceScaling",
+                                                "config": {
+                                                    "scale": 1.0,
+                                                    "distribution": "normal",
+                                                    "mode": "fan_avg",
+                                                    "seed": null
+                                                }
+                                            },
+                                            "name": "conv2d_transpose_3",
+                                            "filters": 1,
+                                            "trainable": true,
+                                            "kernel_constraint": null,
+                                            "activation": "tanh",
+                                            "use_bias": true
+                                        }
+                                    }
+                                ]
+                            },
+                            "inbound_nodes": [
+                                [
+                                    [
+                                        "multiply_1",
+                                        0,
+                                        0,
+                                        {}
+                                    ]
+                                ]
+                            ]
+                        }
+                    ],
+                    "output_layers": [
+                        [
+                            "sequential_10",
+                            1,
+                            0
+                        ]
+                    ],
+                    "input_layers": [
+                        [
+                            "input_6",
+                            0,
+                            0
+                        ],
+                        [
+                            "input_7",
+                            0,
+                            0
+                        ]
+                    ]
+                },
+                "inbound_nodes": [
+                    [
+                        [
+                            "input_8",
+                            0,
+                            0,
+                            {}
+                        ],
+                        [
+                            "input_9",
+                            0,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            },
+            {
+                "name": "model_3",
+                "class_name": "Model",
+                "config": {
+                    "name": "model_3",
+                    "layers": [
+                        {
+                            "name": "input_5",
+                            "class_name": "InputLayer",
+                            "config": {
+                                "name": "input_5",
+                                "sparse": false,
+                                "batch_input_shape": [
+                                    null,
+                                    28,
+                                    28,
+                                    1
+                                ],
+                                "dtype": "float32"
+                            },
+                            "inbound_nodes": []
+                        },
+                        {
+                            "name": "sequential_9",
+                            "class_name": "Sequential",
+                            "config": {
+                                "name": "sequential_9",
+                                "layers": [
+                                    {
+                                        "class_name": "Conv2D",
+                                        "config": {
+                                            "data_format": "channels_last",
+                                            "strides": [
+                                                2,
+                                                2
+                                            ],
+                                            "bias_constraint": null,
+                                            "activity_regularizer": null,
+                                            "kernel_regularizer": null,
+                                            "bias_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "padding": "same",
+                                            "dtype": "float32",
+                                            "kernel_size": [
+                                                3,
+                                                3
+                                            ],
+                                            "bias_regularizer": null,
+                                            "dilation_rate": [
+                                                1,
+                                                1
+                                            ],
+                                            "batch_input_shape": [
+                                                null,
+                                                28,
+                                                28,
+                                                1
+                                            ],
+                                            "kernel_initializer": {
+                                                "class_name": "VarianceScaling",
+                                                "config": {
+                                                    "scale": 1.0,
+                                                    "distribution": "uniform",
+                                                    "mode": "fan_avg",
+                                                    "seed": null
+                                                }
+                                            },
+                                            "name": "conv2d_7",
+                                            "filters": 32,
+                                            "trainable": true,
+                                            "kernel_constraint": null,
+                                            "activation": "linear",
+                                            "use_bias": true
+                                        }
+                                    },
+                                    {
+                                        "class_name": "LeakyReLU",
+                                        "config": {
+                                            "name": "leaky_re_lu_1",
+                                            "trainable": true,
+                                            "alpha": 0.20000000298023224,
+                                            "dtype": "float32"
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Dropout",
+                                        "config": {
+                                            "seed": null,
+                                            "rate": 0.3,
+                                            "name": "dropout_11",
+                                            "noise_shape": null,
+                                            "trainable": true,
+                                            "dtype": "float32"
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Conv2D",
+                                        "config": {
+                                            "data_format": "channels_last",
+                                            "strides": [
+                                                1,
+                                                1
+                                            ],
+                                            "bias_constraint": null,
+                                            "activity_regularizer": null,
+                                            "kernel_regularizer": null,
+                                            "bias_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "padding": "same",
+                                            "dtype": "float32",
+                                            "kernel_size": [
+                                                3,
+                                                3
+                                            ],
+                                            "bias_regularizer": null,
+                                            "dilation_rate": [
+                                                1,
+                                                1
+                                            ],
+                                            "kernel_initializer": {
+                                                "class_name": "VarianceScaling",
+                                                "config": {
+                                                    "scale": 1.0,
+                                                    "distribution": "uniform",
+                                                    "mode": "fan_avg",
+                                                    "seed": null
+                                                }
+                                            },
+                                            "name": "conv2d_8",
+                                            "filters": 64,
+                                            "trainable": true,
+                                            "kernel_constraint": null,
+                                            "activation": "linear",
+                                            "use_bias": true
+                                        }
+                                    },
+                                    {
+                                        "class_name": "LeakyReLU",
+                                        "config": {
+                                            "name": "leaky_re_lu_2",
+                                            "trainable": true,
+                                            "alpha": 0.20000000298023224,
+                                            "dtype": "float32"
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Dropout",
+                                        "config": {
+                                            "seed": null,
+                                            "rate": 0.3,
+                                            "name": "dropout_12",
+                                            "noise_shape": null,
+                                            "trainable": true,
+                                            "dtype": "float32"
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Conv2D",
+                                        "config": {
+                                            "data_format": "channels_last",
+                                            "strides": [
+                                                2,
+                                                2
+                                            ],
+                                            "bias_constraint": null,
+                                            "activity_regularizer": null,
+                                            "kernel_regularizer": null,
+                                            "bias_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "padding": "same",
+                                            "dtype": "float32",
+                                            "kernel_size": [
+                                                3,
+                                                3
+                                            ],
+                                            "bias_regularizer": null,
+                                            "dilation_rate": [
+                                                1,
+                                                1
+                                            ],
+                                            "kernel_initializer": {
+                                                "class_name": "VarianceScaling",
+                                                "config": {
+                                                    "scale": 1.0,
+                                                    "distribution": "uniform",
+                                                    "mode": "fan_avg",
+                                                    "seed": null
+                                                }
+                                            },
+                                            "name": "conv2d_9",
+                                            "filters": 128,
+                                            "trainable": true,
+                                            "kernel_constraint": null,
+                                            "activation": "linear",
+                                            "use_bias": true
+                                        }
+                                    },
+                                    {
+                                        "class_name": "LeakyReLU",
+                                        "config": {
+                                            "name": "leaky_re_lu_3",
+                                            "trainable": true,
+                                            "alpha": 0.20000000298023224,
+                                            "dtype": "float32"
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Dropout",
+                                        "config": {
+                                            "seed": null,
+                                            "rate": 0.3,
+                                            "name": "dropout_13",
+                                            "noise_shape": null,
+                                            "trainable": true,
+                                            "dtype": "float32"
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Conv2D",
+                                        "config": {
+                                            "data_format": "channels_last",
+                                            "strides": [
+                                                1,
+                                                1
+                                            ],
+                                            "bias_constraint": null,
+                                            "activity_regularizer": null,
+                                            "kernel_regularizer": null,
+                                            "bias_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "padding": "same",
+                                            "dtype": "float32",
+                                            "kernel_size": [
+                                                3,
+                                                3
+                                            ],
+                                            "bias_regularizer": null,
+                                            "dilation_rate": [
+                                                1,
+                                                1
+                                            ],
+                                            "kernel_initializer": {
+                                                "class_name": "VarianceScaling",
+                                                "config": {
+                                                    "scale": 1.0,
+                                                    "distribution": "uniform",
+                                                    "mode": "fan_avg",
+                                                    "seed": null
+                                                }
+                                            },
+                                            "name": "conv2d_10",
+                                            "filters": 256,
+                                            "trainable": true,
+                                            "kernel_constraint": null,
+                                            "activation": "linear",
+                                            "use_bias": true
+                                        }
+                                    },
+                                    {
+                                        "class_name": "LeakyReLU",
+                                        "config": {
+                                            "name": "leaky_re_lu_4",
+                                            "trainable": true,
+                                            "alpha": 0.20000000298023224,
+                                            "dtype": "float32"
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Dropout",
+                                        "config": {
+                                            "seed": null,
+                                            "rate": 0.3,
+                                            "name": "dropout_14",
+                                            "noise_shape": null,
+                                            "trainable": true,
+                                            "dtype": "float32"
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Flatten",
+                                        "config": {
+                                            "name": "flatten_3",
+                                            "trainable": true,
+                                            "data_format": "channels_last",
+                                            "dtype": "float32"
+                                        }
+                                    }
+                                ]
+                            },
+                            "inbound_nodes": [
+                                [
+                                    [
+                                        "input_5",
+                                        0,
+                                        0,
+                                        {}
+                                    ]
+                                ]
+                            ]
+                        },
+                        {
+                            "name": "generation",
+                            "class_name": "Dense",
+                            "config": {
+                                "units": 1,
+                                "bias_regularizer": null,
+                                "activity_regularizer": null,
+                                "kernel_regularizer": null,
+                                "bias_initializer": {
+                                    "class_name": "Zeros",
+                                    "config": {}
+                                },
+                                "dtype": "float32",
+                                "bias_constraint": null,
+                                "kernel_initializer": {
+                                    "class_name": "VarianceScaling",
+                                    "config": {
+                                        "scale": 1.0,
+                                        "distribution": "uniform",
+                                        "mode": "fan_avg",
+                                        "seed": null
+                                    }
+                                },
+                                "name": "generation",
+                                "trainable": true,
+                                "kernel_constraint": null,
+                                "activation": "sigmoid",
+                                "use_bias": true
+                            },
+                            "inbound_nodes": [
+                                [
+                                    [
+                                        "sequential_9",
+                                        1,
+                                        0,
+                                        {}
+                                    ]
+                                ]
+                            ]
+                        },
+                        {
+                            "name": "auxiliary",
+                            "class_name": "Dense",
+                            "config": {
+                                "units": 10,
+                                "bias_regularizer": null,
+                                "activity_regularizer": null,
+                                "kernel_regularizer": null,
+                                "bias_initializer": {
+                                    "class_name": "Zeros",
+                                    "config": {}
+                                },
+                                "dtype": "float32",
+                                "bias_constraint": null,
+                                "kernel_initializer": {
+                                    "class_name": "VarianceScaling",
+                                    "config": {
+                                        "scale": 1.0,
+                                        "distribution": "uniform",
+                                        "mode": "fan_avg",
+                                        "seed": null
+                                    }
+                                },
+                                "name": "auxiliary",
+                                "trainable": true,
+                                "kernel_constraint": null,
+                                "activation": "softmax",
+                                "use_bias": true
+                            },
+                            "inbound_nodes": [
+                                [
+                                    [
+                                        "sequential_9",
+                                        1,
+                                        0,
+                                        {}
+                                    ]
+                                ]
+                            ]
+                        }
+                    ],
+                    "output_layers": [
+                        [
+                            "generation",
+                            0,
+                            0
+                        ],
+                        [
+                            "auxiliary",
+                            0,
+                            0
+                        ]
+                    ],
+                    "input_layers": [
+                        [
+                            "input_5",
+                            0,
+                            0
+                        ]
+                    ]
+                },
+                "inbound_nodes": [
+                    [
+                        [
+                            "model_4",
+                            1,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            }
+        ],
+        "output_layers": [
+            [
+                "model_3",
+                1,
+                0
+            ],
+            [
+                "model_3",
+                1,
+                1
+            ]
+        ],
+        "input_layers": [
+            [
+                "input_8",
+                0,
+                0
+            ],
+            [
+                "input_9",
+                0,
+                0
+            ]
+        ]
+    },
+    "backend": "tensorflow"
+}

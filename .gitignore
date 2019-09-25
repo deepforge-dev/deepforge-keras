@@ -30,3 +30,9 @@ node_modules
 tmp/
 blob-local-storage/
 notes/
+
+
+#Intellej
+.idea
+#vscode
+.vscode

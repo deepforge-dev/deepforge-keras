@@ -12,6 +12,13 @@
       "ValidateKeras": {
         "src": "src/plugins/ValidateKeras",
         "test": "test/plugins/ValidateKeras"
+<<<<<<< HEAD
+=======
+      },
+      "ImportKeras": {
+        "src": "src/plugins/ImportKeras",
+        "test": "test/plugins/ImportKeras"
+>>>>>>> ce28c3e... Refactor Model Parsing to a new file
       }
     },
     "visualizers": {

@@ -1,0 +1,92 @@
+{
+    "class_name": "Sequential",
+    "keras_version": "2.3.0",
+    "config": {
+        "name": "sequential_8",
+        "layers": [
+            {
+                "class_name": "LSTM",
+                "config": {
+                    "recurrent_constraint": null,
+                    "unit_forget_bias": true,
+                    "units": 128,
+                    "recurrent_regularizer": null,
+                    "activation": "tanh",
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "implementation": 2,
+                    "stateful": false,
+                    "bias_regularizer": null,
+                    "unroll": false,
+                    "dtype": "float32",
+                    "name": "lstm_4",
+                    "trainable": true,
+                    "go_backwards": false,
+                    "kernel_constraint": null,
+                    "use_bias": true,
+                    "return_state": false,
+                    "recurrent_activation": "sigmoid",
+                    "activity_regularizer": null,
+                    "dropout": 0.0,
+                    "bias_constraint": null,
+                    "recurrent_initializer": {
+                        "class_name": "Orthogonal",
+                        "config": {
+                            "seed": null,
+                            "gain": 1.0
+                        }
+                    },
+                    "batch_input_shape": [
+                        null,
+                        500,
+                        30
+                    ],
+                    "kernel_initializer": {
+                        "class_name": "VarianceScaling",
+                        "config": {
+                            "scale": 1.0,
+                            "distribution": "uniform",
+                            "mode": "fan_avg",
+                            "seed": null
+                        }
+                    },
+                    "kernel_regularizer": null,
+                    "recurrent_dropout": 0.0,
+                    "return_sequences": false
+                }
+            },
+            {
+                "class_name": "Dense",
+                "config": {
+                    "units": 35,
+                    "bias_constraint": null,
+                    "activity_regularizer": null,
+                    "kernel_regularizer": null,
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "dtype": "float32",
+                    "bias_regularizer": null,
+                    "kernel_initializer": {
+                        "class_name": "VarianceScaling",
+                        "config": {
+                            "scale": 1.0,
+                            "distribution": "uniform",
+                            "mode": "fan_avg",
+                            "seed": null
+                        }
+                    },
+                    "name": "dense_13",
+                    "trainable": true,
+                    "kernel_constraint": null,
+                    "activation": "softmax",
+                    "use_bias": true
+                }
+            }
+        ]
+    },
+    "backend": "tensorflow"
+}
