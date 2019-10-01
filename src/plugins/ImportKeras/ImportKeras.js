@@ -73,7 +73,6 @@ define([
             })
             .then((modelJson) => {
                 this.modelInfo = JSONLayerParser.flatten(modelJson).config;
-a
                 return this.addNewArchitecture()
                     .then(() => this.addLayers())
                     .then(() => this.addConnections()
