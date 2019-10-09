@@ -183,6 +183,7 @@ describe('json-model-parser', function () {
             }
 
         });
-
     });
+
+
 });

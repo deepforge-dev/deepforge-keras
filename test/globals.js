@@ -31,7 +31,7 @@ testFixture.getGmeConfig = getGmeConfig;
 
 const path = require('path');
 const SEED_DIR = path.join(__dirname, '..', 'src', 'seeds', 'tests');
-testFixture.testSeedPath = path.join(SEED_DIR, 'tests.webgmex'),
+testFixture.testSeedPath = path.join(SEED_DIR, 'tests.webgmex');
 
 // Add aliases for submodels
 testFixture.ARCHITECTURE = {
@@ -41,6 +41,10 @@ testFixture.ARCHITECTURE = {
     MultiArchOutputs: '/s',
     NestedLayers: '/z',
     Seq2Seq: '/4'
+};
+
+testFixture.LANGUAGE = {
+    languageRelID: '/h'
 };
 
 module.exports = testFixture;
