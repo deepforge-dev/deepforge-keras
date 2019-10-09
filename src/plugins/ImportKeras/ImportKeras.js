@@ -168,6 +168,7 @@ define([
                         base: this.META[config[pointer]]
                     });
                     // This will set the necessary pointers.
+                    // Of things like activations and so on...
                     this.core.setPointer(layerNode, pointer, configurableNode);
                     this.logger.debug(`Added ${this.core.getAttribute(configurableNode, 'name')}`
                         + ` as ${pointer} to the layer `
