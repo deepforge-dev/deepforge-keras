@@ -4,12 +4,26 @@
   "version": "0.1.0",
   "description": "",
   "icon": {
-    "class": "glyphicon glyphicon-cog",
+    "class": "glyphicon glyphicon-download-alt",
     "src": ""
   },
   "disableServerSideExecution": false,
   "disableBrowserSideExecution": false,
   "dependencies": [],
   "writeAccessRequired": false,
-  "configStructure": []
+  "configStructure": [{
+    "name": "srcModel",
+    "displayName": "Keras Model JSON File",
+    "description": "The Keras model JSON to import.",
+    "valueType": "asset",
+    "readOnly": false
+  },
+    {
+      "name": "archName",
+      "displayName": "Model Name",
+      "description": "Name of the imported model",
+      "valueType": "string",
+      "readOnly": false
+    }
+  ]
 }
