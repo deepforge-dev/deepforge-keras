@@ -61,7 +61,8 @@ define([
     ImportKeras.prototype.main = async function(callback){
         let srcJsonHash = this.getCurrentConfig().srcModel;
         if (!srcJsonHash) {
-            return callback(new Error('Keras Json Not Provided'), this.result);
+            callback(new Error('Keras Json Not Provided'), this.result);
+            return;
         }
         try {
             this.archName = this.getCurrentConfig().archName;
@@ -74,10 +75,10 @@ define([
             await this.addConnections();
             await this.save('Completed Import Model');
             this.result.setSuccess(true);
-            return callback(null, this.result);
+            callback(null, this.result);
         } catch (err) {
             this.logger.debug(`Something Went Wrong, Error Message: ${err}`);
-            return callback(err, this.result);
+            callback(err, this.result);
         }
     };
 
