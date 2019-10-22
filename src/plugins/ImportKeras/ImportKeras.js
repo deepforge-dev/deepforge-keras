@@ -151,36 +151,43 @@ define([
         allPointerNames.filter(pointer => !!config[pointer])
             .forEach((pointer) => {
                 if (typeof config[pointer] == 'string') {
-                    let configurableNode = this.core.createNode({
-                        parent: layerNode,
-                        base: this.META[config[pointer]]
-                    });
-                    // This will set the necessary pointers.
-                    // Of things like activations and so on...
-                    this.core.setPointer(layerNode, pointer, configurableNode);
-                    this.logger.debug(`Added ${this.core.getAttribute(configurableNode, 'name')}`
-                        + ` as ${pointer} to the layer `
-                        + `${this.core.getAttribute(layerNode, 'name')}`);
+                    this._addStringPropertiesNode(layerNode, config, pointer);
                 } else {
-                    let pluggableNode = this.core.createNode({
-                        parent: layerNode,
-                        base: this.META[config[pointer].class_name]
-                    });
-                    this.logger.debug(`Added ${this.core.getAttribute(pluggableNode, 'name')} as ${pointer} to the layer ` +
-                        `${this.core.getAttribute(layerNode, 'name')}`);
-                    let validArgumentsForThisNode = this.core.getValidAttributeNames(pluggableNode);
-                    let configForAddedNode = config[pointer].config;
-                    if (validArgumentsForThisNode && configForAddedNode) {
-                        validArgumentsForThisNode.forEach((arg) => {
-                            if (configForAddedNode[arg]) {
-                                this.core.setAttribute(pluggableNode, arg, this._toPythonIterable(configForAddedNode[arg]));
-                            }
-                        });
-                    }
+                    this._addPluggableNodes(layerNode, config, pointer);
                 }
             });
-
     };
+
+    ImportKeras.prototype._addStringPropertiesNode = function(layerNode, config, pointer) {
+        let configurableNode = this.core.createNode({
+            parent: layerNode,
+            base: this.META[config[pointer]]
+        });
+        // This will set the necessary pointers.
+        // Of things like activations and so on...
+        this.core.setPointer(layerNode, pointer, configurableNode);
+        this.logger.debug(`Added ${this.core.getAttribute(configurableNode, 'name')}`
+            + ` as ${pointer} to the layer `
+            + `${this.core.getAttribute(layerNode, 'name')}`);
+    };
+
+    ImportKeras.prototype._addPluggableNodes = function (layerNode, config, pointer){
+        let pluggableNode = this.core.createNode({
+            parent: layerNode,
+            base: this.META[config[pointer].class_name]
+        });
+        this.logger.debug(`Added ${this.core.getAttribute(pluggableNode, 'name')} as` +
+            ` ${pointer} to the layer ${this.core.getAttribute(layerNode, 'name')}`);
+        let validArgumentsForThisNode = this.core.getValidAttributeNames(pluggableNode);
+        let configForAddedNode = config[pointer].config;
+        if (validArgumentsForThisNode && configForAddedNode) {
+            validArgumentsForThisNode.forEach((arg) => {
+                if (configForAddedNode[arg])
+                    this.core.setAttribute(pluggableNode, arg,
+                        this._toPythonIterable(configForAddedNode[arg]));
+            });
+        }
+    }
 
     // This method is used to convert javascript arrays to a
     // tuple/ list(Python) in string Representation. Needed for
@@ -247,7 +254,7 @@ define([
             }
         });
 
-        await this._updateConnections(layerInputConnections, layerOutputConnections);
+        await this._updateConnections(layerInputConnections);
     };
 
 
@@ -259,7 +266,7 @@ define([
         return allLayerNames.indexOf(layerName) > -1;
     };
 
-    ImportKeras.prototype._updateConnections = function (inputs, outputs) {
+    ImportKeras.prototype._updateConnections = function (inputs) {
         let allLayerNames = Object.keys(inputs);
         return Promise.all(allLayerNames.map((layerName) => {
             let dstLayer = this.layerInfo[layerName];
