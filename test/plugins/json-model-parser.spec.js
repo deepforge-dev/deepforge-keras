@@ -20,11 +20,6 @@ describe('json-model-parser', function () {
             sequentialModelConfig = JSON.parse(sequentialModelTxt);
         });
 
-        it('Should find the number of models to be 1', () => {
-            let numModels = ModelParser.countNumberOfModels(sequentialModelConfig);
-            assert.equal(numModels, 1);
-        });
-
         it('It should parse the sequential model, with no nested models', () => {
             let flattenedConfig = ModelParser.flatten(sequentialModelConfig);
             assert.equal(flattenedConfig.config.layers.length,
@@ -62,10 +57,6 @@ describe('json-model-parser', function () {
             nestedSequentialModelConfig = JSON.parse(nestedSequentialModelTxt);
         });
 
-        it('Should find the number of models to be 3', () => {
-            let numModels = ModelParser.countNumberOfModels(nestedSequentialModelConfig);
-            assert.equal(numModels, 3);
-        });
 
         it('Should flatten the nested sequential model', function () {
             let flattenedConfig = ModelParser.flatten(nestedSequentialModelConfig);
@@ -83,15 +74,10 @@ describe('json-model-parser', function () {
 
     describe('sequential-inside-functional', function () {
         let nestedFunctionalModelConfig = null;
-        beforeEach(() => {
+        before(() => {
             let nestedFunctionalModelTxt = fs.readFileSync(path.resolve(__dirname,
                 '../test-cases/modelJsons/functional_memnn_babi.json'));
             nestedFunctionalModelConfig = JSON.parse(nestedFunctionalModelTxt);
-        });
-
-        it('should find the number of models to be 4', function () {
-            let numModels = ModelParser.countNumberOfModels(nestedFunctionalModelConfig);
-            assert.equal(numModels, 4);
         });
 
         it('should flatten the sequential inside functional model', function () {
@@ -149,15 +135,10 @@ describe('json-model-parser', function () {
 
     describe('redshift-convolutional-model', function () {
         let redshiftModelConfig = null;
-        beforeEach(() => {
+        before(() => {
             let redshiftModelTxt = fs.readFileSync(path.resolve(path.resolve(__dirname,
                 '../test-cases/modelJsons/redshiftModel.json')));
             redshiftModelConfig = JSON.parse(redshiftModelTxt);
-        });
-
-        it('find the number of models to be 1', function () {
-            let numModels = ModelParser.countNumberOfModels(redshiftModelConfig);
-            assert.equal(numModels, 1);
         });
 
         it('should flatten the model and change its inbound_nodes config', function () {

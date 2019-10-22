@@ -1,13 +1,8 @@
 /*globals define*/
 define(['./JSONModelMaps'], function (JSONModelMaps) {
     const ModelParser = {
-        countNumberOfModels: countNumberOfModels,
         flatten: flatten
     };
-
-    function countNumberOfModels(modelConfig) {
-        return countModels(modelConfig);
-    }
 
     /*
     This function will flatten nested models (i.e. a Model inside a model)
@@ -24,16 +19,6 @@ define(['./JSONModelMaps'], function (JSONModelMaps) {
         inboundNodesToStringArray(alteredModelConfig);
         replaceModelInboundKeyWithFirstLayer(alteredModelConfig, replacementInboundNodeKeys);
         return alteredModelConfig;
-    }
-
-    function countModels(modelConfig) {
-        if(isModel(modelConfig)){
-            return modelConfig.config.layers
-                .filter(layer => isModel(layer))
-                .map(nestedModel => countModels(nestedModel))
-                .reduce((a, b) => a+b, 1);
-        }
-        return 0;
     }
 
     function flattenNestedModel(modelConfig, layersInfo = [], inboundNodeKeys = {}) {
