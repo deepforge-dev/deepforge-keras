@@ -157,6 +157,7 @@ define([
                 }
             });
     };
+<<<<<<< HEAD
 
     ImportKeras.prototype._addStringPropertiesNode = function(layerNode, config, pointer) {
         let configurableNode = this.core.createNode({
@@ -169,6 +170,38 @@ define([
         this.logger.debug(`Added ${this.core.getAttribute(configurableNode, 'name')}`
             + ` as ${pointer} to the layer `
             + `${this.core.getAttribute(layerNode, 'name')}`);
+    };
+
+    ImportKeras.prototype._addPluggableNodes = function (layerNode, config, pointer){
+        let pluggableNode = this.core.createNode({
+            parent: layerNode,
+            base: this.META[config[pointer].class_name]
+        });
+        this.logger.debug(`Added ${this.core.getAttribute(pluggableNode, 'name')} as` +
+            ` ${pointer} to the layer ${this.core.getAttribute(layerNode, 'name')}`);
+        let validArgumentsForThisNode = this.core.getValidAttributeNames(pluggableNode);
+        let configForAddedNode = config[pointer].config;
+        if (validArgumentsForThisNode && configForAddedNode) {
+            validArgumentsForThisNode.forEach((arg) => {
+                if (configForAddedNode[arg])
+                    this.core.setAttribute(pluggableNode, arg,
+                        this._toPythonIterable(configForAddedNode[arg]));
+            });
+        }
+=======
+
+    ImportKeras.prototype._addStringPropertiesNode = function(layerNode, config, pointer) {
+        let configurableNode = this.core.createNode({
+            parent: layerNode,
+            base: this.META[config[pointer]]
+        });
+        // This will set the necessary pointers.
+        // Of things like activations and so on...
+        this.core.setPointer(layerNode, pointer, configurableNode);
+        this.logger.debug(`Added ${this.core.getAttribute(configurableNode, 'name')}`
+            + ` as ${pointer} to the layer `
+            + `${this.core.getAttribute(layerNode, 'name')}`);
+>>>>>>> 2c93550a5f9a30de113d0c8cb7f54da76b10d657
     };
 
     ImportKeras.prototype._addPluggableNodes = function (layerNode, config, pointer){
