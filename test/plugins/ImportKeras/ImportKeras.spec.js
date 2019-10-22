@@ -121,7 +121,7 @@ describe('ImportKeras', function () {
     };
 
     describe('test-cases', function () {
-        let modelsToTest = fs.readdirSync(JSON_DIR).filter((targetFile) => {
+        const modelsToTest = fs.readdirSync(JSON_DIR).filter((targetFile) => {
             return targetFile.endsWith('.json');
         });
 
@@ -131,5 +131,50 @@ describe('ImportKeras', function () {
             });
         });
 
+    });
+
+    describe('test-connections', function () {
+        // For name's sake
+        const modelToTest = path.join(JSON_DIR, 'sequential_conv_mnist.json');
+
+        it('should run plugin and connect layers correctly', async () => {
+            const manager = new PluginCliManager(null, logger, gmeConfig),
+                runPlugin = promisify(manager.executePlugin),
+                pluginConfig = {},
+                context = {
+                    project: project,
+                    activeNode: '',
+                    branchName: 'test'
+                };
+            const data = fs.readFileSync(modelToTest, 'utf-8');
+
+            pluginConfig.srcModel = await blobClient.putFile(modelToTest, data);
+            const pluginResult = await runPlugin(pluginName, pluginConfig, context);
+
+            assert(pluginResult != null);
+            assert(pluginResult.success === true);
+
+            commitHash = await project.getBranchHash('test');
+            const commitObj = await awaitableLoadObject(commitHash);
+
+            const rootNode = await plugin.core.loadRoot(commitObj.root);
+            const children = (await plugin.core.loadChildren(rootNode))
+                .filter((node) => {
+                    return plugin.core.getAttribute(node, 'name')
+                        === modelToTest.replace('.json', '');
+                });
+            assert(children.length === 1);
+            const layers = await plugin.core.loadChildren(children[0]);
+            let layersObject = {};
+            layers.map(node => {
+                layersObject[plugin.core.getAttribute(node, 'name')] = node;
+            });
+            const inputSourcePort = await plugin.core.loadMembers(layersObject['conv2d_1'], 'inputs');
+            const destinatioMembers = await plugin.core.loadMembers(layersObject['input'], 'outputs');
+            const soruceMembers = await plugin.core.loadMembers(inputSourcePort[0], 'source');
+            assert(destinatioMembers[0]);
+            assert(soruceMembers[0]);
+            assert(soruceMembers[0] === destinatioMembers[0]);
+        });
     });
 });
