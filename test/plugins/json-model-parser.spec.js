@@ -4,7 +4,7 @@ describe('json-model-parser', function () {
     const fs = require('fs');
     const path = require('path');
     const assert = require('assert');
-    const ModelParser = requireJs('../../../src/plugins/json-model-parser');
+    const ModelParser = requireJs('plugin/ImportKeras/ImportKeras/utils/json-model-parser');
 
     describe('basic-sequential', function () {
         let sequentialModelConfig = null;
