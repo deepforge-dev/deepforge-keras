@@ -136,6 +136,8 @@ describe('ImportKeras', function () {
     describe('test-connections', function () {
         // For name's sake
         const modelToTest = path.join(JSON_DIR, 'sequential_conv_mnist.json');
+        const layerNames = ['input', 'conv2d_1', 'conv2d_2', 'max_pooling2d_1',
+            'dropout_6', 'flatten_1', 'dense_9', 'dropout_7', 'dense_10'];
 
         it('should run plugin and connect layers correctly', async () => {
             const manager = new PluginCliManager(null, logger, gmeConfig),
@@ -165,16 +167,22 @@ describe('ImportKeras', function () {
                 });
             assert(children.length === 1);
             const layers = await plugin.core.loadChildren(children[0]);
-            let layersObject = {};
+            let layersMap = {};
             layers.map(node => {
-                layersObject[plugin.core.getAttribute(node, 'name')] = node;
+                layersMap[plugin.core.getAttribute(node, 'name')] = node;
             });
-            const inputSourcePort = await plugin.core.loadMembers(layersObject['conv2d_1'], 'inputs');
-            const destinatioMembers = await plugin.core.loadMembers(layersObject['input'], 'outputs');
-            const soruceMembers = await plugin.core.loadMembers(inputSourcePort[0], 'source');
-            assert(destinatioMembers[0]);
-            assert(soruceMembers[0]);
-            assert(soruceMembers[0] === destinatioMembers[0]);
+            let inputSourcePort, destinationMembers, soruceMembers;
+
+            for(let i = 1; i < layerNames.length; i++){
+                inputSourcePort = await plugin.core.loadMembers(layersMap[layerNames[i]], 'inputs');
+                destinationMembers = await plugin.core.loadMembers(layersMap[layerNames[i-1]], 'outputs');
+                soruceMembers = await plugin.core.loadMembers(inputSourcePort[0], 'source');
+                assert(destinationMembers[0]);
+                assert(soruceMembers[0]);
+                assert(soruceMembers[0] === destinationMembers[0]);
+            }
+
+
         });
     });
 });
