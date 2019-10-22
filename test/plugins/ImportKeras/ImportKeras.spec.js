@@ -42,7 +42,6 @@ describe('ImportKeras', function () {
         const importResult = await testFixture.importProject(storage, importParam);
         project = importResult.project;
         commitHash = importResult.commitHash;
-        // Promisify
         awaitableLoadObject = promisify(project.loadObject);
 
         await project.createBranch('test', commitHash);
@@ -107,8 +106,7 @@ describe('ImportKeras', function () {
         pluginConfig.srcModel = await blobClient.putFile(modelName, data);
         let pluginResult = await runPlugin(pluginName, pluginConfig, context);
 
-        assert(pluginResult != null);
-        assert(pluginResult.success === true);
+        assert(pluginResult != null && pluginResult.success === true);
         assert(rootNode != null);
 
         let newBranchHash = await project.getBranchHash('test');
@@ -181,8 +179,6 @@ describe('ImportKeras', function () {
                 assert(soruceMembers[0]);
                 assert(soruceMembers[0] === destinationMembers[0]);
             }
-
-
         });
     });
 });
