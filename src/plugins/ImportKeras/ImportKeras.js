@@ -11,8 +11,8 @@ define([
     'plugin/PluginConfig',
     'text!./metadata.json',
     'plugin/PluginBase',
-    './utils/JSONModelMaps',
-    './utils/json-model-parser',
+    '../JSONModelMaps',
+    '../json-model-parser',
 ], function (
     PluginConfig,
     pluginMetadata,
