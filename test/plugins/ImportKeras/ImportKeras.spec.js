@@ -4,79 +4,132 @@
  */
 
 describe('ImportKeras', function () {
-    var testFixture = require('../../globals'),
+    const testFixture = require('../../globals'),
+        BlobClient = require('webgme-engine/src/server/middleware/blob/BlobClientWithFSBackend'),
+        fs = require('fs'),
+        {promisify} = require('util'),
+        assert = require('assert'),
         gmeConfig = testFixture.getGmeConfig(),
         expect = testFixture.expect,
+        path = testFixture.path,
         logger = testFixture.logger.fork('ImportKeras'),
         PluginCliManager = testFixture.WebGME.PluginCliManager,
+        SEED_DIR = path.join(__dirname, '..', '..', '..', 'src', 'seeds'),
+        manager = new PluginCliManager(null, logger, gmeConfig),
         projectName = 'testProject',
         pluginName = 'ImportKeras',
-        project,
+        blobClient = new BlobClient(gmeConfig, logger),
+        JSON_DIR = path.join(__dirname, '../../test-cases/modelJsons/');
+
+    let project,
         gmeAuth,
+        awaitableLoadObject,
         storage,
-        commitHash;
+        commitHash,
+        plugin;
 
-    before(function (done) {
-        testFixture.clearDBAndGetGMEAuth(gmeConfig, projectName)
-            .then(function (gmeAuth_) {
-                gmeAuth = gmeAuth_;
-                // This uses in memory storage. Use testFixture.getMongoStorage to persist test to database.
-                storage = testFixture.getMemoryStorage(logger, gmeConfig, gmeAuth);
-                return storage.openDatabase();
-            })
-            .then(function () {
-                var importParam = {
-                    projectSeed: testFixture.path.join(testFixture.SEED_DIR, 'EmptyProject.webgmex'),
-                    projectName: projectName,
-                    branchName: 'master',
-                    logger: logger,
-                    gmeConfig: gmeConfig
-                };
+    before(async function () {
+        gmeAuth = await testFixture.clearDBAndGetGMEAuth(gmeConfig, projectName);
+        storage = testFixture.getMemoryStorage(logger, gmeConfig, gmeAuth);
+        await storage.openDatabase();
+        const importParam = {
+            projectSeed: path.join(SEED_DIR, 'keras', 'keras.webgmex'),
+            projectName: projectName,
+            branchName: 'master',
+            logger: logger,
+            gmeConfig: gmeConfig
+        };
+        const importResult = await testFixture.importProject(storage, importParam);
+        project = importResult.project;
+        commitHash = importResult.commitHash;
+        // Promisify
+        awaitableLoadObject = promisify(project.loadObject);
 
-                return testFixture.importProject(storage, importParam);
-            })
-            .then(function (importResult) {
-                project = importResult.project;
-                commitHash = importResult.commitHash;
-                return project.createBranch('test', commitHash);
-            })
-            .nodeify(done);
+        await project.createBranch('test', commitHash);
+        plugin = await manager.initializePlugin(pluginName);
+        const context = {
+            project: project,
+            commitHash: commitHash,
+            branchName: 'test',
+            activeNode: ''
+        };
+        await manager.configurePlugin(plugin, {}, context);
     });
 
-    after(function (done) {
-        storage.closeDatabase()
-            .then(function () {
-                return gmeAuth.unload();
-            })
-            .nodeify(done);
+    after(async function () {
+        await storage.closeDatabase();
+        await gmeAuth.unload();
     });
 
-    it('should run plugin and update the branch', function (done) {
-        var manager = new PluginCliManager(null, logger, gmeConfig),
-            pluginConfig = {
-            },
-            context = {
-                project: project,
-                commitHash: commitHash,
-                branchName: 'test',
-                activeNode: '/1',
-            };
-
-        manager.executePlugin(pluginName, pluginConfig, context, function (err, pluginResult) {
+    describe('without-json-file', function () {
+        it('should fail without a JSON file', async () => {
+            let manager = new PluginCliManager(null, logger, gmeConfig),
+                context = {
+                    project: project,
+                    commitHash: commitHash,
+                    branchName: 'test',
+                    activeNode: ''
+                },
+                runPlugin = promisify(manager.executePlugin);
             try {
-                expect(err).to.equal(null);
-                expect(typeof pluginResult).to.equal('object');
-                expect(pluginResult.success).to.equal(true);
-            } catch (e) {
-                done(e);
-                return;
+                let pluginResult = await runPlugin(pluginName, context, context);
+                assert(!pluginResult.success);
+            } catch (err) {
+                expect(err.message).to.equal('Keras Json Not Provided');
             }
 
-            project.getBranchHash('test')
-                .then(function (branchHash) {
-                    expect(branchHash).to.not.equal(commitHash);
-                })
-                .nodeify(done);
+            let branchHash = await project.getBranchHash('test');
+            expect(branchHash).to.equal(commitHash);
         });
+    });
+
+    const runPluginTest = async (modelName) => {
+        let manager = new PluginCliManager(null, logger, gmeConfig),
+            runPlugin = promisify(manager.executePlugin),
+            pluginConfig = {},
+            context = {
+                project: project,
+                activeNode: '',
+                branchName: 'test'
+            };
+
+        let data = fs.readFileSync(path.join(JSON_DIR, modelName), 'utf-8');
+
+        assert(data != null);
+
+        let branchHash = await project.getBranchHash('test');
+        let commitObject = await awaitableLoadObject(branchHash);
+        let rootNode = await plugin.core.loadRoot(commitObject.root);
+
+        assert(rootNode != null);
+
+        let childrenPaths = (await plugin.core.loadChildren(rootNode)).map(plugin.core.getPath);
+        pluginConfig.srcModel = await blobClient.putFile(modelName, data);
+        let pluginResult = await runPlugin(pluginName, pluginConfig, context);
+
+        assert(pluginResult != null);
+        assert(pluginResult.success === true);
+        assert(rootNode != null);
+
+        let newBranchHash = await project.getBranchHash('test');
+        commitHash = newBranchHash;
+        let newCommitObj = await awaitableLoadObject(newBranchHash);
+
+        let newRootNode = await plugin.core.loadRoot(newCommitObj.root);
+        let newChildrenPaths = (await plugin.core.loadChildren(newRootNode)).map(plugin.core.getPath);
+        assert(newChildrenPaths.length === childrenPaths.length + 1);
+    };
+
+    describe('test-cases', function () {
+        let modelsToTest = fs.readdirSync(JSON_DIR).filter((targetFile) => {
+            return targetFile.endsWith('.json');
+        });
+
+        modelsToTest.forEach((model) => {
+            it(`should run plugin for ${model}`, async () => {
+                await runPluginTest(model);
+            });
+        });
+
     });
 });
