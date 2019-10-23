@@ -16,6 +16,7 @@ describe(pluginName, function () {
     const projectName = 'testProject';
     const manager = new PluginCliManager(null, logger, gmeConfig);
     const ARCHITECTURE = testFixture.ARCHITECTURE;
+    const runPythonCode = testFixture.executePythonCode;
 
     let project,
         gmeAuth,
@@ -314,4 +315,15 @@ describe(pluginName, function () {
     });
 
     // TODO: test that we can run the given python code?
+    describe('run generated code', function () {
+        const archTypes = ['MultiArchOutputs', 'NestedLayers', 'Seq2Seq'];
+
+        archTypes.forEach((arch) => {
+            it(`Should run the generated code in python for ${arch}`, async () => {
+                const generatedCode = await getGeneratedCode(ARCHITECTURE[arch]);
+                const executionOutput = runPythonCode(generatedCode);
+                assert(executionOutput.success);
+            });
+        });
+    });
 });
