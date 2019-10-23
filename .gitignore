@@ -30,9 +30,3 @@ node_modules
 tmp/
 blob-local-storage/
 notes/
-
-#IntelliJ
-.idea
-
-#vscode
-.vscode
