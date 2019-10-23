@@ -1,6 +1,14 @@
 language: node_js
 services: mongodb
-sudo: false
+sudo: true
+before_install:
+  - sudo add-apt-repository ppa:deadsnakes/ppa -y
+  - sudo apt-get update -q
+  - sudo apt-get install python3.5-dev -y
+  - sudo ln -sf /usr/bin/python3.5 /usr/bin/python
+  - sudo apt-get install python-pip -y
+install:
+  - pip install -r requirements.txt
 node_js:
   - "8"
   - "10"
