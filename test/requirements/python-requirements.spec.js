@@ -1,7 +1,6 @@
 /*jshint node:true, mocha:true*/
 
 'use strict';
-var testFixture = require('../globals');
 const { spawnSync } = require('child_process');
 const assert = require('assert');
 const fs = require('fs');
