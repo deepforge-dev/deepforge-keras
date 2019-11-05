@@ -314,7 +314,8 @@ describe(pluginName, function () {
         });
     });
 
-    // TODO: test that we can run the given python code?
+    // Here, we test the actual generated code, by spawning a process in python
+    // The generated code should run without errors.
     describe('run generated code', function () {
         const archTypes = ['MultiArchOutputs', 'NestedLayers', 'Seq2Seq'];
 
