@@ -32,6 +32,12 @@ define([
     'use strict';
 
     pluginMetadata = JSON.parse(pluginMetadata);
+    const TYPES = {
+        activation: JSON.parse(ActivationsTxt),
+        constraint: JSON.parse(ConstraintsTxt),
+        regularizer: JSON.parse(RegularizersTxt),
+        initializer: JSON.parse(InitializersTxt)
+    };
     const AdditionalLayers = JSON.parse(AdditionalLayerTxt);
     const ALL_LAYERS = JSON.parse(LayerTxt).concat(AdditionalLayers)
         .map(layer => {  // apply any special case patching
@@ -41,15 +47,19 @@ define([
             if (layer.name === 'Bidirectional') {
                 layer.arguments[1].type = 'Recurrent';
             }
+
+            if (layer.arguments) {
+                const typeNames = Object.keys(TYPES);
+                layer.arguments.forEach(argument => {
+                    if (!argument.type) {
+                        argument.type = typeNames
+                            .find(name => argument.name.includes(name));
+                    }
+                });
+            }
             return layer;
         });
     const LAYERS = ALL_LAYERS.filter(schema => !schema.abstract);
-    const TYPES = {
-        activation: JSON.parse(ActivationsTxt),
-        constraint: JSON.parse(ConstraintsTxt),
-        regularizer: JSON.parse(RegularizersTxt),
-        initializer: JSON.parse(InitializersTxt)
-    };
     const DEFAULT_META_TAB = 'META';
 
     /**
