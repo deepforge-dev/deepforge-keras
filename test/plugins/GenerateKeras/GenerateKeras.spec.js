@@ -16,7 +16,7 @@ describe(pluginName, function () {
     const projectName = 'testProject';
     const manager = new PluginCliManager(null, logger, gmeConfig);
     const ARCHITECTURE = testFixture.ARCHITECTURE;
-    const runPythonCode = testFixture.executePythonCode;
+    const runPythonCode = testFixture.runPythonCode;
 
     let project,
         gmeAuth,
@@ -200,6 +200,11 @@ describe(pluginName, function () {
                 return nextIndex;
             });
         });
+
+        it('should run generated code without errors', () => {
+            const executionResult = runPythonCode(code);
+            assert(executionResult.success);
+        });
     });
 
     describe('nested (wrapped) layers', function() {
@@ -219,6 +224,11 @@ describe(pluginName, function () {
         it('should not pass inputs to wrapped layer', function() {
             const nestedInputRegex = /Zeros\(\)\)\(\)\)/;
             assert(!nestedInputRegex.test(code), 'Generated inputs for wrapped layer');
+        });
+
+        it('should run generated code without errors', () => {
+            const executionResult = runPythonCode(code);
+            assert(executionResult.success);
         });
     });
 
@@ -276,6 +286,11 @@ describe(pluginName, function () {
             );
         });
 
+        it('should run generated code without errors', () => {
+            const exectionResult = runPythonCode(code);
+            assert(exectionResult.success);
+        });
+
         describe('special cases', function() {
             it('should set return_state to true in recurrent layers', function() {
                 assert(encoder.includes('return_state=True'), 'encoder not returning state');
@@ -311,20 +326,6 @@ describe(pluginName, function () {
         it('should not use python keywords', function() {
             const name = plugin.generateVariableName('lambda');
             assert.notEqual(name, 'lambda');
-        });
-    });
-
-    // Here, we test the actual generated code, by spawning a process in python
-    // The generated code should run without errors.
-    describe('run generated code', function () {
-        const archTypes = ['MultiArchOutputs', 'NestedLayers', 'Seq2Seq'];
-
-        archTypes.forEach((arch) => {
-            it(`Should run the generated code in python for ${arch}`, async () => {
-                const generatedCode = await getGeneratedCode(ARCHITECTURE[arch]);
-                const executionOutput = runPythonCode(generatedCode);
-                assert(executionOutput.success);
-            });
         });
     });
 });
