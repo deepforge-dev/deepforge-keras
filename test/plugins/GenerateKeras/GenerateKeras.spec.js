@@ -202,6 +202,7 @@ describe(pluginName, function () {
         });
 
         it('should run generated code without errors', () => {
+            this.timeout(5000);
             const executionResult = executePython(code);
             assert(executionResult.success);
         });
@@ -227,6 +228,7 @@ describe(pluginName, function () {
         });
 
         it('should run generated code without errors', () => {
+            this.timeout(5000);
             const executionResult = executePython(code);
             assert(executionResult.success);
         });
@@ -287,6 +289,7 @@ describe(pluginName, function () {
         });
 
         it('should run generated code without errors', () => {
+            this.timeout(5000);
             const exectionResult = executePython(code);
             assert(exectionResult.success);
         });
