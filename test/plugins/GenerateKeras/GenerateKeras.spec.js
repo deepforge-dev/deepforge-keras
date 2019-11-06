@@ -202,10 +202,9 @@ describe(pluginName, function () {
         });
 
         it('should run generated code without errors', () => {
-            this.timeout(15000);
             const executionResult = executePython(code);
             assert(executionResult.success);
-        });
+        }).timeout(5000);
     });
 
     describe('nested (wrapped) layers', function() {
@@ -228,10 +227,9 @@ describe(pluginName, function () {
         });
 
         it('should run generated code without errors', () => {
-            this.timeout(15000);
             const executionResult = executePython(code);
             assert(executionResult.success);
-        });
+        }).timeout(5000);
     });
 
     describe('multiple types of layer IO (seq2seq)', function() {
@@ -289,10 +287,9 @@ describe(pluginName, function () {
         });
 
         it('should run generated code without errors', () => {
-            this.timeout(15000);
             const exectionResult = executePython(code);
             assert(exectionResult.success);
-        });
+        }).timeout(5000);
 
         describe('special cases', function() {
             it('should set return_state to true in recurrent layers', function() {
