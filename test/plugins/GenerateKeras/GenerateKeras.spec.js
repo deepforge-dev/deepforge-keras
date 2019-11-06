@@ -16,6 +16,7 @@ describe(pluginName, function () {
     const projectName = 'testProject';
     const manager = new PluginCliManager(null, logger, gmeConfig);
     const ARCHITECTURE = testFixture.ARCHITECTURE;
+    const executePython = testFixture.executePython;
 
     let project,
         gmeAuth,
@@ -199,6 +200,11 @@ describe(pluginName, function () {
                 return nextIndex;
             });
         });
+
+        it('should run generated code without errors', () => {
+            const executionResult = executePython(code);
+            assert(executionResult.success);
+        }).timeout(5000);
     });
 
     describe('nested (wrapped) layers', function() {
@@ -219,6 +225,11 @@ describe(pluginName, function () {
             const nestedInputRegex = /Zeros\(\)\)\(\)\)/;
             assert(!nestedInputRegex.test(code), 'Generated inputs for wrapped layer');
         });
+
+        it('should run generated code without errors', () => {
+            const executionResult = executePython(code);
+            assert(executionResult.success);
+        }).timeout(5000);
     });
 
     describe('multiple types of layer IO (seq2seq)', function() {
@@ -275,6 +286,11 @@ describe(pluginName, function () {
             );
         });
 
+        it('should run generated code without errors', () => {
+            const exectionResult = executePython(code);
+            assert(exectionResult.success);
+        }).timeout(5000);
+
         describe('special cases', function() {
             it('should set return_state to true in recurrent layers', function() {
                 assert(encoder.includes('return_state=True'), 'encoder not returning state');
@@ -312,6 +328,4 @@ describe(pluginName, function () {
             assert.notEqual(name, 'lambda');
         });
     });
-
-    // TODO: test that we can run the given python code?
 });
