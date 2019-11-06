@@ -16,7 +16,7 @@ describe(pluginName, function () {
     const projectName = 'testProject';
     const manager = new PluginCliManager(null, logger, gmeConfig);
     const ARCHITECTURE = testFixture.ARCHITECTURE;
-    const runPythonCode = testFixture.runPythonCode;
+    const executePython = testFixture.executePython;
 
     let project,
         gmeAuth,
@@ -202,7 +202,7 @@ describe(pluginName, function () {
         });
 
         it('should run generated code without errors', () => {
-            const executionResult = runPythonCode(code);
+            const executionResult = executePython(code);
             assert(executionResult.success);
         });
     });
@@ -227,7 +227,7 @@ describe(pluginName, function () {
         });
 
         it('should run generated code without errors', () => {
-            const executionResult = runPythonCode(code);
+            const executionResult = executePython(code);
             assert(executionResult.success);
         });
     });
@@ -287,7 +287,7 @@ describe(pluginName, function () {
         });
 
         it('should run generated code without errors', () => {
-            const exectionResult = runPythonCode(code);
+            const exectionResult = executePython(code);
             assert(exectionResult.success);
         });
 

@@ -43,10 +43,7 @@ testFixture.ARCHITECTURE = {
     Seq2Seq: '/4'
 };
 
-// Execute python code as a spawned child process synchronously
-// CodeBlock is python code
-testFixture.runPythonCode = function (codeBlock) {
-    // spawnSync NodeJS.
+testFixture.executePython = function (codeBlock) {
     const processOutput = spawnSync('python3', ['-', `<<EOF\n${codeBlock}\nEOF`], {
         shell: '/bin/bash'
     });
