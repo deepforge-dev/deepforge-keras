@@ -3,11 +3,11 @@ services: mongodb
 sudo: true
 before_install:
   - sudo apt-get update -q
-  - sudo apt-get install python3-pip python-dev -y
+  - sudo apt-get install python3-pip -y
   - pip3 install -U setuptools
   - pip3 install -U virtualenvwrapper
 install:
-  - nvm install-latest-npm
+  - npm install -g npm
   - npm install
   - pip3 install -r requirements.txt
 node_js:

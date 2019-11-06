@@ -6,21 +6,19 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
-describe('python-test', function () {
-    it('Should find python 3', (done) => {
-        const processOutput = spawnSync(`python3`, ['-c', `"print('hello world')";`]);
-        assert(processOutput.status === 0);
-        done();
+describe('python', function () {
+    it('should find python 3.5', () => {
+        const processOutput = spawnSync('python3', ['-c', `import sys; assert sys.version[0:3] == '3.5'`]);
+        assert.equal(processOutput.status, 0);
     });
 
-    describe('requirements-test', function() {
-        let requirements = fs.readFileSync(path.join(__dirname, '..', '..', 'requirements.txt'),
-            {encoding: 'utf-8'}).split('\n').filter((val) => val);
+    describe('requirements', function() {
+        const requirements = fs.readFileSync(path.join(__dirname, '..', '..', 'requirements.txt'),'utf-8').split('\n')
+            .map(line => line.trim()).filter(line => !!line);
         requirements.forEach((req) => {
-            it(`Should be able to import package ${req}`, (done) =>{
+            it(`should be able to import package ${req}`, () =>{
                 const processOutput = spawnSync(`python3`, ['-c', `"import ${req}";`]);
-                assert(processOutput.status === 0);
-                done();
+                assert.equal(processOutput.status, 0);
             });
         });
     });
