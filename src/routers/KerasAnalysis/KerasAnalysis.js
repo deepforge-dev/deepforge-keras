@@ -53,40 +53,36 @@ function initialize(middlewareOpts) {
     // Use ensureAuthenticated if the routes require authentication. (Can be set explicitly for each route.)
     router.use('*', ensureAuthenticated);
 
-    router.get('/:projectId/:commitHash/:nodeId', function (req, res/*, next*/) {
+    router.get('/:projectId/:commitHash/:nodeId', async function (req, res/*, next*/) {
         // Make sure the user has permission to view the project
         const userId = getUserId(req);
         const authOpts = {entityType: authorizer.ENTITY_TYPES.PROJECT};
         const {projectId, commitHash, nodeId} = req.params;
+        const {namespace} = req.query;
         const reqName = `${nodeId} in ${projectId} at ${commitHash}`;
         logger.debug(`Requesting analysis for ${reqName}`);
 
-        return authorizer.getAccessRights(userId, projectId, authOpts)
-            .then(() => authorizer.getAccessRights(userId, projectId, authOpts))
-            .then(accessRights => {
-                if (!accessRights.read) {
-                    logger.debug(`Permission denied: ${userId} cannot read ${projectId}`);
-                    return res.status(403).send('Permission denied');
-                }
+        await authorizer.getAccessRights(userId, projectId, authOpts);
+        const accessRights = await authorizer.getAccessRights(userId, projectId, authOpts);
+        if (!accessRights.read) {
+            logger.debug(`Permission denied: ${userId} cannot read ${projectId}`);
+            return res.status(403).send('Permission denied');
+        }
 
-                return getFromCache(middlewareOpts.gmeConfig, projectId, commitHash, nodeId)
-                    .then(cachedResults => {
-                        if (cachedResults) {
-                            logger.debug(`Retrieved analysis results from cache (${reqName})`);
-                            return res.json(cachedResults.data);
-                        } else {
-                            return analyzeSubmodel(userId, projectId, commitHash, nodeId)
-                                .then(results => {
-                                    res.json(results);
-                                    return addToCache(projectId, commitHash, nodeId, results);
-                                });
-                        }
-                    })
-                    .catch(err => {
-                        logger.error(err);
-                        res.status(500).send(err);
-                    });
-            });
+        const cachedResults = await getFromCache(
+            middlewareOpts.gmeConfig,
+            projectId,
+            commitHash,
+            nodeId
+        );
+        if (cachedResults) {
+            logger.debug(`Retrieved analysis results from cache (${reqName})`);
+            return res.json(cachedResults.data);
+        } else {
+            const results = await analyze(userId, projectId, commitHash, namespace, nodeId);
+            res.json(results);
+            return await addToCache(projectId, commitHash, nodeId, results);
+        }
     });
 
     logger.debug('ready');
@@ -131,7 +127,7 @@ function spawn(cmd, args) {
     return deferred.promise;
 }
 
-async function analyzeSubmodel(userId, projectId, commitHash, nodeId) {
+async function analyze(userId, projectId, commitHash, namespace, nodeId) {
     const tmpdir = path.join(os.tmpdir(), `deepforge-keras-${commitHash}_${nodeId.split('/').join('-')}`);
     const pythonFile = path.join(tmpdir, 'output.py');
 
@@ -149,11 +145,13 @@ async function analyzeSubmodel(userId, projectId, commitHash, nodeId) {
         userId,
         '--activeNode',
         nodeId,
-        '--namespace',
-        'keras',
         '-w',
         path.relative(process.cwd(), tmpdir)
     ];
+
+    if (namespace) {
+        args.push('--namespace', namespace);
+    }
 
     logger.debug(`about to make tmpdir ${tmpdir}`);
     // only make dir if doesn't exist

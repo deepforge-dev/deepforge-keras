@@ -934,15 +934,24 @@ define([
         this.getLatestAnalysis();
     };
 
-    KerasArchEditorControl.prototype.getLatestAnalysis = function() {
+    KerasArchEditorControl.prototype.getAnalysisURL = function(projectId, commit, namespace, nodeId) {
+        const url = `/routers/KerasAnalysis/${projectId}/${commit}/${nodeId}`;
+        if (namespace) {
+            return `${url}?namespace=${namespace}`;
+        }
+        return url;
+    };
+
+    KerasArchEditorControl.prototype.getLatestAnalysis = async function() {
         const projectId = encodeURIComponent(this._client.getProjectInfo()._id);
         const commit = encodeURIComponent(this._client.getActiveCommitHash());
+        const namespace = this._client.getLibraryNames().find(name => name === 'keras');
         const nodeId = encodeURIComponent(this._currentNodeId);
 
-        // get the analysis
         if (nodeId) {  // (no analysis for the root node)
-            return this.request(`/routers/KerasAnalysis/${projectId}/${commit}/${nodeId}`)
-                .then(results => this._widget.showAnalysisResults(results));
+            const url = this.getAnalysisURL(projectId, commit, namespace, nodeId);
+            const results = await this.request(url);
+            this._widget.showAnalysisResults(results);
         }
     };
 
