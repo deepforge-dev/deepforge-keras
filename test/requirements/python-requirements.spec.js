@@ -8,8 +8,9 @@ const path = require('path');
 
 describe('python', function () {
     it('should find python 3.5', () => {
-        const processOutput = spawnSync('python3', ['-c', `import sys; assert sys.version[0:3] == '3.5'`]);
-        assert.equal(processOutput.status, 0);
+        const processOutput = spawnSync('python3', ['-c', `import sys; print(sys.version[0:3])`]);
+        const pythonVersion = processOutput.stdout.toString().trim();
+        assert.equal(pythonVersion, '3.5', `Expected python version 3.5 but found ${pythonVersion}`);
     });
 
     describe('requirements', function() {
