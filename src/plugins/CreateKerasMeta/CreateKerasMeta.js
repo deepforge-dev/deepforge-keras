@@ -7,59 +7,22 @@ define([
     'common/util/guid',
     'underscore',
     'q',
-
-    'text!./additional-layers.json',
-    'text!deepforge-keras/schemas/activations.json',
-    'text!deepforge-keras/schemas/initializers.json',
-    'text!deepforge-keras/schemas/constraints.json',
-    'text!deepforge-keras/schemas/regularizers.json',
-    'text!deepforge-keras/schemas/layers.json',
-    'text!./metadata.json'
+    './schemas/index',
+    'text!./metadata.json',
 ], function (
     Constants,
     PluginBase,
     generateGuid,
     _,
     Q,
-    AdditionalLayerTxt,
-    ActivationsTxt,
-    InitializersTxt,
-    ConstraintsTxt,
-    RegularizersTxt,
-    LayerTxt,
-    pluginMetadata
+    Schemas,
+    pluginMetadata,
 ) {
     'use strict';
 
     pluginMetadata = JSON.parse(pluginMetadata);
-    const TYPES = {
-        activation: JSON.parse(ActivationsTxt),
-        constraint: JSON.parse(ConstraintsTxt),
-        regularizer: JSON.parse(RegularizersTxt),
-        initializer: JSON.parse(InitializersTxt)
-    };
-    const AdditionalLayers = JSON.parse(AdditionalLayerTxt);
-    const ALL_LAYERS = JSON.parse(LayerTxt).concat(AdditionalLayers)
-        .map(layer => {  // apply any special case patching
-            if (layer.name === 'Wrapper') {
-                layer.arguments[1].type = 'Layer';
-            }
-            if (layer.name === 'Bidirectional') {
-                layer.arguments[1].type = 'Recurrent';
-            }
-
-            if (layer.arguments) {
-                const typeNames = Object.keys(TYPES);
-                layer.arguments.forEach(argument => {
-                    if (!argument.type) {
-                        argument.type = typeNames
-                            .find(name => argument.name.includes(name));
-                    }
-                });
-            }
-            return layer;
-        });
-    const LAYERS = ALL_LAYERS.filter(schema => !schema.abstract);
+    const {SpecialTypes, Layers} = Schemas;
+    const ConcreteLayers = Layers.filter(schema => !schema.abstract);
     const DEFAULT_META_TAB = 'META';
 
     /**
@@ -101,7 +64,7 @@ define([
         this.nodes = {};
 
         return this.prepareMetaModel()
-            .then(() => this.createCategories(LAYERS))
+            .then(() => this.createCategories(ConcreteLayers))
             .then(() => this.createFunctionNodes())
             .then(() => this.updateNodes())
             .then(() => this.save('CreateKerasMeta updated metamodel.'))
@@ -141,7 +104,7 @@ define([
     };
 
     CreateKerasMeta.prototype.getSpecialTypeNames = function () {
-        return Object.keys(TYPES).map(CreateKerasMeta.capitalize);
+        return Object.keys(SpecialTypes).map(CreateKerasMeta.capitalize);
     };
 
     CreateKerasMeta.prototype.getSpecialTypeBaseName = function (type) {
@@ -152,7 +115,7 @@ define([
     CreateKerasMeta.prototype.getCategories = function (schemas) {
         let content = {};
 
-        schemas = schemas || LAYERS;
+        schemas = schemas || ConcreteLayers;
         schemas.forEach(layer => {
             var type = this.getBaseName(layer.file);
             content[type] = true;
@@ -170,7 +133,7 @@ define([
         let specialTypes = this.getSpecialTypeNames();
         // Activation functions nodes
         specialTypes.forEach(type => {
-            TYPES[type.toLowerCase()].forEach(schema => {
+            SpecialTypes[type.toLowerCase()].forEach(schema => {
                 this.logger.debug(`adding "${schema.name}" layer`);
                 let baseName = this.getSpecialTypeBaseName(type);
                 let node = this.createMetaLayer(schema, baseName, baseName);
@@ -222,11 +185,11 @@ define([
     };
 
     CreateKerasMeta.prototype.updateNodes = function () {
-        return Q.all(LAYERS.map(schema => this.updateNode(schema)));
+        return Q.all(ConcreteLayers.map(schema => this.updateNode(schema)));
     };
 
     CreateKerasMeta.prototype.getLayerSchema = function (name) {
-        return ALL_LAYERS.find(layer => layer.name === name);
+        return Layers.find(layer => layer.name === name);
     };
 
     CreateKerasMeta.prototype.updateNode = function (layer) {
@@ -426,9 +389,9 @@ define([
             return layer[prop];
         }
 
-        for (let i = ALL_LAYERS.length; i--;) {
-            if (layer.base === ALL_LAYERS[i].name) {
-                return layer[prop] || this.getLayerProperty(ALL_LAYERS[i], prop);
+        for (let i = Layers.length; i--;) {
+            if (layer.base === Layers[i].name) {
+                return layer[prop] || this.getLayerProperty(Layers[i], prop);
             }
         }
         return null;
@@ -528,7 +491,7 @@ define([
         var type = schema.type;
 
         // Check if it should be a pointer or an attribute
-        if (TYPES[type]) {  // look up node for special types
+        if (SpecialTypes[type]) {  // look up node for special types
             type = this.getSpecialTypeBaseName(type);
         }
 
@@ -580,7 +543,7 @@ define([
 
     // Helpers for testing
     CreateKerasMeta.prototype.getSchemas = function () {
-        return LAYERS;
+        return ConcreteLayers;
     };
 
     CreateKerasMeta.capitalize = function (str) {
