@@ -9,6 +9,7 @@ if (!process.argv[2]) {
 const path = require('path');
 const fs = require('fs');
 const layerParser = require('../src/common/layer-parser');
+const outputDir = path.join('src', 'plugins', 'CreateKerasMeta', 'schemas');
 
 saveTypes('activations');
 saveTypes('regularizers');
@@ -36,17 +37,17 @@ let inputLayer = layerParser.parseFnLayers(fs.readFileSync(topologyFile, 'utf8')
 
 schemas.push(inputLayer);
 
-let outputDir = 'src/common/schemas/layers.json';
-saveJson(schemas, outputDir);
-console.log(`Found ${schemas.length} layers. Saved schema to ${outputDir}`);
+let outputPath = path.join(outputDir, 'layers.json');
+saveJson(schemas, outputPath);
+console.log(`Found ${schemas.length} layers. Saved schema to ${outputPath}`);
 
 function saveTypes(typeName) {
-    let outputDir = `src/common/schemas/${typeName}.json`;
+    let outputPath = path.join(outputDir, typeName + '.json');
     let sourceFile = path.join(process.argv[2], 'keras', `${typeName}.py`);
     let initTypes = layerParser[typeName].parse(fs.readFileSync(sourceFile, 'utf8'), `keras/${typeName}.py`);
 
-    saveJson(initTypes, outputDir);
-    console.log(`Detected ${initTypes.length} ${typeName}. Saved to ${outputDir}`);
+    saveJson(initTypes, outputPath);
+    console.log(`Detected ${initTypes.length} ${typeName}. Saved to ${outputPath}`);
 }
 
 function saveJson(json, unixPath) {
