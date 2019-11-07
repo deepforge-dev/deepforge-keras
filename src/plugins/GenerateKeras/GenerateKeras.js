@@ -408,13 +408,13 @@ define([
                 return `${type}.${target.name}(${args})`;
             }
         } else if (rawArgType === 'string'){
-            // Trim whitespace
-            value = value.replace(/^\s*/, '').replace(/\s*$/, '');
+            value = value.trim();
             const isBool = /^(True|False)$/;
             const isNumber = /^\d*\.?(e|e-)?\d*$/;
             const isTuple = /^\(/;
+            const isList = /^\[/;
             const isString = text => !isTuple.test(text) && !isBool.test(text) &&
-                !isNumber.test(text) && text !== 'None';
+                !isNumber.test(text) && !isList.test(text) && text !== 'None';
 
             if (isString(value)) {
                 value = `"${value.replace(/"/g, '\\"')}"`;
