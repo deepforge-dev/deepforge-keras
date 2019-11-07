@@ -1,4 +1,3 @@
-/*globals requireJS*/
 /*eslint-env node, mocha*/
 'use strict';
 
@@ -11,7 +10,6 @@ describe('Imported JSON to Code', function () {
         assert = require('assert'),
         gmeConfig = testFixture.getGmeConfig(),
         executePython = testFixture.executePython,
-        expect = testFixture.expect,
         path = testFixture.path,
         logger = testFixture.logger.fork('ImportedArchitectureToCode'),
         PluginCliManager = testFixture.WebGME.PluginCliManager,
@@ -65,42 +63,42 @@ describe('Imported JSON to Code', function () {
         await gmeAuth.unload();
     });
 
-    const modelsToTest = fs.readdirSync(JSON_DIR).filter((targetFile) => {
-        return targetFile.endsWith('.json');
-    });
+    // let modelsToTest = fs.readdirSync(JSON_DIR).filter((targetFile) => {
+    //     return targetFile.endsWith('.json');
+    // });
+
+    let modelsToTest = ['sequential_dense.json'];
 
     modelsToTest.forEach((modelJSON) => {
         describe(`Import JSON and generate Code For ${modelJSON}`, function () {
             let generatedCode;
             before(async function () {
-                generatedCode = await importJSONAndGetGeneratedCode(modelJSON);
+                generatedCode = await ImportJSONAndGetGeneratedCode(modelJSON);
             });
 
             it(`should run the python code generated for ${modelJSON}`, () => {
-                 let execResult = executePython(generatedCode);
-                 // assert(execResult.success);
-            })
-        })
+                let execResult = executePython(generatedCode);
+                assert(execResult.success);
+            }).timeout(5000);
+        });
     });
 
 
     // This function runs ImportKeras, followed by GenerateKeras
-    const importJSONAndGetGeneratedCode = async function(fileName){
+    const ImportJSONAndGetGeneratedCode = async function(fileName){
         let executePlugin = promisify(manager.executePlugin),
             pluginConfig = {},
             context = {
                 project: project,
                 activeNode: '',
                 branchName: 'test',
+                commitHash: commitHash,
                 namespace: ''
             };
         let data = fs.readFileSync(path.join(JSON_DIR, fileName), 'utf-8');
 
-        assert(data !== null);
         pluginConfig.srcModel = await blobClient.putFile(fileName, data);
-        let importJSONPluginResult = await executePlugin(ImportPluginName, pluginConfig, context);
-
-        assert(importJSONPluginResult.success);
+        await executePlugin(ImportPluginName, pluginConfig, context);
 
         let newBranchHash = await project.getBranchHash('test');
         commitHash = newBranchHash;
@@ -108,11 +106,8 @@ describe('Imported JSON to Code', function () {
 
         let newRootNode = await importPlugin.core.loadRoot(newCommitObj.root);
         const addedArchitectureNode = (await importPlugin.core.loadChildren(newRootNode)).filter((node) => {
-           return importPlugin.core.getAttribute(node, 'name') === fileName.replace('.json', '');
+            return importPlugin.core.getAttribute(node, 'name') === fileName.replace('.json', '');
         })[0];
-        assert(addedArchitectureNode);
-
-        assert(importPlugin.core.getBase(addedArchitectureNode), importPlugin.META['Architecuture']);
 
         context = {
             project: project,
@@ -121,9 +116,11 @@ describe('Imported JSON to Code', function () {
             activeNode: importPlugin.core.getPath(addedArchitectureNode),
             namespace: ''
         };
-        // pluginConfig = {};
-        //
-        // let generateCodePluginResult = await executePlugin(CodeGenerationPluginName, pluginConfig, context);
-        // assert(generateCodePluginResult.success)
+        pluginConfig = {};
+        let generateCodePluginResult = await executePlugin(CodeGenerationPluginName, pluginConfig, context);
+        assert(generateCodePluginResult.success);
+        const codeHash = generateCodePluginResult.artifacts[0];
+        const codeObj = await blobClient.getObject(codeHash);
+        return String.fromCharCode.apply(null, new Uint8Array(codeObj));
     };
 });
