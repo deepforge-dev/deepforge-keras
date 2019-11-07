@@ -141,43 +141,33 @@ define([
             ` has following configurable attributes ${allPointerNames.join(', ')}`);
         allPointerNames.filter(pointer => !!config[pointer])
             .forEach((pointer) => {
-                if (typeof config[pointer] == 'string') {
-                    this._addStringPropertiesNode(layerNode, config, pointer);
-                } else {
-                    this._addPluggableNodes(layerNode, config, pointer);
-                }
+                let node = this._addFunctionNode(layerNode, config, pointer);
+                this.core.setPointer(layerNode, pointer, node);
+                this.logger.debug(`Added ${this.core.getAttribute(node, 'name')}`
+                    + ` as ${pointer} to the layer `
+                    + `${this.core.getAttribute(layerNode, 'name')}`);
             });
     };
 
-    ImportKeras.prototype._addStringPropertiesNode = function(layerNode, config, pointer) {
+
+    ImportKeras.prototype._addFunctionNode = function (layerNode, config, pointer){
+        const baseNodeName = (typeof config[pointer] === 'string' ? config[pointer] : config[pointer].class_name);
         let configurableNode = this.core.createNode({
             parent: layerNode,
-            base: this.META[config[pointer]]
+            base: this.META[this._getMetaTypeForClass(baseNodeName)]
         });
-        // This will set the necessary pointers.
-        // Of things like activations and so on...
-        this.core.setPointer(layerNode, pointer, configurableNode);
-        this.logger.debug(`Added ${this.core.getAttribute(configurableNode, 'name')}`
-            + ` as ${pointer} to the layer `
-            + `${this.core.getAttribute(layerNode, 'name')}`);
-    };
-
-    ImportKeras.prototype._addPluggableNodes = function (layerNode, config, pointer){
-        let pluggableNode = this.core.createNode({
-            parent: layerNode,
-            base: this.META[config[pointer].class_name]
-        });
-        this.logger.debug(`Added ${this.core.getAttribute(pluggableNode, 'name')} as` +
+        this.logger.debug(`Added ${this.core.getAttribute(configurableNode, 'name')} as` +
             ` ${pointer} to the layer ${this.core.getAttribute(layerNode, 'name')}`);
-        let validArgumentsForThisNode = this.core.getValidAttributeNames(pluggableNode);
+        let validArgumentsForThisNode = this.core.getValidAttributeNames(configurableNode);
         let configForAddedNode = config[pointer].config;
         if (validArgumentsForThisNode && configForAddedNode) {
             validArgumentsForThisNode.forEach((arg) => {
                 if (configForAddedNode[arg])
-                    this.core.setAttribute(pluggableNode, arg,
+                    this.core.setAttribute(configurableNode, arg,
                         this._toPythonType(configForAddedNode[arg]));
             });
         }
+        return configurableNode;
     };
 
     // This method is used to convert javascript arrays/booleans to a
@@ -188,9 +178,9 @@ define([
             return 'None';
         }
         if (obj instanceof Array) {
-            return '[' + obj.map((val) => {
+            return '(' + obj.map((val) => {
                 return this._toPythonType(val);
-            }).join(', ') + ']';
+            }).join(', ') + ')';
         } else if (typeof obj === 'boolean') {
             return obj ? 'True' : 'False';
         } else {

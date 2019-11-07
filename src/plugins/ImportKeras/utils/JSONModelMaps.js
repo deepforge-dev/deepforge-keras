@@ -3,7 +3,8 @@ define([], function() {
     const ModelMaps = {};
 
     ModelMaps.CLASS_MAP = {
-        InputLayer: 'Input'
+        InputLayer: 'Input',
+        L1L2: 'l1_l2'
     };
 
     ModelMaps.ARGUMENTS_MAP = {
