@@ -84,7 +84,9 @@ describe('Imported JSON to Code', function () {
     });
 
 
-    // This function runs ImportKeras, followed by GenerateKeras
+    /** This function runs ImportKeras, followed by GenerateKeras
+     * @return {string}
+     */
     const ImportJSONAndGetGeneratedCode = async function(fileName){
         let executePlugin = promisify(manager.executePlugin),
             pluginConfig = {},
