@@ -5,13 +5,17 @@ define([
 ], function(
     diff,
 ) {
+    const Constants = {
+        META_ASPECT_SET_NAME: 'MetaAspectSet',
+    };
+
     class Importer {
         constructor(core, rootNode) {
             this.core = core;
             this.rootNode = rootNode;
         }
 
-        async toJSON (node) {
+        async toJSON (node, shallow=false) {
             const json = {
                 id: this.core.getGuid(node),
                 attributes: {},
@@ -67,27 +71,17 @@ define([
                 });
             });
 
-            const children = await this.core.loadChildren(node);
-            for (let i = 0; i < children.length; i++) {
-                json.children.push(await this.toJSON(children[i]));
+            if (!shallow) {
+                const children = await this.core.loadChildren(node);
+                for (let i = 0; i < children.length; i++) {
+                    json.children.push(await this.toJSON(children[i]));
+                }
             }
 
             return json;
         }
 
         async apply (node, state) {
-            const current = await this.toJSON(node);
-            const changes = compare(current, state);
-
-            // TODO: Sort the changes? pointer_meta > sets > member_attributes/registry
-            for (let i = 0; i < changes.length; i++) {
-                if (changes[i].type === 'put') {
-                    await this._put(node, changes[i]);
-                } else if (changes[i].type === 'del') {
-                    await this._delete(node, changes[i]);
-                }
-            }
-
             const children = state.children || [];
             const currentChildren = await this.core.loadChildren(node);
             for (let i = 0; i < children.length; i++) {
@@ -102,6 +96,18 @@ define([
                 await this.apply(child, children[i]);
             }
 
+            const current = await this.toJSON(node);
+            const changes = compare(current, state);
+
+            // TODO: Sort the changes? pointer_meta > sets > member_attributes/registry
+            for (let i = 0; i < changes.length; i++) {
+                if (changes[i].type === 'put') {
+                    await this._put(node, changes[i]);
+                } else if (changes[i].type === 'del') {
+                    await this._delete(node, changes[i]);
+                }
+            }
+
             for (let i = currentChildren.length; i--;) {
                 this.core.deleteNode(currentChildren[i]);
             }
@@ -110,6 +116,12 @@ define([
         async findNode(parent, id) {
             if (id === undefined) {
                 return;
+            }
+            assert(typeof id === 'string');
+
+            const isGMEPath = id.startsWith('/');
+            if (isGMEPath) {
+                return await this.core.loadByPath(this.rootNode, id);
             }
 
             const [tag, value] = id.split(':');
@@ -121,15 +133,41 @@ define([
                 const children = await this.core.loadChildren(parent);
                 return children
                     .find(child => this.core.getAttribute(child, 'name') === value);
+
             } else {
                 throw new Error(`Unknown tag: ${tag}`);
             }
         }
 
-        async createNode(parent/*, id*/) {
+        async getNode(parent, id) {
+            const node = await this.findNode(parent, id);
+            if (!node) {
+                throw new Error(`Could not resolve ${id} to an existing node.`);
+            }
+            return node;
+        }
+
+        async getNodeId(parent, id) {
+            const node = await this.getNode(parent, id);
+            return this.core.getPath(node);
+        }
+
+        async createNode(parent, id) {
             const fco = await this.core.loadByPath(this.rootNode, '/1');
-            // TODO: Apply any special rules based on the rule?
-            return this.core.createNode({base: fco, parent});
+            const node = this.core.createNode({base: fco, parent});
+
+            // Apply any special rules based on the tag (name, meta, etc)
+            const [tag, value] = id ? id.split(':') : [];
+            if (tag === '@name') {
+                this.core.setAttribute(node, 'name', value);
+            } else if (tag === '@meta') {
+                this.core.setAttribute(node, 'name', value);
+                this.core.addMember(this.rootNode, Constants.META_ASPECT_SET_NAME, node);
+                const meta = await this.core.getAllMetaNodes(this.rootNode);
+                assert(meta[this.core.getPath(node)], 'New node not in the meta');
+            }
+
+            return node;
         }
 
         async _put (node, change) {
@@ -203,7 +241,7 @@ define([
             `Invalid key for pointer: ${change.key.slice(1).join(', ')}`
         );
         const [/*type*/, name] = change.key;
-        const target = await this.core.loadByPath(this.rootNode, change.value);
+        const target = await this.getNode(node, change.value);
         this.core.setPointer(node, name, target);
     };
 
@@ -232,7 +270,7 @@ define([
 
             for (let i = targets.length; i--;) {
                 const [nodeId, meta] = targets[i];
-                const target = await this.core.loadByPath(this.rootNode, nodeId);
+                const target = await this.getNode(node, nodeId);
                 this.core.setPointerMetaTarget(node, name, target, meta.min, meta.max);
             }
         } else if (['min', 'max'].includes(idOrMinMax)) {
@@ -244,7 +282,7 @@ define([
             setNested(meta, change.key.slice(2), change.value);
 
             const targetMeta = meta[idOrMinMax];
-            const target = await this.core.loadByPath(this.rootNode, idOrMinMax);
+            const target = await this.getNode(node, idOrMinMax);
             this.core.setPointerMetaTarget(node, name, target, targetMeta.min, targetMeta.max);
         }
     };
@@ -267,14 +305,11 @@ define([
             const memberPaths = change.value;
 
             for (let i = 0; i < memberPaths.length; i++) {
-                const member = await this.core.loadByPath(
-                    this.rootNode,
-                    memberPaths[i]
-                );
+                const member = await this.getNode(node, memberPaths[i]);
                 this.core.addMember(node, name, member);
             }
         } else {
-            const member = await this.core.loadByPath(this.rootNode, change.value);
+            const member = await this.getNode(node, change.value);
             this.core.addMember(node, name, member);
         }
     };
@@ -290,17 +325,24 @@ define([
         }
     };
 
-    Importer.prototype._put.member_attributes = function(node, change) {
+    Importer.prototype._put.member_attributes = async function(node, change) {
         const [/*type*/, set, nodeId, name] = change.key;
+        const isNewSet = nodeId === undefined;
         const isNewMember = name === undefined;
-        if (isNewMember) {
-            const attrs = Object.entries(change.value);
-            attrs.forEach(attr => {
-                const [name, value] = attr;
-                this.core.setMemberAttribute(node, set, nodeId, name, value);
-            });
+        if (isNewSet || isNewMember) {
+            const changesets = Object.entries(change.value)
+                .map(entry => ({
+                    type: 'put',
+                    key: change.key.concat([entry[0]]),
+                    value: entry[1],
+                }));
+
+            for (let i = changesets.length; i--;) {
+                await this._put(node, changesets[i]);
+            }
         } else {
-            this.core.setMemberAttribute(node, set, nodeId, name, change.value);
+            const gmeId = await this.getNodeId(node, nodeId);
+            this.core.setMemberAttribute(node, set, gmeId, name, change.value);
         }
     };
 
@@ -315,23 +357,30 @@ define([
         });
     };
 
-    Importer.prototype._put.member_registry = function(node, change) {
+    Importer.prototype._put.member_registry = async function(node, change) {
         const [/*type*/, set, nodeId, name] = change.key;
+        const isNewSet = nodeId === undefined;
         const isNewMember = name === undefined;
-        if (isNewMember) {
-            const regs = Object.entries(change.value);
-            regs.forEach(reg => {
-                const [name, value] = reg;
-                this.core.setMemberRegistry(node, set, nodeId, name, value);
-            });
+        if (isNewSet || isNewMember) {
+            const changesets = Object.entries(change.value)
+                .map(entry => ({
+                    type: 'put',
+                    key: change.key.concat([entry[0]]),
+                    value: entry[1],
+                }));
+
+            for (let i = changesets.length; i--;) {
+                await this._put(node, changesets[i]);
+            }
         } else {
+            const gmeId = await this.getNodeId(node, nodeId);
             const isNested = change.key.length > 4;
             if (isNested) {
-                const value = this.core.getMemberRegistry(node, set, nodeId, name);
+                const value = this.core.getMemberRegistry(node, set, gmeId, name);
                 setNested(value, change.key.slice(4), change.value);
-                this.core.setMemberRegistry(node, set, nodeId, name, value);
+                this.core.setMemberRegistry(node, set, gmeId, name, value);
             } else {
-                this.core.setMemberRegistry(node, set, nodeId, name, change.value);
+                this.core.setMemberRegistry(node, set, gmeId, name, change.value);
             }
         }
     };

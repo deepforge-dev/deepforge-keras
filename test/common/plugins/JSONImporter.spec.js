@@ -72,6 +72,18 @@ describe('JSONImporter', function () {
             assert.equal(core.getAttribute(node, 'name'), 'hello world!');
         });
 
+        it('should set attributes using @name', async function() {
+            const rootSchema = await importer.toJSON(root);
+            rootSchema.children = [
+                {
+                    id: '@name:FCO',
+                    attributes: {name: 'NewName'},
+                }
+            ];
+            await importer.apply(root, rootSchema);
+            assert.equal(core.getAttribute(node, 'name'), 'NewName');
+        });
+
         it('should delete attributes', async function() {
             delete original.attributes.name;
             await importer.apply(node, original);
@@ -151,6 +163,13 @@ describe('JSONImporter', function () {
             it('should add pointer', async function() {
                 const nodePath = core.getPath(node2);
                 original.pointers.newPtr = nodePath;
+                await importer.apply(node, original);
+                assert.equal(core.getPointerPath(node, 'newPtr'), nodePath);
+            });
+
+            it('should add pointer using @meta tag', async function() {
+                const nodePath = core.getPath(node);
+                original.pointers.newPtr = `@meta:FCO`;
                 await importer.apply(node, original);
                 assert.equal(core.getPointerPath(node, 'newPtr'), nodePath);
             });
@@ -451,6 +470,21 @@ describe('JSONImporter', function () {
                 const nodeId = core.getPath(node3);
                 original2.children.push({
                     attributes: {name: 'NewChild'},
+                    pointers: {base: nodeId}
+                });
+                await importer.apply(node2, original2);
+                const children = await core.loadChildren(node2);
+                assert.equal(children.length, 1);
+                assert.equal(
+                    core.getAttribute(children[0], 'name'),
+                    'NewChild'
+                );
+            });
+
+            it('should set name if tag not found', async function() {
+                const nodeId = core.getPath(node3);
+                original2.children.push({
+                    id: '@name:NewChild',
                     pointers: {base: nodeId}
                 });
                 await importer.apply(node2, original2);
