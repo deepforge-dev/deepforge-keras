@@ -24,5 +24,6 @@ ratings:
   - "**.rb"
 exclude_paths:
 - src/common/skulpt.min.js
+- src/common/plugins/changeset.js
 - src/visualizers/widgets/KerasArchEditor/lib
 - src/seeds
