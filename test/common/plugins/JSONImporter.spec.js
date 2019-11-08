@@ -551,4 +551,31 @@ describe('JSONImporter', function () {
             assert.equal(fco, undefined);
         });
     });
+
+    describe('import', function() {
+        let children;
+
+        before(async () => {
+            root = await getNewRootNode(core);
+            importer = new Importer(core, root);
+
+            const state = {attributes: {name: 'hello'}};
+            await importer.import(root, state);
+            children = await core.loadChildren(root);
+        });
+
+        it('should not apply changes to parent', function() {
+            assert.notEqual(core.getAttribute(root, 'name'), 'hello');
+        });
+
+        it('should create new node', async function() {
+            assert.equal(children.length, 2);
+        });
+
+        it('should apply changes to new node', async function() {
+            const newNode = children
+                .find(node => core.getAttribute(node, 'name') === 'hello');
+            assert(newNode);
+        });
+    });
 });

@@ -186,12 +186,11 @@ define([
             if (change.key.length > 1) {
                 return await this._delete[type].call(this, node, change);
             }
-
         }
 
-        import(parentNode, json) {
-            // TODO: Create a new node and apply the changes!
-            throw new Error('unimplemented');
+        async import(parent, state) {
+            const node = await this.createNode(parent);
+            await this.apply(node, state);
         }
     }
 
