@@ -22,8 +22,7 @@ define([
                 sets: {},
                 member_attributes: {},
                 member_registry: {},
-                children: (await this.core.loadChildren(node))
-                    .map(node => this.toJSON(node))
+                children: [],
             };
 
             this.core.getOwnAttributeNames(node).forEach(name => {
@@ -68,6 +67,11 @@ define([
                 });
             });
 
+            const children = await this.core.loadChildren(node);
+            for (let i = 0; i < children.length; i++) {
+                json.children.push(await this.toJSON(children[i]));
+            }
+
             return json;
         }
 
@@ -76,7 +80,6 @@ define([
             const changes = compare(current, state);
 
             // TODO: Sort the changes? pointer_meta > sets > member_attributes/registry
-            // TODO: Ignore them if they only have one key
             for (let i = 0; i < changes.length; i++) {
                 if (changes[i].type === 'put') {
                     await this._put(node, changes[i]);
@@ -84,6 +87,49 @@ define([
                     await this._delete(node, changes[i]);
                 }
             }
+
+            const children = state.children || [];
+            const currentChildren = await this.core.loadChildren(node);
+            for (let i = 0; i < children.length; i++) {
+                const child = (await this.findNode(node, children[i].id)) ||
+                    await this.createNode(node, children[i].id);
+
+                const index = currentChildren.indexOf(child);
+                if (index > -1) {
+                    currentChildren.splice(index, 1);
+                }
+
+                await this.apply(child, children[i]);
+            }
+
+            for (let i = currentChildren.length; i--;) {
+                this.core.deleteNode(currentChildren[i]);
+            }
+        }
+
+        async findNode(parent, id) {
+            if (id === undefined) {
+                return;
+            }
+
+            const [tag, value] = id.split(':');
+            if (tag === '@meta') {
+                const meta = await this.core.getAllMetaNodes(this.rootNode);
+                return Object.values(meta)
+                    .find(child => this.core.getAttribute(child, 'name') === value);
+            } else if (tag === '@name') {
+                const children = await this.core.loadChildren(parent);
+                return children
+                    .find(child => this.core.getAttribute(child, 'name') === value);
+            } else {
+                throw new Error(`Unknown tag: ${tag}`);
+            }
+        }
+
+        async createNode(parent/*, id*/) {
+            const fco = await this.core.loadByPath(this.rootNode, '/1');
+            // TODO: Apply any special rules based on the rule?
+            return this.core.createNode({base: fco, parent});
         }
 
         async _put (node, change) {
@@ -92,7 +138,6 @@ define([
                 throw new Error(`Unrecognized key ${type}`);
             }
             return await this._put[type].call(this, node, change);
-
         }
 
         async _delete (node, change) {
@@ -100,7 +145,9 @@ define([
             if (!this._delete[type]) {
                 throw new Error(`Unrecognized key ${type}`);
             }
-            return await this._delete[type].call(this, node, change);
+            if (change.key.length > 1) {
+                return await this._delete[type].call(this, node, change);
+            }
 
         }
 
@@ -279,7 +326,6 @@ define([
             });
         } else {
             const isNested = change.key.length > 4;
-            console.log(change);
             if (isNested) {
                 const value = this.core.getMemberRegistry(node, set, nodeId, name);
                 setNested(value, change.key.slice(4), change.value);

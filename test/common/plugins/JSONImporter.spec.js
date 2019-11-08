@@ -77,6 +77,12 @@ describe('JSONImporter', function () {
             await importer.apply(node, original);
             assert.equal(core.getAttribute(node, 'name'), undefined);
         });
+
+        it('should ignore attributes if missing "attributes"', async function() {
+            delete original.attributes;
+            await importer.apply(node, original);
+            assert.equal(core.getAttribute(node, 'name'), 'FCO');
+        });
     });
 
     describe('attribute meta', function() {
@@ -363,7 +369,7 @@ describe('JSONImporter', function () {
                     original2 = await importer.toJSON(node2);
                 });
 
-                it.only('should set member registry values', async function() {
+                it('should set member registry values', async function() {
                     original2.member_registry[setName][nodeId][regName] = 'world';
                     await importer.apply(node2, original2);
                     assert.equal(
@@ -438,6 +444,77 @@ describe('JSONImporter', function () {
                     );
                 });
             });
+        });
+
+        describe('child nodes', function() {
+            it('should create nodes', async function() {
+                const nodeId = core.getPath(node3);
+                original2.children.push({
+                    attributes: {name: 'NewChild'},
+                    pointers: {base: nodeId}
+                });
+                await importer.apply(node2, original2);
+                const children = await core.loadChildren(node2);
+                assert.equal(children.length, 1);
+                assert.equal(
+                    core.getAttribute(children[0], 'name'),
+                    'NewChild'
+                );
+            });
+
+            it('should match nodes existing nodes', async function() {
+                const newNode = core.createNode({base: node3, parent: node2});
+                core.setAttribute(newNode, 'name', 'NewChild');
+                original2.children.push({
+                    id: '@name:NewChild',
+                    attributes: {name: 'SomeNewName'},
+                });
+                await importer.apply(node2, original2);
+                const children = await core.loadChildren(node2);
+                assert.equal(children.length, 1);
+                assert.equal(
+                    core.getAttribute(children[0], 'name'),
+                    'SomeNewName'
+                );
+            });
+
+            it('should delete nodes not in json', async function() {
+                const newNode = core.createNode({base: node3, parent: node2});
+                core.setAttribute(newNode, 'name', 'NewChild');
+
+                const newNode2 = core.createNode({base: node3, parent: node2});
+                core.setAttribute(newNode2, 'name', 'NewChild2');
+
+                original2.children.push({
+                    id: '@name:NewChild',
+                    attributes: {name: 'SomeNewName'},
+                });
+
+                await importer.apply(node2, original2);
+                const children = await core.loadChildren(node2);
+                assert.equal(children.length, 1);
+                assert.equal(
+                    core.getAttribute(children[0], 'name'),
+                    'SomeNewName'
+                );
+            });
+        });
+    });
+
+    describe('findNode', function() {
+        it('should find nodes using @meta', async function() {
+            const fco = await importer.findNode(node, '@meta:FCO');
+            assert.equal(fco, node);
+        });
+
+        it('should find nodes using @name', async function() {
+            const fco = await importer.findNode(root, '@name:FCO');
+            assert.equal(fco, node);
+        });
+
+        it('should not find nodes outside parent', async function() {
+            const fco = await importer.findNode(node, '@name:FCO');
+            assert.equal(fco, undefined);
         });
     });
 });
