@@ -14,19 +14,10 @@ define([
 
     pluginMetadata = JSON.parse(pluginMetadata);
     const { exec } = require('child_process');
-    /**
-     * Initializes a new instance of ExportKeras.
-     * @class
-     * @augments {PluginBase}
-     * @classdesc This class represents the plugin ExportKeras.
-     * @constructor
-     */
     function ExportKeras() {
-        // Call base class' constructor.
         PluginBase.call(this);
         this.pluginMetadata = pluginMetadata;
         this.outputFileName = "";
-
     }
 
     ExportKeras.metadata = pluginMetadata;
@@ -92,7 +83,6 @@ define([
         code.push(`print('MODEL JSON STRING END')`);
 
         outputFiles[this.outputFileName] = await this.executePython(code.join('\n'));
-
         return outputFiles;
     };
 
