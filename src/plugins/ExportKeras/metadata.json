@@ -4,12 +4,20 @@
   "version": "0.1.0",
   "description": "",
   "icon": {
-    "class": "glyphicon glyphicon-cog",
+    "class": "glyphicon glyphicon-arrow-up",
     "src": ""
   },
   "disableServerSideExecution": false,
-  "disableBrowserSideExecution": false,
+  "disableBrowserSideExecution": true,
   "dependencies": [],
   "writeAccessRequired": false,
-  "configStructure": []
+  "configStructure": [
+    {
+      "name": "jsonFileName",
+      "displayName": "Save Name(.json)",
+      "description": "Keras Model JSON file name for the exported architecture",
+      "valueType": "string",
+      "readOnly": false
+    }
+  ]
 }
