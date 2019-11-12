@@ -5,7 +5,7 @@ Given a GME node and JSON, this utility will update the GME node to be equivalen
 
 The expected JSON is as follows:
 
-```json
+```javascript
 {
     id: "@meta:SomeMetaNode",
     attributes: {
@@ -57,4 +57,4 @@ In the above JSON, `id` can be one of the following:
 
 The rest of the fields correspond to the similarly named concepts in WebGME. For more information, check out https://webgme.readthedocs.io/en/latest/meta_modeling/meta_modeling_concepts.html (or the [source docs](https://editor.webgme.org/docs/source/Core.html) for usage with the Core).
 
-Example usage for this utility can be found in the [tests](test/common/plugins/JSONImporter.spec.js) and in the [CreateKerasMeta](src/plugins/CreateKerasMeta/CreateKerasMeta.js) plugin.
+Example usage for this utility can be found in the [tests](/test/common/plugins/JSONImporter.spec.js) and in the [CreateKerasMeta](/src/plugins/CreateKerasMeta/CreateKerasMeta.js) plugin.
