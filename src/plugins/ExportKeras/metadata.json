@@ -11,13 +11,5 @@
   "disableBrowserSideExecution": true,
   "dependencies": [],
   "writeAccessRequired": false,
-  "configStructure": [
-    {
-      "name": "jsonFileName",
-      "displayName": "Save Name(.json)",
-      "description": "Keras Model JSON file name for the exported architecture",
-      "valueType": "string",
-      "readOnly": false
-    }
-  ]
+  "configStructure": []
 }
