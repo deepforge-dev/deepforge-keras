@@ -85,10 +85,6 @@ define([
             'LayerInput',
             'LayerOutput',
             'Function',
-            'RegularizerFunction',
-            'ConstraintFunction',
-            'ActivationFunction',
-            'InitializerFunction',
         ];
         existingNodes.forEach(name => language.children.push(placeholder(name)));
 
@@ -104,31 +100,19 @@ define([
         return `${type}Function`;
     };
 
-    CreateKerasMeta.prototype.getCategories = function (schemas) {
-        let content = {};
-
-        schemas = schemas || ConcreteLayers;
-        schemas.forEach(layer => {
-            var type = this.getBaseName(layer.file);
-            content[type] = true;
-        });
-
-        // Add activation, constraint, etc, functions
-        let specialTypes = this.getSpecialTypeNames();
-        specialTypes
-            .map(type => this.getSpecialTypeBaseName(type))
-            .forEach(baseName => content[baseName] = true);
-        return Object.keys(content);
-    };
-
     CreateKerasMeta.prototype.createFunctionNodes = function (root) {
         const specialTypes = this.getSpecialTypeNames();
 
-        // Activation functions nodes
         specialTypes.forEach(type => {
+            const isActivation = type.toLowerCase() === 'activation';
             SpecialTypes[type.toLowerCase()].forEach(schema => {
                 this.logger.debug(`adding "${schema.name}" layer`);
                 const baseName = this.getSpecialTypeBaseName(type);
+
+                if (isActivation) {
+                    schema.arguments.shift();
+                }
+
                 const node = this.createMetaLayer(root, schema, baseName, baseName);
 
                 // Make the node non-abstract
@@ -144,18 +128,38 @@ define([
         });
     };
 
+    CreateKerasMeta.prototype.getLayerCategories = function (schemas) {
+        let content = {};
+
+        schemas = schemas || ConcreteLayers;
+        schemas.forEach(layer => {
+            var type = this.getBaseName(layer.file);
+            content[type] = true;
+        });
+        return Object.keys(content);
+    };
+
     CreateKerasMeta.prototype.createCategories = function (root, schemas) {
         // Get the categories
         // Create the category nodes
-        const categories = this.getCategories(schemas);
+        const categories = this.getLayerCategories(schemas);
 
-        categories
-            .forEach(name => {
-                this.metaSheets[name] = this.createMetaSheetTab(root, name);
-                this.logger.debug(`Creating category ${name}`);
-                const node = this.createMetaNode(root, name, '@meta:Layer', name);
-                node.registry.isAbstract = true;
-            });
+
+        // Add activation, constraint, etc, functions
+        categories.forEach(name => {
+            this.metaSheets[name] = this.createMetaSheetTab(root, name);
+            this.logger.debug(`Creating layer category ${name}`);
+            const node = this.createMetaNode(root, name, '@meta:Layer', name);
+            node.registry.isAbstract = true;
+        });
+
+        this.getSpecialTypeNames().forEach(type => {
+            const base = this.getSpecialTypeBaseName(type);
+            this.metaSheets[base] = this.createMetaSheetTab(root, base);
+            this.logger.debug(`Creating special type category ${base}`);
+            const node = this.createMetaNode(root, base, `@meta:Function`, base);
+            node.registry.isAbstract = true;
+        });
     };
 
     CreateKerasMeta.prototype.getBaseName = function (filename) {
@@ -214,7 +218,6 @@ define([
         // create a meta node for the given layer
         category = category || this.getBaseName(layer.file);
         baseName = baseName || this.getBaseName(layer.file);
-        if (!this.META[baseName]) baseName = 'Layer';
 
         const base = `@meta:${baseName}`;
         const node = this.createMetaNode(root, layer.name, base, category);
