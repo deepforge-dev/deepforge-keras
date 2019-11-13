@@ -17,7 +17,7 @@ define([
     function ExportKeras() {
         PluginBase.call(this);
         this.pluginMetadata = pluginMetadata;
-        this.outputFileName = "";
+        this.outputFileName = '';
     }
 
     ExportKeras.metadata = pluginMetadata;
@@ -29,7 +29,7 @@ define([
     ExportKeras.prototype.createOutputFiles = async function(activeNode){
         const files = PluginBase.prototype.createOutputFiles.call(this, activeNode);
         if(!this.outputFileName){
-            let fileName = this.getCurrentConfig().jsonFileName || "exported_architecture.json";
+            let fileName = this.getCurrentConfig().jsonFileName || 'exported_architecture.json';
             if(!fileName.endsWith('.json')){
                 fileName = `${fileName}.json`;
             }
@@ -49,7 +49,7 @@ define([
         return outputFiles;
     };
 
-    ExportKeras.prototype.executePython = function (code, pythonVersion="3.5") {
+    ExportKeras.prototype.executePython = function (code, pythonVersion='3.5') {
         const command = `python${pythonVersion} - <<EOF\n${code}\nEOF`;
         return new Promise((resolve, reject) => {
             exec(command, {

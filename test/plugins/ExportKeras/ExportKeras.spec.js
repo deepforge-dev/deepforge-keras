@@ -15,7 +15,6 @@ describe('ExportKeras', function () {
 
     let project,
         gmeAuth,
-        awaitableLoadObject,
         storage,
         commitHash,
         plugin;
@@ -34,7 +33,6 @@ describe('ExportKeras', function () {
         const importResult = await testFixture.importProject(storage, importParam);
         project = importResult.project;
         commitHash = importResult.commitHash;
-        awaitableLoadObject = promisify(project.loadObject);
 
         await project.createBranch('test', commitHash);
         plugin = await manager.initializePlugin(pluginName);
@@ -66,7 +64,7 @@ describe('ExportKeras', function () {
 
         const result = await awaitableExecutePlugin(pluginName, pluginConfig, context);
 
-        assert.equal(result.success, true, "Error, Plugin execution failed");
+        assert.equal(result.success, true, 'Error, Plugin execution failed');
         const jsonHash = result.artifacts[0];
         return await blobClient.getObjectAsJSON(jsonHash);
     }
@@ -77,8 +75,8 @@ describe('ExportKeras', function () {
         const layerClassNames = ['InputLayer', 'Activation', 'Dense', 'Dropout'];
 
         before(async function () {
-            modelJSON = await getGeneratedJSON(ARCHITECTURE.MultiArchOutputs);
             this.timeout(5000);
+            modelJSON = await getGeneratedJSON(ARCHITECTURE.MultiArchOutputs);
         });
 
         it('should match layer names and number of layers', function () {
@@ -105,8 +103,8 @@ describe('ExportKeras', function () {
         const layerClassNames = ['InputLayer', 'TimeDistributed'];
 
         before(async function () {
-            modelJSON = await getGeneratedJSON(ARCHITECTURE.NestedLayers);
             this.timeout(5000);
+            modelJSON = await getGeneratedJSON(ARCHITECTURE.NestedLayers);
         });
 
         it('should match layer names and number of layers', function () {
@@ -133,8 +131,8 @@ describe('ExportKeras', function () {
         const layerClassNames = ['InputLayer', 'InputLayer', 'LSTM', 'LSTM', 'Dense'];
 
         before(async function () {
-            modelJSON = await getGeneratedJSON(ARCHITECTURE.Seq2Seq);
             this.timeout(5000);
+            modelJSON = await getGeneratedJSON(ARCHITECTURE.Seq2Seq);
         });
 
         it('should match layer names and number of layers', function () {

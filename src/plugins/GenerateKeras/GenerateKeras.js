@@ -31,7 +31,6 @@ define([
         // Call base class' constructor.
         PluginBase.call(this);
         this.pluginMetadata = pluginMetadata;
-        const RESULT_VARIABLE_NAME = 'result';
         this.variableNames = {};
     };
 
