@@ -63,11 +63,11 @@ describe('Imported JSON to Code', function () {
         await gmeAuth.unload();
     });
 
-    // let modelsToTest = fs.readdirSync(JSON_DIR).filter((targetFile) => {
-    //     return targetFile.endsWith('.json');
-    // });
+    let modelsToTest = fs.readdirSync(JSON_DIR).filter((targetFile) => {
+        return targetFile.endsWith('.json');
+    });
 
-    let modelsToTest = ['sequential_dense.json'];
+    // let modelsToTest = ['sequential_dense.json'];
 
     modelsToTest.forEach((modelJSON) => {
         describe(`Import JSON and generate Code For ${modelJSON}`, function () {
