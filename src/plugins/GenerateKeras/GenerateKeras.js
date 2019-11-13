@@ -31,6 +31,7 @@ define([
         // Call base class' constructor.
         PluginBase.call(this);
         this.pluginMetadata = pluginMetadata;
+        const RESULT_VARIABLE_NAME = 'result';
         this.variableNames = {};
     };
 
@@ -112,6 +113,8 @@ define([
     };
 
     /* * * * * * * * Main Code Generation Logic * * * * * * * */
+    GenerateKeras.prototype.RESULT_VARIABLE_NAME = 'result';
+
     GenerateKeras.prototype.createOutputFiles = function(activeNode) {
         var outputFiles = {};
         var code;

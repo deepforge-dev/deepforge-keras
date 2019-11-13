@@ -4,7 +4,7 @@ define([
     'plugin/PluginConfig',
     'text!./metadata.json',
     'SimpleNodes/Constants',
-    '../GenerateKeras/GenerateKeras'
+    'plugin/GenerateKeras/GenerateKeras/GenerateKeras'
 ], function (
     PluginConfig,
     pluginMetadata,
@@ -27,8 +27,7 @@ define([
     ExportKeras.prototype.constructor = ExportKeras;
 
     ExportKeras.prototype.createOutputFiles = async function(activeNode){
-        var outputFiles = {};
-        var code;
+        const files = PluginBase.prototype.createOutputFiles.call(this, activeNode);
         if(!this.outputFileName){
             let fileName = this.getCurrentConfig().jsonFileName || "exported_architecture.json";
             if(!fileName.endsWith('.json')){
@@ -37,52 +36,16 @@ define([
             this.outputFileName = fileName;
         }
 
-        this.registerJsonNodes(activeNode);
+        let outputFiles = {};
+        let codeString = files['output.py'];
+        const modelJSONName = this.generateVariableName('model_json');
+        let code = codeString.split('\n');
 
-        const allLayers = activeNode[SimpleConstants.CHILDREN];
-        const layers = allLayers.filter(layer => layer.base.name !== 'Output');
-
-        this.variableNames = {};
-        this.customObjects = [];
-
-        // Add the inputs with the dimensions
-        var resultName = this.generateVariableName('result');
-        var modelName = this.generateVariableName('model');
-        let modelJSONName = this.generateVariableName('model_json');
-        var customObjs = this.generateVariableName('custom_objects');
-        code = layers.map(layer => this.generateLayerCode(layer));
-
-        // Define the custom_objects dict
         code.push('');
-        code.push(`${customObjs} = {}`);
-        code.unshift('');
-        this.customObjects.forEach(pair => {
-            let [name, def] = pair;
-            code.unshift(def);  // prepend definition
-            code.push(`${customObjs}['${name}'] = ${name}`);
-        });
-        code.push('');
-
-        // Import the layers
-        code.unshift('');
-        code.unshift('from keras.layers import *');
-        code.unshift('from keras.models import Model');
-        code.unshift('import keras');
-
-
-        // Return the model
-        const modelCtor = this.getModelIODefinition(allLayers);
-        code.push('');
-        code.push(`${modelName} = ${modelCtor}`);
-        code.push(`${resultName} = ${modelName}`);
-        code.push(`${modelName}.custom_objects = ${customObjs}`);
-        code.push(`${modelJSONName} = ${modelName}.to_json()`);
-        code.push('');
-        code.push(`print('MODEL JSON STRING START')`);
+        code.push(`${modelJSONName} = ${this.RESULT_VARIABLE_NAME}.to_json()`);
         code.push(`print(${modelJSONName})`);
-        code.push(`print('MODEL JSON STRING END')`);
-
         outputFiles[this.outputFileName] = await this.executePython(code.join('\n'));
+        this.logger.info(`Exported JSON Model filename is ${this.outputFileName}`);
         return outputFiles;
     };
 
@@ -99,12 +62,10 @@ define([
     };
 
     ExportKeras.prototype._stdoutToJSON = function (stdout) {
-        let jsonPattern = new RegExp("(MODEL JSON STRING START\n)(.*\n)(MODEL JSON STRING END\n)");
-        const jsonModelString = jsonPattern.exec(stdout);
-
-        const jsonExport = JSON.stringify(JSON.parse(jsonModelString[2]), null, 4);
+        let jsonModelString = stdout.split('\n').filter(val => !!val);
+        jsonModelString = jsonModelString[jsonModelString.length-1];
+        const jsonExport = JSON.stringify(JSON.parse(jsonModelString), null, 2);
         this.logger.info(`The JSON export is ${jsonExport}`);
-
         return jsonExport;
     };
 
