@@ -78,7 +78,7 @@ describe('ExportKeras', function () {
 
         before(async function () {
             modelJSON = await getGeneratedJSON(ARCHITECTURE.MultiArchOutputs);
-
+            this.timeout(5000);
         });
 
         it('should match layer names and number of layers', function () {
@@ -106,7 +106,7 @@ describe('ExportKeras', function () {
 
         before(async function () {
             modelJSON = await getGeneratedJSON(ARCHITECTURE.NestedLayers);
-
+            this.timeout(5000);
         });
 
         it('should match layer names and number of layers', function () {
@@ -134,7 +134,7 @@ describe('ExportKeras', function () {
 
         before(async function () {
             modelJSON = await getGeneratedJSON(ARCHITECTURE.Seq2Seq);
-
+            this.timeout(5000);
         });
 
         it('should match layer names and number of layers', function () {
