@@ -262,17 +262,18 @@ define([
 
     ImportKeras.prototype._connectLayers = async function (srcLayer, dstLayer, index) {
 
-        let srcPort = await this.getOrderedMembers(srcLayer, 'outputs');
-        let dstPort = await this.getOrderedMembers(dstLayer, 'inputs');
+        // FIXME: Do we really want to always be connecting to the *first* input/output?
+        let srcPort = (await this.getOrderedMembers(srcLayer, 'outputs'))[0];
+        let dstPort = (await this.getOrderedMembers(dstLayer, 'inputs'))[0];
 
         if (dstPort && srcPort) {
-            this.core.addMember(dstPort[0], 'source', srcPort[0]);
-            this.core.setMemberRegistry(dstPort[0],
+            this.core.addMember(dstPort, 'source', srcPort);
+            this.core.setMemberRegistry(dstPort,
                 'source',
-                this.core.getPath(srcPort[0]),
+                this.core.getPath(srcPort),
                 'position', {x: 100, y: 100});
-            this.core.setMemberAttribute(dstPort[0], 'source',
-                this.core.getPath(srcPort[0]),
+            this.core.setMemberAttribute(dstPort, 'source',
+                this.core.getPath(srcPort),
                 'index', index);
             this.logger.debug(`Connected ${this.core.getAttribute(srcLayer, 'name')} ` +
                 `with ${this.core.getAttribute(dstLayer, 'name')} as input ${index}`);
