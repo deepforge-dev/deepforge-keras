@@ -1,13 +1,12 @@
 /*globals define*/
 /*eslint-env node*/
 define([
-    'plugin/PluginConfig',
     'text!./metadata.json',
     'plugin/GenerateKeras/GenerateKeras/GenerateKeras'
 ], function (
-    PluginConfig,
     pluginMetadata,
-    PluginBase) {
+    PluginBase
+) {
     'use strict';
 
     pluginMetadata = JSON.parse(pluginMetadata);
