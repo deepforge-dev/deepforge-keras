@@ -1,0 +1,125 @@
+{
+    "class_name": "Sequential",
+    "config": {
+        "name": "sequential_11",
+        "layers": [
+            {
+                "class_name": "Dense",
+                "config": {
+                    "bias_constraint": null,
+                    "units": 32,
+                    "kernel_initializer": {
+                        "class_name": "VarianceScaling",
+                        "config": {
+                            "seed": null,
+                            "mode": "fan_avg",
+                            "distribution": "uniform",
+                            "scale": 1.0
+                        }
+                    },
+                    "activity_regularizer": null,
+                    "dtype": "float32",
+                    "name": "dense_16",
+                    "kernel_regularizer": null,
+                    "kernel_constraint": null,
+                    "activation": "relu",
+                    "trainable": true,
+                    "use_bias": true,
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "batch_input_shape": [
+                        null,
+                        32
+                    ],
+                    "bias_regularizer": null
+                }
+            },
+            {
+                "class_name": "Sequential",
+                "config": {
+                    "name": "sequential_10",
+                    "layers": [
+                        {
+                            "class_name": "Sequential",
+                            "config": {
+                                "name": "sequential_9",
+                                "layers": [
+                                    {
+                                        "class_name": "Dense",
+                                        "config": {
+                                            "bias_constraint": null,
+                                            "units": 32,
+                                            "kernel_initializer": {
+                                                "class_name": "VarianceScaling",
+                                                "config": {
+                                                    "seed": null,
+                                                    "mode": "fan_avg",
+                                                    "distribution": "uniform",
+                                                    "scale": 1.0
+                                                }
+                                            },
+                                            "activity_regularizer": null,
+                                            "dtype": "float32",
+                                            "name": "dense_14",
+                                            "kernel_regularizer": null,
+                                            "kernel_constraint": null,
+                                            "activation": "relu",
+                                            "trainable": true,
+                                            "use_bias": true,
+                                            "bias_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "batch_input_shape": [
+                                                null,
+                                                32
+                                            ],
+                                            "bias_regularizer": null
+                                        }
+                                    },
+                                    {
+                                        "class_name": "Dense",
+                                        "config": {
+                                            "bias_constraint": null,
+                                            "units": 32,
+                                            "kernel_initializer": {
+                                                "class_name": "VarianceScaling",
+                                                "config": {
+                                                    "seed": null,
+                                                    "mode": "fan_avg",
+                                                    "distribution": "uniform",
+                                                    "scale": 1.0
+                                                }
+                                            },
+                                            "activity_regularizer": null,
+                                            "dtype": "float32",
+                                            "name": "dense_15",
+                                            "kernel_regularizer": null,
+                                            "kernel_constraint": null,
+                                            "activation": "relu",
+                                            "trainable": true,
+                                            "use_bias": true,
+                                            "bias_initializer": {
+                                                "class_name": "Zeros",
+                                                "config": {}
+                                            },
+                                            "batch_input_shape": [
+                                                null,
+                                                32
+                                            ],
+                                            "bias_regularizer": null
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "keras_version": "2.3.0",
+    "backend": "tensorflow"
+}

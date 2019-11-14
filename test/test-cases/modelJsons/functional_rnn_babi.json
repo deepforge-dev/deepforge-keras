@@ -1,0 +1,317 @@
+{
+    "class_name": "Model",
+    "keras_version": "2.3.0",
+    "config": {
+        "name": "model_1",
+        "layers": [
+            {
+                "name": "input_1",
+                "class_name": "InputLayer",
+                "config": {
+                    "name": "input_1",
+                    "sparse": false,
+                    "batch_input_shape": [
+                        null,
+                        552
+                    ],
+                    "dtype": "int32"
+                },
+                "inbound_nodes": []
+            },
+            {
+                "name": "input_2",
+                "class_name": "InputLayer",
+                "config": {
+                    "name": "input_2",
+                    "sparse": false,
+                    "batch_input_shape": [
+                        null,
+                        5
+                    ],
+                    "dtype": "int32"
+                },
+                "inbound_nodes": []
+            },
+            {
+                "name": "embedding_1",
+                "class_name": "Embedding",
+                "config": {
+                    "input_dim": 36,
+                    "input_length": null,
+                    "embeddings_initializer": {
+                        "class_name": "RandomUniform",
+                        "config": {
+                            "minval": -0.05,
+                            "seed": null,
+                            "maxval": 0.05
+                        }
+                    },
+                    "activity_regularizer": null,
+                    "dtype": "float32",
+                    "batch_input_shape": [
+                        null,
+                        null
+                    ],
+                    "mask_zero": false,
+                    "name": "embedding_1",
+                    "trainable": true,
+                    "output_dim": 50,
+                    "embeddings_regularizer": null,
+                    "embeddings_constraint": null
+                },
+                "inbound_nodes": [
+                    [
+                        [
+                            "input_1",
+                            0,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            },
+            {
+                "name": "embedding_2",
+                "class_name": "Embedding",
+                "config": {
+                    "input_dim": 36,
+                    "input_length": null,
+                    "embeddings_initializer": {
+                        "class_name": "RandomUniform",
+                        "config": {
+                            "minval": -0.05,
+                            "seed": null,
+                            "maxval": 0.05
+                        }
+                    },
+                    "activity_regularizer": null,
+                    "dtype": "float32",
+                    "batch_input_shape": [
+                        null,
+                        null
+                    ],
+                    "mask_zero": false,
+                    "name": "embedding_2",
+                    "trainable": true,
+                    "output_dim": 50,
+                    "embeddings_regularizer": null,
+                    "embeddings_constraint": null
+                },
+                "inbound_nodes": [
+                    [
+                        [
+                            "input_2",
+                            0,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            },
+            {
+                "name": "lstm_1",
+                "class_name": "LSTM",
+                "config": {
+                    "recurrent_constraint": null,
+                    "unit_forget_bias": true,
+                    "units": 100,
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "recurrent_regularizer": null,
+                    "implementation": 2,
+                    "stateful": false,
+                    "bias_regularizer": null,
+                    "unroll": false,
+                    "dtype": "float32",
+                    "name": "lstm_1",
+                    "trainable": true,
+                    "go_backwards": false,
+                    "kernel_constraint": null,
+                    "use_bias": true,
+                    "return_state": false,
+                    "recurrent_activation": "sigmoid",
+                    "activity_regularizer": null,
+                    "dropout": 0.0,
+                    "bias_constraint": null,
+                    "recurrent_initializer": {
+                        "class_name": "Orthogonal",
+                        "config": {
+                            "seed": null,
+                            "gain": 1.0
+                        }
+                    },
+                    "activation": "tanh",
+                    "kernel_initializer": {
+                        "class_name": "VarianceScaling",
+                        "config": {
+                            "scale": 1.0,
+                            "distribution": "uniform",
+                            "mode": "fan_avg",
+                            "seed": null
+                        }
+                    },
+                    "kernel_regularizer": null,
+                    "recurrent_dropout": 0.0,
+                    "return_sequences": false
+                },
+                "inbound_nodes": [
+                    [
+                        [
+                            "embedding_1",
+                            0,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            },
+            {
+                "name": "lstm_2",
+                "class_name": "LSTM",
+                "config": {
+                    "recurrent_constraint": null,
+                    "unit_forget_bias": true,
+                    "units": 100,
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "recurrent_regularizer": null,
+                    "implementation": 2,
+                    "stateful": false,
+                    "bias_regularizer": null,
+                    "unroll": false,
+                    "dtype": "float32",
+                    "name": "lstm_2",
+                    "trainable": true,
+                    "go_backwards": false,
+                    "kernel_constraint": null,
+                    "use_bias": true,
+                    "return_state": false,
+                    "recurrent_activation": "sigmoid",
+                    "activity_regularizer": null,
+                    "dropout": 0.0,
+                    "bias_constraint": null,
+                    "recurrent_initializer": {
+                        "class_name": "Orthogonal",
+                        "config": {
+                            "seed": null,
+                            "gain": 1.0
+                        }
+                    },
+                    "activation": "tanh",
+                    "kernel_initializer": {
+                        "class_name": "VarianceScaling",
+                        "config": {
+                            "scale": 1.0,
+                            "distribution": "uniform",
+                            "mode": "fan_avg",
+                            "seed": null
+                        }
+                    },
+                    "kernel_regularizer": null,
+                    "recurrent_dropout": 0.0,
+                    "return_sequences": false
+                },
+                "inbound_nodes": [
+                    [
+                        [
+                            "embedding_2",
+                            0,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            },
+            {
+                "name": "concatenate_1",
+                "class_name": "Concatenate",
+                "config": {
+                    "name": "concatenate_1",
+                    "trainable": true,
+                    "axis": -1,
+                    "dtype": "float32"
+                },
+                "inbound_nodes": [
+                    [
+                        [
+                            "lstm_1",
+                            0,
+                            0,
+                            {}
+                        ],
+                        [
+                            "lstm_2",
+                            0,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            },
+            {
+                "name": "dense_1",
+                "class_name": "Dense",
+                "config": {
+                    "units": 36,
+                    "bias_constraint": null,
+                    "activity_regularizer": null,
+                    "kernel_regularizer": null,
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "dtype": "float32",
+                    "bias_regularizer": null,
+                    "kernel_initializer": {
+                        "class_name": "VarianceScaling",
+                        "config": {
+                            "scale": 1.0,
+                            "distribution": "uniform",
+                            "mode": "fan_avg",
+                            "seed": null
+                        }
+                    },
+                    "name": "dense_1",
+                    "trainable": true,
+                    "kernel_constraint": null,
+                    "activation": "softmax",
+                    "use_bias": true
+                },
+                "inbound_nodes": [
+                    [
+                        [
+                            "concatenate_1",
+                            0,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            }
+        ],
+        "output_layers": [
+            [
+                "dense_1",
+                0,
+                0
+            ]
+        ],
+        "input_layers": [
+            [
+                "input_1",
+                0,
+                0
+            ],
+            [
+                "input_2",
+                0,
+                0
+            ]
+        ]
+    },
+    "backend": "tensorflow"
+}
