@@ -26,7 +26,6 @@ define([
                 sets: {},
                 member_attributes: {},
                 member_registry: {},
-                children: [],
             };
 
             this.core.getOwnAttributeNames(node).forEach(name => {
@@ -72,6 +71,7 @@ define([
             });
 
             if (!shallow) {
+                json.children = [];
                 const children = await this.core.loadChildren(node);
                 for (let i = 0; i < children.length; i++) {
                     json.children.push(await this.toJSON(children[i]));
@@ -108,8 +108,10 @@ define([
                 }
             }
 
-            for (let i = currentChildren.length; i--;) {
-                this.core.deleteNode(currentChildren[i]);
+            if (state.children) {
+                for (let i = currentChildren.length; i--;) {
+                    this.core.deleteNode(currentChildren[i]);
+                }
             }
         }
 
