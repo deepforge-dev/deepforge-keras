@@ -262,8 +262,9 @@ define([
 
     ImportKeras.prototype._connectLayers = async function (srcLayer, dstLayer, index) {
 
-        let srcPort = await this.core.loadMembers(srcLayer, 'outputs');
-        let dstPort = await this.core.loadMembers(dstLayer, 'inputs');
+        let srcPort = await this.getOrderedMembers(srcLayer, 'outputs');
+        let dstPort = await this.getOrderedMembers(dstLayer, 'inputs');
+
         if (dstPort && srcPort) {
             this.core.addMember(dstPort[0], 'source', srcPort[0]);
             this.core.setMemberRegistry(dstPort[0],
@@ -276,6 +277,23 @@ define([
             this.logger.debug(`Connected ${this.core.getAttribute(srcLayer, 'name')} ` +
                 `with ${this.core.getAttribute(dstLayer, 'name')} as input ${index}`);
         }
+    };
+
+    ImportKeras.prototype.getOrderedMembers = async function (node, setName) {
+        const members = await this.core.loadMembers(node, setName);
+
+        members.sort((m1, m2) => {
+            const index1 = this.getMemberIndex(node, setName, m1);
+            const index2 = this.getMemberIndex(node, setName, m2);
+            return index1 < index2 ? -1 : 1;
+        });
+
+        return members;
+    };
+
+    ImportKeras.prototype.getMemberIndex = function (node, setName, member) {
+        const path = this.core.getPath(member);
+        return this.core.getMemberAttribute(node, setName, path, 'index');
     };
 
     return ImportKeras;
