@@ -1,6 +1,6 @@
 
 'use strict';
-describe.only('keras', function () {
+describe('keras', function () {
     const testFixture = require('../globals');
     const Core = testFixture.requirejs('common/core/coreQ');
     const assert = require('assert');
