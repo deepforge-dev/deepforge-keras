@@ -532,6 +532,17 @@ describe('JSONImporter', function () {
                     'SomeNewName'
                 );
             });
+
+            it('should ignore children if no "children" field', async function() {
+                const newNode = core.createNode({base: node3, parent: node2});
+                core.setAttribute(newNode, 'name', 'NewChild');
+                delete original2.children;
+                await importer.apply(node2, original2);
+                const [child] = await core.loadChildren(node2);
+                assert(!!child);
+                assert.equal(core.getGuid(child), core.getGuid(newNode));
+            });
+
         });
     });
 
