@@ -12,6 +12,10 @@
       "ValidateKeras": {
         "src": "src/plugins/ValidateKeras",
         "test": "test/plugins/ValidateKeras"
+      },
+      "ExportKeras": {
+        "src": "src/plugins/ExportKeras",
+        "test": "test/plugins/ExportKeras"
       }
     },
     "visualizers": {
