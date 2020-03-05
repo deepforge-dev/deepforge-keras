@@ -544,6 +544,10 @@ define([
         this._client.completeTransaction();
     };
 
+    KerasArchEditorControl.prototype._delAttribute = function(nodeId, attr) {
+        this._client.delAttribute(nodeId, attr);
+    };
+
     KerasArchEditorControl.prototype.getInputNodesWithSource = function(nodeId) {
         return this.getCurrentChildren()  // Get the inputs
             .map(node => node.getMemberIds('inputs').map(id => this._client.getNode(id)))
@@ -884,6 +888,7 @@ define([
         ThumbnailControl.prototype._initWidgetEventHandlers.call(this);
         this._widget.insertLayer = this.insertLayer.bind(this);
         this._widget.disconnectNodes = this._disconnectNodes.bind(this);
+        this._widget.delAttribute = this._delAttribute.bind(this);
     };
 
     KerasArchEditorControl.prototype.insertLayer = function(layerBaseId, connId) {

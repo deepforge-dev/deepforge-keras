@@ -133,7 +133,9 @@ define([
                 const value = shouldClearName ? null : newValue;
                 const changed = oldValue !== value;
 
-                if (changed) {
+                if (shouldClearName) {
+                    this.delAttribute('name');
+                } else if (changed) {
                     this.saveAttribute('name', value);
                 }
             },
