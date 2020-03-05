@@ -112,6 +112,8 @@ define([
     };
 
     /* * * * * * * * Main Code Generation Logic * * * * * * * */
+    GenerateKeras.prototype.RESULT_VARIABLE_NAME = 'result';
+
     GenerateKeras.prototype.createOutputFiles = function(activeNode) {
         var outputFiles = {};
         var code;
@@ -125,7 +127,7 @@ define([
         this.customObjects = [];
 
         // Add the inputs with the dimensions
-        var resultName = this.generateVariableName('result');
+        var resultName = this.generateVariableName(this.RESULT_VARIABLE_NAME);
         var modelName = this.generateVariableName('model');
         var customObjs = this.generateVariableName('custom_objects');
         code = layers.map(layer => this.generateLayerCode(layer));
@@ -408,13 +410,13 @@ define([
                 return `${type}.${target.name}(${args})`;
             }
         } else if (rawArgType === 'string'){
-            // Trim whitespace
-            value = value.replace(/^\s*/, '').replace(/\s*$/, '');
+            value = value.trim();
             const isBool = /^(True|False)$/;
             const isNumber = /^\d*\.?(e|e-)?\d*$/;
             const isTuple = /^\(/;
+            const isList = /^\[/;
             const isString = text => !isTuple.test(text) && !isBool.test(text) &&
-                !isNumber.test(text) && text !== 'None';
+                !isNumber.test(text) && !isList.test(text) && text !== 'None';
 
             if (isString(value)) {
                 value = `"${value.replace(/"/g, '\\"')}"`;

@@ -3,69 +3,54 @@
 'use strict';
 var testFixture = require('../../globals');
 
-describe('GenerateKerasMeta', function () {
+describe('CreateKerasMeta', function () {
+    this.timeout(5000);
     var gmeConfig = testFixture.getGmeConfig(),
         expect = testFixture.expect,
         path = testFixture.path,
         assert = require('assert'),
-        logger = testFixture.logger.fork('GenerateKerasMeta'),
+        logger = testFixture.logger.fork('CreateKerasMeta'),
         PluginCliManager = testFixture.WebGME.PluginCliManager,
         manager = new PluginCliManager(null, logger, gmeConfig),
         SEED_DIR = path.join(__dirname, '..', '..', '..', 'src', 'seeds'),
         projectName = 'testProject',
-        pluginName = 'GenerateKerasMeta',
+        pluginName = 'CreateKerasMeta',
         project,
         gmeAuth,
         storage,
         commitHash,
         plugin;
 
-    before(function (done) {
-        testFixture.clearDBAndGetGMEAuth(gmeConfig, projectName)
-            .then(function (gmeAuth_) {
-                gmeAuth = gmeAuth_;
-                // This uses in memory storage. Use testFixture.getMongoStorage to persist test to database.
-                storage = testFixture.getMemoryStorage(logger, gmeConfig, gmeAuth);
-                return storage.openDatabase();
-            })
-            .then(function () {
-                var importParam = {
-                    projectSeed: path.join(SEED_DIR, 'base', 'base.webgmex'),
-                    projectName: projectName,
-                    branchName: 'master',
-                    logger: logger,
-                    gmeConfig: gmeConfig
-                };
+    before(async function () {
+        gmeAuth = await testFixture.clearDBAndGetGMEAuth(gmeConfig, projectName);
+        storage = testFixture.getMemoryStorage(logger, gmeConfig, gmeAuth);
+        await storage.openDatabase();
+        const importParam = {
+            projectSeed: path.join(SEED_DIR, 'base', 'base.webgmex'),
+            projectName: projectName,
+            branchName: 'master',
+            logger: logger,
+            gmeConfig: gmeConfig
+        };
 
-                return testFixture.importProject(storage, importParam);
-            })
-            .then(function (importResult) {
-                project = importResult.project;
-                commitHash = importResult.commitHash;
-                return project.createBranch('test', commitHash);
-            })
-            // Create a plugin instance
-            .then(() => manager.initializePlugin(pluginName))
-            .then(plugin_ => {
-                let context = {
-                    project: project,
-                    commitHash: commitHash,
-                    branchName: 'test',
-                    activeNode: ''  // rootnode
-                };
+        const importResult = await testFixture.importProject(storage, importParam);
+        project = importResult.project;
+        commitHash = importResult.commitHash;
+        await project.createBranch('test', commitHash);
+        plugin = await manager.initializePlugin(pluginName);
+        const context = {
+            project: project,
+            commitHash: commitHash,
+            branchName: 'test',
+            activeNode: ''  // rootnode
+        };
 
-                plugin = plugin_;
-                return manager.configurePlugin(plugin, {}, context);
-            })
-            .nodeify(done);
+        await manager.configurePlugin(plugin, {}, context);
     });
 
-    after(function (done) {
-        storage.closeDatabase()
-            .then(function () {
-                return gmeAuth.unload();
-            })
-            .nodeify(done);
+    after(async function () {
+        await storage.closeDatabase();
+        await gmeAuth.unload();
     });
 
     const getMetaNode = name => {
@@ -142,7 +127,7 @@ describe('GenerateKerasMeta', function () {
             it('should set default pointer values for Dense', function () {
                 let node = getMetaNode('Dense');
                 let target = plugin.core.getPointerPath(node, 'kernel_initializer');
-                assert(target);
+                assert(target, `target for kernel_initializer is ${target}`);
             });
 
             it('should create nodes for constraint fns', function () {

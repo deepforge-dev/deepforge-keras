@@ -1,21 +1,21 @@
 /*jshint node:true, mocha:true*/
 
 'use strict';
-const testFixture = require('../../globals');
-const pluginName = 'GenerateKeras';
-
-describe(pluginName, function () {
+describe('GenerateKeras', function () {
+    const testFixture = require('../../globals');
+    const pluginName = 'GenerateKeras';
     const Q = require('q');
     const gmeConfig = testFixture.getGmeConfig();
     const expect = testFixture.expect;
     const assert = require('assert');
-    const BlobClient = require('webgme-engine/src/server/middleware/blob/BlobClientWithFSBackend');
     const logger = testFixture.logger.fork(pluginName);
+    const BlobClient = testFixture.getBlobTestClient();
     const blobClient = new BlobClient(gmeConfig, logger);
     const PluginCliManager = testFixture.WebGME.PluginCliManager;
     const projectName = 'testProject';
     const manager = new PluginCliManager(null, logger, gmeConfig);
     const ARCHITECTURE = testFixture.ARCHITECTURE;
+    const executePython = testFixture.executePython;
 
     let project,
         gmeAuth,
@@ -23,72 +23,58 @@ describe(pluginName, function () {
         plugin = null,
         commitHash;
 
-    before(function (done) {
-        testFixture.clearDBAndGetGMEAuth(gmeConfig, projectName)
-            .then(function (gmeAuth_) {
-                gmeAuth = gmeAuth_;
-                // This uses in memory storage. Use testFixture.getMongoStorage to persist test to database.
-                storage = testFixture.getMemoryStorage(logger, gmeConfig, gmeAuth);
-                return storage.openDatabase();
-            })
-            .then(function () {
-                var importParam = {
-                    projectSeed: testFixture.testSeedPath,
-                    projectName: projectName,
-                    branchName: 'master',
-                    logger: logger,
-                    gmeConfig: gmeConfig
-                };
+    before(async function () {
+        gmeAuth = await testFixture.clearDBAndGetGMEAuth(gmeConfig, projectName);
+        storage = testFixture.getMemoryStorage(logger, gmeConfig, gmeAuth);
+        await storage.openDatabase();
+        const importParam = {
+            projectSeed: testFixture.testSeedPath,
+            projectName: projectName,
+            branchName: 'master',
+            logger: logger,
+            gmeConfig: gmeConfig
+        };
 
-                return testFixture.importProject(storage, importParam);
-            })
-            .then(function (importResult) {
-                project = importResult.project;
-                commitHash = importResult.commitHash;
-                return project.createBranch('test', commitHash);
-            })
-            .then(() => {
-                return manager.initializePlugin(pluginName)
-                    .then(plugin_ => plugin = plugin_);
-            })
-            .nodeify(done);
+        const importResult = await testFixture.importProject(storage, importParam);
+        project = importResult.project;
+        commitHash = importResult.commitHash;
+        await project.createBranch('test', commitHash);
+        plugin = await manager.initializePlugin(pluginName);
     });
 
-    after(function (done) {
-        storage.closeDatabase()
-            .then(function () {
-                return gmeAuth.unload();
-            })
-            .nodeify(done);
+    after(async function () {
+        await storage.closeDatabase();
+        await gmeAuth.unload();
     });
 
-    function getGeneratedCode(nodeId) {
-        let pluginConfig = {
-            },
-            context = {
-                project: project,
-                commitHash: commitHash,
-                branchName: 'test',
-                activeNode: nodeId,
-                namespace: 'keras'
-            };
+    async function getGeneratedCode(nodeId) {
+        const pluginConfig = {};
+        const context = {
+            project: project,
+            commitHash: commitHash,
+            branchName: 'test',
+            activeNode: nodeId,
+            namespace: 'keras'
+        };
 
-        return Q.ninvoke(manager, 'executePlugin', pluginName, pluginConfig, context)
-            .then(pluginResult => {
-                expect(typeof pluginResult).to.equal('object');
-                expect(pluginResult.success).to.equal(true);
-                let codeHash = pluginResult.artifacts[0];
-                return blobClient.getObject(codeHash)
-                    .then(obj => String.fromCharCode.apply(null, new Uint8Array(obj)));
-            });
+        const result = await Q.ninvoke(
+            manager,
+            'executePlugin',
+            pluginName,
+            pluginConfig,
+            context
+        );
+        expect(typeof result).to.equal('object');
+        expect(result.success).to.equal(true);
+        const codeHash = result.artifacts[0];
+        return await blobClient.getObjectAsString(codeHash);
+        //return String.fromCharCode.apply(null, new Uint8Array(obj));
     }
 
     describe('code', function() {
         let code;
-        before(function(done) {  // run the plugin and get the generated code
-            getGeneratedCode(ARCHITECTURE.Basic)
-                .then(result => code = result)
-                .nodeify(done);
+        before(async function() {  // run the plugin and get the generated code
+            code = await getGeneratedCode(ARCHITECTURE.Basic);
         });
 
         it('should import all keras layers', function() {
@@ -121,10 +107,8 @@ describe(pluginName, function () {
     describe('ordered list input', function() {
         let code;
 
-        before(function(done) {  // run the plugin and get the generated code
-            getGeneratedCode(ARCHITECTURE.LayerListInput)
-                .then(result => code = result)
-                .nodeify(done);
+        before(async function() {  // run the plugin and get the generated code
+            code = await getGeneratedCode(ARCHITECTURE.LayerListInput);
         });
 
         it('should preserve correct order', function() {
@@ -145,10 +129,8 @@ describe(pluginName, function () {
     describe('multi arch input', function() {
         let code;
 
-        before(function(done) {  // run the plugin and get the generated code
-            getGeneratedCode(ARCHITECTURE.MultiArchInputs)
-                .then(result => code = result)
-                .nodeify(done);
+        before(async function() {  // run the plugin and get the generated code
+            code = await getGeneratedCode(ARCHITECTURE.MultiArchInputs);
         });
 
         it('should preserve correct order', function() {
@@ -175,10 +157,8 @@ describe(pluginName, function () {
     describe('multi arch output', function() {
         let code;
 
-        before(function(done) {  // run the plugin and get the generated code
-            getGeneratedCode(ARCHITECTURE.MultiArchOutputs)
-                .then(result => code = result)
-                .nodeify(done);
+        before(async function() {  // run the plugin and get the generated code
+            code = await getGeneratedCode(ARCHITECTURE.MultiArchOutputs);
         });
 
         it('should preserve correct order', function() {
@@ -199,15 +179,18 @@ describe(pluginName, function () {
                 return nextIndex;
             });
         });
+
+        it('should run generated code without errors', () => {
+            const executionResult = executePython(code);
+            assert(executionResult.success);
+        }).timeout(5000);
     });
 
     describe('nested (wrapped) layers', function() {
         let code;
 
-        before(function(done) {  // run the plugin and get the generated code
-            getGeneratedCode(ARCHITECTURE.NestedLayers)
-                .then(result => code = result)
-                .nodeify(done);
+        before(async function() {  // run the plugin and get the generated code
+            code = await getGeneratedCode(ARCHITECTURE.NestedLayers);
         });
 
         it('should recognize layer is not retrievable fn (like activations)', function() {
@@ -219,6 +202,11 @@ describe(pluginName, function () {
             const nestedInputRegex = /Zeros\(\)\)\(\)\)/;
             assert(!nestedInputRegex.test(code), 'Generated inputs for wrapped layer');
         });
+
+        it('should run generated code without errors', () => {
+            const executionResult = executePython(code);
+            assert(executionResult.success);
+        }).timeout(5000);
     });
 
     describe('multiple types of layer IO (seq2seq)', function() {
@@ -226,16 +214,11 @@ describe(pluginName, function () {
             decoder,
             encoder;
 
-        before(function(done) {  // run the plugin and get the generated code
-            getGeneratedCode(ARCHITECTURE.Seq2Seq)
-                .then(result => {
-                    code = result;
-
-                    const lines = code.split('\n');
-                    encoder = lines.find(line => line.includes('return_sequences=False'));
-                    decoder = lines.find(line => line.includes('return_sequences=True'));
-                })
-                .nodeify(done);
+        before(async function() {  // run the plugin and get the generated code
+            code = await getGeneratedCode(ARCHITECTURE.Seq2Seq);
+            const lines = code.split('\n');
+            encoder = lines.find(line => line.includes('return_sequences=False'));
+            decoder = lines.find(line => line.includes('return_sequences=True'));
         });
 
         it('should return multi values from LSTM', function() {
@@ -275,6 +258,11 @@ describe(pluginName, function () {
             );
         });
 
+        it('should run generated code without errors', () => {
+            const exectionResult = executePython(code);
+            assert(exectionResult.success);
+        }).timeout(5000);
+
         describe('special cases', function() {
             it('should set return_state to true in recurrent layers', function() {
                 assert(encoder.includes('return_state=True'), 'encoder not returning state');
@@ -290,6 +278,9 @@ describe(pluginName, function () {
             ['same', true],
             ['(10, 128)'],
             ['((10, 1), (12, 128))'],
+            ['([10, 1], [12, 128])'],
+            ['[[10, 1], [12, 128]]'],
+            ['[(10, 1), (12, 128)]'],
             ['20e12'],
             ['20e-12'],
             ['None'],
@@ -312,6 +303,4 @@ describe(pluginName, function () {
             assert.notEqual(name, 'lambda');
         });
     });
-
-    // TODO: test that we can run the given python code?
 });

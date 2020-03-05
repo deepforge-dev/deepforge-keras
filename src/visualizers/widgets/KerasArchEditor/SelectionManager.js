@@ -38,8 +38,17 @@ define([
                 y: 0
             });
 
-            // Add a help button?
-            // TODO
+            if (this.selectedItem.desc.docs) {
+                btn = new Buttons.ShowDocs({
+                    context: this._widget,
+                    $pEl: this.$selection,
+                    item: this.selectedItem,
+                    transition: transition,
+                    x: width,
+                    y: 0
+                });
+            }
+
         } else {
             // Remove button
             btn = new Buttons.DisconnectLayers({

@@ -30,6 +30,8 @@ define([
 
         var skipAttrs = Object.keys(Constants.ATTR).map(key => Constants.ATTR[key]);
         skipAttrs.forEach(attr => options.skipAttributes[attr] = true);
+
+        options.hints = this.getHintsFromDocs(options.node);
         EllipseDecorator.call(this, options);
 
         // Enable click to change name
@@ -42,23 +44,61 @@ define([
 
     _.extend(LayerDecorator.prototype, EllipseDecorator.prototype);
 
+    LayerDecorator.LayerHintCache = {};
     LayerDecorator.prototype.DECORATOR_ID = DECORATOR_ID;
     LayerDecorator.prototype.PointerField = LayerField;
-    LayerDecorator.prototype.getDisplayName = function(detailed) {
+    LayerDecorator.prototype.getDisplayName = function() {
         let {name} = this._node;
-        const {baseName} = this._node;
-        detailed = detailed === undefined ? this.expanded : detailed;
+        //const {baseName} = this._node;
+        //detailed = detailed === undefined ? this.expanded : detailed;
 
         // if the basename is different from the name, show both
-        if (this._node.baseName !== name && detailed) {
-            name += ` (${baseName})`;
-        }
-
+        //if (this._node.baseName !== name && detailed) {
+            //name += ` (${baseName})`;
+        //}
         // If it has an index field, add that to the name
         if (this._node.index > -1) {
             name += ` (${this._node.index + 1})`;
         }
         return name;
+    };
+
+    LayerDecorator.prototype.getHintsFromDocs = function(node) {
+        if (!LayerDecorator.LayerHintCache[node.baseName]) {
+            // Get the "arguments" section from the docs
+            const hints = {};
+            const docs = node.docs || '';
+            const argsDocs = docs.split(/.*^\s*# Arguments/m).pop()
+                .split(/^\s*# [A-Z]/m).shift()
+                .split('\n')
+                .map(line => line.replace(/^\s*/, ''))  // remove leading whitespace
+                .filter(line => !!line)
+                .reduce((docs, line) => {
+                    if (line.includes(': ')) {  // new doc line
+                        const [argName, doc] = line.split(':');
+                        docs.push(argName, doc);
+                    } else {
+                        docs[docs.length-1] += ' ' + line;
+                    }
+                    return docs;
+                }, []);
+
+            for (let i = 0; i < argsDocs.length; i += 2) {
+                const argName = argsDocs[i];
+                const hint = this.getCleanHintText(argsDocs[i+1]);
+                hints[argName] = hint;
+            }
+
+            LayerDecorator.LayerHintCache[node.baseName] = hints;
+        }
+
+        return LayerDecorator.LayerHintCache[node.baseName];
+    };
+
+    LayerDecorator.prototype.getCleanHintText = function(rawHint) {
+        // Remove references to external link - we can't click it in hover box anyway!
+        // Remove parentheses with links in them
+        return rawHint.replace(/\([^\)]*?\[.+?\]\(.+?\).*?\)/, '');
     };
 
     LayerDecorator.prototype.editLayerName = function() {
@@ -180,7 +220,7 @@ define([
             .join(' ');
 
         this.editor = FloatingEditor.open(tgtId, position.right, position.top, 300, 130);
-        this.editor.setTitlePrefix(`${ptrName} for ${this.getDisplayName(false)}: `);
+        this.editor.setTitlePrefix(`${ptrName} for ${this.getDisplayName()}: `);
         this.editor.setTitle(field.value);
         this.editor.ptrName = ptr;
 
@@ -232,18 +272,17 @@ define([
         return container;
     };
 
-    LayerDecorator.prototype.updateDisplayName = function(detailed=false) {
-        const displayName = this.getDisplayName(detailed);
+    LayerDecorator.prototype.updateDisplayName = function() {
+        const displayName = this.getDisplayName();
         if (this.name !== displayName) {
             this.name = displayName;
             this.nameWidth = null;
             this.updateWidth();
-            console.log('-- width', this.width);
         }
     };
 
     LayerDecorator.prototype.expand = function() {
-        this.updateDisplayName(true);
+        this.updateDisplayName();
         return EllipseDecorator.prototype.expand.apply(this, arguments);
     };
 
