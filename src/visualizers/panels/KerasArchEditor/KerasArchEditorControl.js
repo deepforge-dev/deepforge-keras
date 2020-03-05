@@ -935,6 +935,9 @@ define([
     };
 
     KerasArchEditorControl.prototype.getLatestAnalysis = function() {
+        const project = this._client.getProjectInfo();
+        if (!project) return;
+
         const projectId = encodeURIComponent(this._client.getProjectInfo()._id);
         const commit = encodeURIComponent(this._client.getActiveCommitHash());
         const nodeId = encodeURIComponent(this._currentNodeId);
