@@ -84,6 +84,18 @@ describe('JSONImporter', function () {
             assert.equal(core.getAttribute(node, 'name'), 'NewName');
         });
 
+        it('should set attributes using @attribute:name:FCO', async function() {
+            const rootSchema = await importer.toJSON(root);
+            rootSchema.children = [
+                {
+                    id: '@attribute:name:FCO',
+                    attributes: {name: 'NewName'},
+                }
+            ];
+            await importer.apply(root, rootSchema);
+            assert.equal(core.getAttribute(node, 'name'), 'NewName');
+        });
+
         it('should delete attributes', async function() {
             delete original.attributes.name;
             await importer.apply(node, original);
@@ -481,7 +493,7 @@ describe('JSONImporter', function () {
                 );
             });
 
-            it('should set name if tag not found', async function() {
+            it('should set @name if tag not found', async function() {
                 const nodeId = core.getPath(node3);
                 original2.children.push({
                     id: '@name:NewChild',
@@ -492,6 +504,21 @@ describe('JSONImporter', function () {
                 assert.equal(children.length, 1);
                 assert.equal(
                     core.getAttribute(children[0], 'name'),
+                    'NewChild'
+                );
+            });
+
+            it('should set @attribute if tag not found', async function() {
+                const nodeId = core.getPath(node3);
+                original2.children.push({
+                    id: '@attribute:testAttr:NewChild',
+                    pointers: {base: nodeId}
+                });
+                await importer.apply(node2, original2);
+                const children = await core.loadChildren(node2);
+                assert.equal(children.length, 1);
+                assert.equal(
+                    core.getAttribute(children[0], 'testAttr'),
                     'NewChild'
                 );
             });

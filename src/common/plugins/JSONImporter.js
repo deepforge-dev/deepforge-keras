@@ -115,36 +115,20 @@ define([
             }
         }
 
-        async findNode(parent, id) {
-            if (id === undefined) {
+        async findNode(parent, idString) {
+            if (idString === undefined) {
                 return;
             }
-            assert(typeof id === 'string');
+            assert(typeof idString === 'string');
 
-            const isGMEPath = id.startsWith('/');
-            if (isGMEPath) {
-                return await this.core.loadByPath(this.rootNode, id);
-            }
-
-            const [tag, value] = id.split(':');
-            if (tag === '@meta') {
-                const meta = await this.core.getAllMetaNodes(this.rootNode);
-                return Object.values(meta)
-                    .find(child => this.core.getAttribute(child, 'name') === value);
-            } else if (tag === '@name') {
-                const children = await this.core.loadChildren(parent);
-                return children
-                    .find(child => this.core.getAttribute(child, 'name') === value);
-
-            } else {
-                throw new Error(`Unknown tag: ${tag}`);
-            }
+            const selector = new NodeSelector(idString);
+            return await selector.findNode(this.core, this.rootNode, parent);
         }
 
-        async getNode(parent, id) {
-            const node = await this.findNode(parent, id);
+        async getNode(parent, idString) {
+            const node = await this.findNode(parent, idString);
             if (!node) {
-                throw new Error(`Could not resolve ${id} to an existing node.`);
+                throw new Error(`Could not resolve ${idString} to an existing node.`);
             }
             return node;
         }
@@ -154,21 +138,11 @@ define([
             return this.core.getPath(node);
         }
 
-        async createNode(parent, id) {
+        async createNode(parent, idString) {
             const fco = await this.core.loadByPath(this.rootNode, '/1');
             const node = this.core.createNode({base: fco, parent});
-
-            // Apply any special rules based on the tag (name, meta, etc)
-            const [tag, value] = id ? id.split(':') : [];
-            if (tag === '@name') {
-                this.core.setAttribute(node, 'name', value);
-            } else if (tag === '@meta') {
-                this.core.setAttribute(node, 'name', value);
-                this.core.addMember(this.rootNode, Constants.META_ASPECT_SET_NAME, node);
-                const meta = await this.core.getAllMetaNodes(this.rootNode);
-                assert(meta[this.core.getPath(node)], 'New node not in the meta');
-            }
-
+            const selector = new NodeSelector(idString);
+            await selector.prepare(this.core, this.rootNode, node);
             return node;
         }
 
@@ -444,6 +418,62 @@ define([
         }
         current[keys.shift()] = value;
         return object;
+    }
+
+    class NodeSelector {
+        constructor(idString='') {
+            if (idString.startsWith('/')) {
+                this.tag = '@path';
+                this.value = idString;
+            } else {
+                const data = idString.split(':');
+                const tag = data[0];
+                if (tag === '@name') {
+                    data.splice(0, 1, '@attribute', 'name');
+                }
+                this.tag = data.shift();
+                if (data.length === 1) {
+                    this.value = data.shift();
+                } else {
+                    this.value = [data[0], data.slice(1).join(':')];
+                }
+            }
+        }
+
+        async prepare(core, rootNode, node) {
+            if (this.tag === '@attribute') {
+                const [attr, value] = this.value;
+                core.setAttribute(node, attr, value);
+            }
+
+            if (this.tag === '@meta') {
+                core.setAttribute(node, 'name', this.value);
+                core.addMember(rootNode, Constants.META_ASPECT_SET_NAME, node);
+                const meta = await core.getAllMetaNodes(rootNode);
+                assert(meta[core.getPath(node)], 'New node not in the meta');
+            }
+        }
+
+        async findNode(core, rootNode, parent) {
+            if (this.tag === '@path') {
+                return await core.loadByPath(rootNode, this.value);
+            }
+
+            if (this.tag === '@meta') {
+                const meta = await core.getAllMetaNodes(rootNode);
+                return Object.values(meta)
+                    .find(child => core.getAttribute(child, 'name') === this.value);
+            }
+
+            if (this.tag === '@attribute') {
+                const [attr, value] = this.value;
+                const children = await core.loadChildren(parent);
+                return children
+                    .find(child => core.getAttribute(child, attr) === value);
+            }
+
+            throw new Error(`Unknown tag: ${this.tag}`);
+        }
     }
 
     return Importer;
