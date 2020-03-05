@@ -34,7 +34,6 @@ define([
         options.hints = this.getHintsFromDocs(options.node);
         EllipseDecorator.call(this, options);
 
-        // Enable click to change name
         this.$name.on('click', () => {
             if (this.expanded) {
                 this.editLayerName();
@@ -49,14 +48,7 @@ define([
     LayerDecorator.prototype.PointerField = LayerField;
     LayerDecorator.prototype.getDisplayName = function() {
         let {name} = this._node;
-        //const {baseName} = this._node;
-        //detailed = detailed === undefined ? this.expanded : detailed;
 
-        // if the basename is different from the name, show both
-        //if (this._node.baseName !== name && detailed) {
-            //name += ` (${baseName})`;
-        //}
-        // If it has an index field, add that to the name
         if (this._node.index > -1) {
             name += ` (${this._node.index + 1})`;
         }
