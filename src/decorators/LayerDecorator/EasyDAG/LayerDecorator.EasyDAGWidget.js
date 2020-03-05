@@ -24,6 +24,7 @@ define([
     //     - unhighlight ports
     //     - report the location of specific ports
     LayerDecorator = function (options) {
+        this._zoom = 1;
         options.skipAttributes = {name: true};
         this.editor = null;
 
@@ -32,6 +33,12 @@ define([
 
         options.hints = this.getHintsFromDocs(options.node);
         EllipseDecorator.call(this, options);
+
+        this.$name.on('click', () => {
+            if (this.expanded) {
+                this.editLayerName();
+            }
+        });
     };
 
     _.extend(LayerDecorator.prototype, EllipseDecorator.prototype);
@@ -39,6 +46,14 @@ define([
     LayerDecorator.LayerHintCache = {};
     LayerDecorator.prototype.DECORATOR_ID = DECORATOR_ID;
     LayerDecorator.prototype.PointerField = LayerField;
+    LayerDecorator.prototype.getDisplayName = function() {
+        let {name} = this._node;
+
+        if (this._node.index > -1) {
+            name += ` (${this._node.index + 1})`;
+        }
+        return name;
+    };
 
     LayerDecorator.prototype.getHintsFromDocs = function(node) {
         if (!LayerDecorator.LayerHintCache[node.baseName]) {
@@ -78,13 +93,53 @@ define([
         return rawHint.replace(/\([^\)]*?\[.+?\]\(.+?\).*?\)/, '');
     };
 
-    LayerDecorator.prototype.getDisplayName = function() {
-        // If it has an index field, add that to the name
-        let name = this._node.name;
-        if (this._node.index > -1) {
-            name += ` (${this._node.index + 1})`;
-        }
-        return name;
+    LayerDecorator.prototype.editLayerName = function() {
+        var html = this.$name.node(),
+            position = html.getBoundingClientRect(),
+
+            width = Math.max(position.right-position.left, 15),
+            container = $('<div>'),
+            parentHtml = $('body');
+
+        // Using a temp container for the editing
+        container.css('top', position.top/this._zoom);
+        container.css('left', position.left/this._zoom);
+        container.css('position', 'absolute');
+        container.css('width', width/this._zoom);
+        container.css('zoom', this._zoom);
+        container.attr('id', 'CONTAINER-TMP');
+
+        $(parentHtml).append(container);
+
+        container.editInPlace({
+            enableEmpty: true,
+            value: this._node.name,
+            css: {
+                'z-index': 10000,
+                'id': 'asdf',
+                'width': width,
+                'xmlns': 'http://www.w3.org/1999/xhtml'
+            },
+            onChange: (oldValue, newValue) => {
+                const shouldClearName = !newValue || newValue === this._node.baseName;
+                const value = shouldClearName ? null : newValue;
+                const changed = oldValue !== value;
+
+                if (shouldClearName) {
+                    this.delAttribute('name');
+                } else if (changed) {
+                    this.saveAttribute('name', value);
+                }
+            },
+            onFinish: function () {
+                $(this).remove();
+            }
+        });
+    };
+
+    LayerDecorator.prototype.render = function(zoom) {
+        this._zoom = zoom || 1;
+        return EllipseDecorator.prototype.render.apply(this, arguments);
     };
 
     // Create the pointer fields and change the event handlers
@@ -116,6 +171,7 @@ define([
     };
 
     LayerDecorator.prototype.update = function() {
+        this.updateDisplayName();
         let result =  EllipseDecorator.prototype.update.apply(this, arguments);
         if (this.editor) {
             let ptr = this.editor.ptrName;
@@ -210,8 +266,23 @@ define([
         return container;
     };
 
+    LayerDecorator.prototype.updateDisplayName = function() {
+        const displayName = this.getDisplayName();
+        if (this.name !== displayName) {
+            this.name = displayName;
+            this.nameWidth = null;
+            this.updateWidth();
+        }
+    };
+
+    LayerDecorator.prototype.expand = function() {
+        this.updateDisplayName();
+        return EllipseDecorator.prototype.expand.apply(this, arguments);
+    };
+
     LayerDecorator.prototype.condense = function() {
         this.closeEditor();
+        this.updateDisplayName();
         return EllipseDecorator.prototype.condense.apply(this, arguments);
     };
 

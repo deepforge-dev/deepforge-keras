@@ -100,6 +100,10 @@ define([
         this.ItemClass.prototype.getValidTargetsFor = function(ptr) {
             return this._widget.getValidTargetsFor(this.id, ptr);
         };
+
+        this.ItemClass.prototype.delAttribute = function(attr) {
+            return this._widget.delAttribute(this.id, attr);
+        };
     };
 
     KerasArchEditorWidget.prototype.showHoverButtons = function(layer) {
