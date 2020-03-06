@@ -133,7 +133,7 @@ describe('GenerateKeras', function () {
             code = await getGeneratedCode(ARCHITECTURE.MultiArchInputs);
         });
 
-        it('should preserve correct order', function() {
+        it('should preserve order of model inputs', function() {
             const lines = code.split('\n');
             const input1 = lines.find(line => line.includes('100'))
                 .split(' ')[0];
@@ -142,7 +142,7 @@ describe('GenerateKeras', function () {
             const input3 = lines.find(line => line.includes('300'))
                 .split(' ')[0];
             const createModelLine = lines.find(line => line.includes('Model('));
-            const inputs = [input2, input1, input3];
+            const inputs = [input1, input2, input3];
             const indices = inputs.map(name => createModelLine.indexOf(name));
             const order = createModelLine.split('[')[1].split(']')[0];
 
