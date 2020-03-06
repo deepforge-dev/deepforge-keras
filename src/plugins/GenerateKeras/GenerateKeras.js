@@ -352,15 +352,10 @@ define([
         // maybe ctor_arg_order should only contain the required arguments
         const argNames = layer[Constants.ATTR.CTOR_ARGS].split(',');
         return argNames
-            .filter(arg => layer[arg] !== undefined)
-            .map(arg => [arg, this.getArgumentValue(layer[arg])]);
-    };
+            .filter(name => layer[name] !== undefined)
+            .map(name => {
+                let value = this.getArgumentValue(layer[name]);
 
-
-    GenerateKeras.prototype.getArgumentsString = function(layer) {
-        const argString = this.getArguments(layer)
-            .map(pair => {
-                let [name, value] = pair;
                 // Add special case for recurrent layers -> always return_state
                 // when in an architecture node
                 if (name === 'return_state') {
@@ -372,8 +367,16 @@ define([
                         value = 'True';
                     }
                 }
-                return `${name}=${value}`;
-            }).join(', ');
+
+                return [name, value];
+            });
+    };
+
+
+    GenerateKeras.prototype.getArgumentsString = function(layer) {
+        const argString = this.getArguments(layer)
+            .map(nameAndValue => nameAndValue.join('='))
+            .join(', ');
 
         this.logger.debug(`getting arguments for ${layer.variableName} (${layer.name}): ${argString}`);
         return argString;
@@ -411,6 +414,9 @@ define([
             }
         } else if (rawArgType === 'string'){
             value = value.trim();
+            if (value === '') {
+                value = 'None';
+            }
             const isBool = /^(True|False)$/;
             const isNumber = /^\d*\.?(e|e-)?\d*$/;
             const isTuple = /^\(/;
