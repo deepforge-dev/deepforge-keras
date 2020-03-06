@@ -276,7 +276,7 @@ define([
         sourceIds.forEach(id => {
             const index = this.core.getMemberAttribute(node, set, id, 'index');
             const srcLayerId = this.getChildId(id);
-            sourceIndicesDict[srcLayerId] = index;
+            sourceIndicesDict[srcLayerId] = index || 0;
         });
 
         return sourceIndicesDict;
