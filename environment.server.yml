@@ -4,5 +4,3 @@ dependencies:
   - pip:
     - tensorflow==1.14
     - keras==2.2.5
-    - pillow
-    - dill
