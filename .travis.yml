@@ -2,16 +2,12 @@ language: node_js
 services: mongodb
 sudo: true
 before_install:
-  - sudo apt-get update -q
-  - sudo apt-get install python3-pip -y
-  - pip3 install -U setuptools
-  - pip3 install -U virtualenvwrapper
-install:
+  - source utils/install-conda.sh
   - npm install -g npm
+install:
   - npm install
-  - pip3 install -r requirements.txt
+  - conda env create --file environment.server.yml
+script: source activate deepforge-keras-server && npm test
 node_js:
   - "10"
   - "12"
-python:
-  - "3.5"
