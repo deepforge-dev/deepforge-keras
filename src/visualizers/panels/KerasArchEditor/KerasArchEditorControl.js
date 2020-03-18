@@ -959,7 +959,9 @@ define([
         if (nodeId) {  // (no analysis for the root node)
             const url = this.getAnalysisURL(projectId, commit, namespace, nodeId);
             const results = await this.request(url);
-            this._widget.showAnalysisResults(results);
+            if (results) {
+                this._widget.showAnalysisResults(results);
+            }
         }
     };
 
