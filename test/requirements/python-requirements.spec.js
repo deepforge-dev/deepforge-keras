@@ -12,7 +12,7 @@ describe('python', function () {
     });
 
     describe('requirements', function() {
-        const requirements = ['tensorflow', 'keras']
+        const requirements = ['tensorflow', 'keras'];
         requirements.forEach((req) => {
             it(`should be able to import package ${req}`, () =>{
                 const processOutput = spawnSync(`python3`, ['-c', `"import ${req}";`]);
