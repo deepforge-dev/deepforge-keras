@@ -4,14 +4,19 @@
 define([
     'SimpleNodes/Constants',
     'plugin/GenerateKeras/GenerateKeras/GenerateKeras',
-    'text!./metadata.json'
+    'underscore',
+    'text!./output.py.tpl',
+    'text!./metadata.json',
 ], function (
     SimpleConstants,
     PluginBase,
-    pluginMetadata
+    _,
+    CodeTplText,
+    pluginMetadata,
 ) {
     'use strict';
 
+    const CodeTpl = _.template(CodeTplText);
     pluginMetadata = JSON.parse(pluginMetadata);
 
     /**
@@ -44,59 +49,10 @@ define([
 
     ValidateKeras.prototype.createOutputFiles = function(activeNode) {
         const files = PluginBase.prototype.createOutputFiles.call(this, activeNode);
-        let code = files['output.py'];
-        const results = this.generateVariableName('results');
+        let main = files['output.py'];
+        const resultsVar = this.generateVariableName('results');
+        const code = CodeTpl({indent, main, resultsVar});
 
-        // Add the initialization (register_layer fn)
-        const initCode = [
-            'layer_registry = {}',
-            'def register_layer(name, node_id):',
-            '    layer_registry[name] = node_id',
-            '',
-            `${results} = {}`,
-            `${results}['errors'] = []`,
-            `${results}['dimensions'] = {}`,
-            'def record_error(e):',
-            '    info = {}',
-            '    info[\'nodeId\'] = layer_registry[current_layer_name]',
-            '    if hasattr(e, \'message\'):',
-            '        info[\'message\'] = e.message',
-            '    if hasattr(e, \'strerror\'):',
-            '        info[\'message\'] = e.strerror',
-            '    if hasattr(e, \'args\'):',
-            '        info[\'message\'] = e.args[0]',
-            `    ${results}['errors'].append(info)`,
-            '',
-            'def record_dimensions(model):',
-            '    for layer in model.layers:',
-            '        layer_name = layer.name',
-            '        node_id = layer_registry[layer.name]',
-            '        # Convert any int64 to python int',
-            '        shape = [ int(i) if i is not None else None for i in layer.output_shape ]',
-            `        ${results}['dimensions'][node_id] = shape`,
-            '',
-            'has_bad_layer = False'
-        ].join('\n');
-
-        const reportCode = [
-            'import json',
-            `print(json.dumps(${results}))`
-        ].join('\n');
-
-        // Report the errors and dimensions somehow...
-        code = [
-            initCode,
-            'try:',
-            indent(code),
-            indent('record_dimensions(model)'),
-            'except:',
-            indent('pass'),
-            reportCode
-        ].join('\n');
-
-        // Store it as a message?
-        // We need to execute this somewhere
-        // TODO
         files['output.py'] = code;
         return files;
     };

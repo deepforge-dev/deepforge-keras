@@ -81,7 +81,9 @@ function initialize(middlewareOpts) {
         } else {
             const results = await analyze(userId, projectId, commitHash, namespace, nodeId);
             res.json(results);
-            return await addToCache(projectId, commitHash, nodeId, results);
+            if (results) {
+                return await addToCache(projectId, commitHash, nodeId, results);
+            }
         }
     });
 
@@ -166,13 +168,20 @@ async function analyze(userId, projectId, commitHash, namespace, nodeId) {
         }
     }
     await spawn('node', args);
-    const stdout = await spawn('python', [pythonFile]);
-    const data = stdout.split('\n').filter(line => !!line).pop();
-    const report = JSON.parse(data);
+    try {
+        const stdout = await spawn('python', [pythonFile]);
+        const report = JSON.parse(lastline(stdout));
+        await rm_rf(tmpdir);
+        return report;
+    } catch (stderr) {
+        logger.warn(`Analysis failed (likely missing python dependencies): ${lastline(stderr)}`);
+        await rm_rf(tmpdir);
+    }
+    return null;
+}
 
-    await rm_rf(tmpdir);  // clean up
-
-    return report;
+function lastline(stdout) {
+    return stdout.split('\n').filter(line => !!line).pop();
 }
 
 const MongoClient = require('mongodb').MongoClient;
