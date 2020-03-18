@@ -3,8 +3,6 @@
 'use strict';
 const { spawnSync } = require('child_process');
 const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
 
 describe('python', function () {
     it('should find python 3.7', () => {
