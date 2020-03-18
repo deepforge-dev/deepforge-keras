@@ -1,0 +1,6 @@
+name: deepforge-keras-server
+dependencies:
+  - python=3.7
+  - pip:
+    - tensorflow==1.14
+    - keras==2.2.5
