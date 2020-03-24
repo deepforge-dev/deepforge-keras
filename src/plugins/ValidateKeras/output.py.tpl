@@ -28,7 +28,7 @@ def record_dimensions(model):
         <%= resultsVar %>['dimensions'][node_id] = shape
 
 def print_stats(results):
-    json.dumps(results)
+    print(json.dumps(results))
 
 has_bad_layer = False
 
