@@ -35,3 +35,4 @@ Finally, navigate to `http://localhost:8888` to check out deepforge-keras!
 
 ### Automated Testing
 Tests are stored in `test/` and are run using `npm test`. It is highly recommended to include tests when submitting new features or fixing bugs.
+
