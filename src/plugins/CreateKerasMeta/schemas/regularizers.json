@@ -7,6 +7,7 @@
         "default": 0.01
       }
     ],
+    "docstring": "Create a regularizer that applies an L1 regularization penalty.\n\n  The L1 regularization penalty is computed as:\n  $$\\ell_1\\,\\,penalty =\\ell_1\\sum_{i=0}^n|x_i|$$\n\n  Arguments:\n      l: Float; L1 regularization factor.\n\n  Returns:\n    An L1 Regularizer with the given regularization factor.\n  ",
     "aliases": [],
     "file": "keras/regularizers.py"
   },
@@ -18,6 +19,7 @@
         "default": 0.01
       }
     ],
+    "docstring": "Create a regularizer that applies an L2 regularization penalty.\n\n  The L2 regularization penalty is computed as:\n  $$\\ell_2\\,\\,penalty =\\ell_2\\sum_{i=0}^nx_i^2$$\n\n  Arguments:\n      l: Float; L2 regularization factor.\n\n  Returns:\n    An L2 Regularizer with the given regularization factor.\n  ",
     "aliases": [],
     "file": "keras/regularizers.py"
   },
@@ -33,6 +35,7 @@
         "default": 0.01
       }
     ],
+    "docstring": "Create a regularizer that applies both L1 and L2 penalties.\n\n  The L1 regularization penalty is computed as:\n  $$\\ell_1\\,\\,penalty =\\ell_1\\sum_{i=0}^n|x_i|$$\n\n  The L2 regularization penalty is computed as:\n  $$\\ell_2\\,\\,penalty =\\ell_2\\sum_{i=0}^nx_i^2$$\n\n  Arguments:\n      l1: Float; L1 regularization factor.\n      l2: Float; L2 regularization factor.\n\n  Returns:\n    An L1L2 Regularizer with the given regularization factors.\n  ",
     "aliases": [],
     "file": "keras/regularizers.py"
   }
