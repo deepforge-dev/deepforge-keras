@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+import os
+import json
+import argparse
+from pathlib import Path
+
+from layer_parser import LayerParser
+
+
+class KerasSchemaSaver:
+    """A schema saver for keras.
+
+    This class uses keras layer parser in
+    `src/common` to generate schema for keras
+    layers.
+
+    Parameters
+    ----------
+    out_dir : str or Path like, default=None
+        The output directory to save the generated schemas in
+    """
+    def __init__(self, out_dir=None):
+        if out_dir is None:
+            out_dir = '.'
+        self.out_dir = Path(out_dir).resolve()
+
+        print(f'Schemas will be saved in {self.out_dir}')
+
+        if not self.out_dir.exists():
+            os.makedirs(self.out_dir)
+
+        self.layer_parser = LayerParser()
+
+    def parse_and_save(self):
+        """Call the parser functions and save schemas as json files"""
+        activations = self.layer_parser.parse_activations()
+        constraints = self.layer_parser.parse_constrains()
+        initializers = self.layer_parser.parse_initializers()
+        regularizers = self.layer_parser.parse_regularizers()
+
+        print(f'Found {len(activations)} activations')
+        self.save_json(self.out_dir / 'activations.json', activations)
+
+        print(f'Found {len(constraints)} constraints')
+        self.save_json(self.out_dir / 'constraints.json', constraints)
+
+        print(f'Found {len(initializers)} initializers')
+        self.save_json(self.out_dir / 'initializers.json', initializers)
+
+        print(f'Found {len(regularizers)} regularizers')
+        self.save_json(self.out_dir / 'regularizers.json', regularizers)
+
+    @staticmethod
+    def save_json(path, content):
+        with open(path, 'w') as json_file:
+            json.dump(content, json_file, indent=2)
+
+
+def main():
+    out_dir = './src/plugins/CreateKerasMeta/schemas'
+    parser = argparse.ArgumentParser(description='Parse keras layers')
+    parser.add_argument('--out-dir',
+                        help='The output directory to save the generated schemas',
+                        type=str,
+                        default=out_dir)
+    args = parser.parse_args()
+    schema_saver = KerasSchemaSaver(args.out_dir)
+    schema_saver.parse_and_save()
+
+
+if __name__ == '__main__':
+    main()
