@@ -2,17 +2,303 @@
 import os
 import json
 import argparse
+import inspect
 from pathlib import Path
 
-from layer_parser import LayerParser
+import tensorflow as tf
+import tensorflow.keras as keras
+
+SERIALIZATION_HELPERS = [
+    'serialize',
+    'deserialize',
+]
+
+INIT_HELPERS = ['get']
+
+ABSTRACT_CLASSES = [
+    'Initializer',
+    'Constraint',
+    'Regularizer',
+    'Layer'
+]
+
+
+class LayerParser:
+    """A generic parser for keras.
+
+    This class uses inspect module, together with some
+    conventions in the keras sources to gather information
+    on keras layers, constraints, activations etc...
+    """
+    def __init__(self):
+        self.tf_version = tf.__version__
+        self.keras_version = keras.__version__
+        print(f'Tensorflow Version: {self.tf_version}, '
+              f'Keras Version: {self.keras_version}')
+
+    def parse_activations(self):
+        """Parse activations of keras
+
+        Notes:
+        ------
+        This method uses ``LayerParser._parse_class_module`` to parse activation functions
+        """
+        return self._parse_fn_module(module_name=keras.activations)
+
+    def parse_constrains(self):
+        """Parse constraints of keras
+
+        Notes:
+        ------
+        This method uses ``LayerParser._parse_class_module`` to parse constraints
+        """
+        constraints = self._parse_class_module(module_name=keras.constraints)
+        self.delete_key(constraints)
+        return constraints
+
+    def parse_initializers(self):
+        """Parse initializers of keras
+
+        Notes:
+        ------
+        This method uses ``LayerParser._parse_class_module`` to parse initializers functions
+        """
+        initializers = self._parse_class_module(module_name=keras.initializers, mro_index=2)
+        for initializer in initializers:
+            if initializer['name'] == 'Constant':
+                initializer['base'] = 'Initializer'
+        self.delete_key(initializers)
+        return initializers
+
+    def parse_regularizers(self):
+        """Parse regularizers of keras
+
+        Notes:
+        ------
+        This method uses ``LayerParser._parse_class_module`` to parse initializers functions
+        """
+        regularizers = self._parse_class_module(module_name=keras.regularizers)
+        for regularizer in regularizers:
+            if regularizer.get('name') == 'L1L2':
+                regularizer['aliases'] = ['l1l2']
+        self.delete_key(regularizers)
+        return regularizers
+
+    def parse_layers(self):
+        layers = self._parse_class_module(module_name=keras.layers)
+        layers.extend(self._parse_class_module(module_name=tf.python.keras.layers.cudnn_recurrent))
+        layers = self._replace_duplicate_with_aliases(layers)
+        self.delete_key(layers)
+        return layers
+
+    def _parse_fn_module(self, module_name):
+        """Parse module definitions with function exports
+
+        Parameters
+        ----------
+        module_name : types.ModuleType or types.MethodWrapperType
+            The module to parse function exports for
+
+        Returns
+        -------
+        list of dict
+            A list of dictionaries where each member has is the following
+                {
+                    'name' : name of the function,
+                    'arguments': list of arguments to the function along with default values
+                    'docstring': docstring of the function
+                    'file': module file (tensorflow/keras/module.py or similar)
+                }
+        """
+        members = inspect.getmembers(module_name)
+        functions = []
+        for name, member in members:
+            if inspect.isfunction(member) and not self.is_helper_type(name):
+                arguments = self._get_fn_arguments(member)
+                docstring = member.__doc__
+                file = '/'.join(member.__module__.split('.')) + '.py'
+                functions.append({
+                    'name': name,
+                    'arguments': arguments,
+                    'docstring': docstring,
+                    'file': file
+                })
+        return functions
+
+    def _parse_class_module(self,
+                            module_name,
+                            get_call_annotations=False,
+                            mro_index=1):
+        """Parse module definitions with classes export
+
+        Parameters
+        ----------
+        module_name : types.ModuleType or types.MethodWrapperType
+            The module to parse function exports for
+
+        get_call_annotations: bool, default=False
+            If true, parse return annotations for __call__ dunder name for the class
+
+        mro_index : int, default=1
+            The index of the base class list for the classes to include in the base
+
+        Returns
+        -------
+        list of dict
+            A list of dictionaries where each member has is the following
+                {
+                        'name': name of the class,
+                        'base': the immediate base class (using mro),
+                        'docstring': docstring for the classes,
+                        'arguments': list of arguments for __init__ method with default values,
+                        'abstract': true if the class is abstract in keras,
+                        'outputs': list of outputs of the call method,
+                        'inputs': list of inputs to the __call__ dunder with default values,
+                        'file': module file (tensorflow/keras/module.py or similar)
+                        'aliases': list of alternative export names for the class
+                }
+        """
+        members = inspect.getmembers(module_name)
+        classes = []
+        class_aliases = {}
+        for name, member in members:
+            if inspect.isclass(member) and \
+                    not self.is_helper_type(name):
+
+                if self.is_standard_class_name(name):
+                    docstring = member.__doc__
+                    bases = inspect.getmro(member)
+
+                    try:
+                        base = bases[mro_index].__name__
+                    except IndexError:
+                        base = bases[1].__name__
+
+                    abstract = self.is_abstract(member)
+                    arguments = None if abstract else self._get_fn_arguments(member.__init__)
+                    inputs = None if abstract else self._get_call_arguments(member)
+
+                    # TODO: could use inspect.getsourcefile()??
+                    file = '/'.join(member.__module__.split('.')) + '.py'
+
+                    classes.append({
+                        'name': name,
+                        'base': base,
+                        'docstring': docstring,
+                        'arguments': arguments,
+                        'abstract': abstract,
+                        'outputs': [] if get_call_annotations else None,
+                        'inputs': inputs,
+                        'file': file,
+                        'reference': member
+                    })
+                else:
+                    class_alias = class_aliases.get(member.__name__, [])
+                    class_alias.append(name)
+                    class_aliases[member.__name__] = class_alias
+
+        for class_ in classes:
+            if class_['name'] in class_aliases:
+                class_['aliases'] = class_aliases.get(class_['name'])
+            if not class_.get('aliases'):
+                class_['aliases'] = None
+        return classes
+
+    def _replace_duplicate_with_aliases(self,
+                                        list_of_dict,
+                                        ref_key='reference'):
+        references_dict = {}
+        for member in list_of_dict:
+            if member[ref_key] not in references_dict:
+                references_dict[member[ref_key]] = [member]
+            else:
+                references_dict[member[ref_key]].append(member)
+        members_with_aliases = []
+        for key in references_dict:
+            aliases = []
+            if len(references_dict[key]) > 1:
+                for j in range(len(references_dict[key])):
+                    aliases.append(references_dict[key][j]['name'])
+                references_dict[key][0]['name'], references_dict[key][0]['aliases'] = self.remove_longest_name(aliases)
+            members_with_aliases.append(references_dict[key][0])
+        return members_with_aliases
+
+    def _get_call_arguments(self, member):
+        mros = member.mro()
+        call_method = None
+        for superclass in mros:
+            if superclass.__dict__.get('__call__'):
+                call_method = superclass.__dict__.get('__call__')
+                break
+        if call_method:
+            call_args = self._get_fn_arguments(call_method)
+            for arg in call_args:
+                if arg.get('name') == 'args':
+                    arg['name'] = 'inputs'
+                    arg['default'] = None
+            return call_args
+
+    def _get_fn_arguments(self, member):
+        if inspect.isfunction(member):
+            params_list = []
+            params = inspect.signature(member).parameters
+            for param_name, param in params.items():
+                if param_name == 'kwargs':
+                    continue
+
+                if param.default is None:
+                    default = 'None'
+                else:
+                    default = None if param.default is param.empty else param.default
+
+                if isinstance(default, tf.python.framework.dtypes.DType):
+                    default = str(default)
+
+                params_list.append({
+                    'name': param_name,
+                    'default': default
+                })
+
+            if len(params_list) and inspect.isclass(member):
+                params_list.insert(0, {'name': 'self', 'default': None})
+            elif inspect.isclass(member):
+                params_list = None
+
+            return params_list
+
+    @staticmethod
+    def delete_key(list_of_dict, key='reference'):
+        for member in list_of_dict:
+            member.pop(key)
+
+    @staticmethod
+    def is_helper_type(member):
+        return member in SERIALIZATION_HELPERS or member in INIT_HELPERS
+
+    @staticmethod
+    def remove_longest_name(list_of_names):
+        longest_name = max(list_of_names, key=len)
+        list_of_names.remove(longest_name)
+        return longest_name, list_of_names
+
+    @staticmethod
+    def is_abstract(member):
+        return member in ABSTRACT_CLASSES or \
+               member.__name__.startswith('_') or \
+               inspect.isabstract(member) or \
+               'abstract' in (member.__name__.lower() or
+                              member.__doc__.lower())
+
+    @staticmethod
+    def is_standard_class_name(name):
+        return name[0].isupper() or name.startswith('_')
 
 
 class KerasSchemaSaver:
     """A schema saver for keras.
 
-    This class uses keras layer parser in
-    `src/common` to generate schema for keras
-    layers.
+    This class uses keras layer parser in to generate
+    schema for keras layers.
 
     Parameters
     ----------
@@ -37,6 +323,7 @@ class KerasSchemaSaver:
         constraints = self.layer_parser.parse_constrains()
         initializers = self.layer_parser.parse_initializers()
         regularizers = self.layer_parser.parse_regularizers()
+        layers = self.layer_parser.parse_layers()
 
         print(f'Found {len(activations)} activations')
         self.save_json(self.out_dir / 'activations.json', activations)
@@ -49,6 +336,9 @@ class KerasSchemaSaver:
 
         print(f'Found {len(regularizers)} regularizers')
         self.save_json(self.out_dir / 'regularizers.json', regularizers)
+
+        print(f'Found {len(layers)} layers')
+        self.save_json(self.out_dir / 'layers.json', layers)
 
     @staticmethod
     def save_json(path, content):
