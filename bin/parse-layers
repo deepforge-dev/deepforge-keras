@@ -121,13 +121,14 @@ class LayerParser:
                     'name': name,
                     'arguments': arguments,
                     'docstring': docstring,
-                    'file': file
+                    'file': file,
+                    'aliases': []
                 })
         return functions
 
     def _parse_class_module(self,
                             module_name,
-                            get_call_annotations=False,
+                            get_call_annotations=True,
                             mro_index=1):
         """Parse module definitions with classes export
 
@@ -136,7 +137,7 @@ class LayerParser:
         module_name : types.ModuleType or types.MethodWrapperType
             The module to parse function exports for
 
-        get_call_annotations: bool, default=False
+        get_call_annotations: bool, default=True
             If true, parse return annotations for __call__ dunder name for the class
 
         mro_index : int, default=1
@@ -165,7 +166,7 @@ class LayerParser:
             if inspect.isclass(member) and \
                     not self.is_helper_type(name):
 
-                if self.is_standard_class_name(name):
+                if self.is_standard_class_name(name) and self.should_parse(member):
                     docstring = member.__doc__
                     bases = inspect.getmro(member)
 
@@ -187,7 +188,7 @@ class LayerParser:
                         'docstring': docstring,
                         'arguments': arguments,
                         'abstract': abstract,
-                        'outputs': [] if get_call_annotations else None,
+                        'outputs': [] if get_call_annotations else None,  # ToDo: Parse return annotations for __call__
                         'inputs': inputs,
                         'file': file,
                         'reference': member
@@ -201,7 +202,7 @@ class LayerParser:
             if class_['name'] in class_aliases:
                 class_['aliases'] = class_aliases.get(class_['name'])
             if not class_.get('aliases'):
-                class_['aliases'] = None
+                class_['aliases'] = []
         return classes
 
     def _replace_duplicate_with_aliases(self,
@@ -230,6 +231,11 @@ class LayerParser:
             if superclass.__dict__.get('__call__'):
                 call_method = superclass.__dict__.get('__call__')
                 break
+
+            if superclass.__dict__.get('call'):
+                call_method = superclass.__dict__.get('call')
+                break
+
         if call_method:
             call_args = self._get_fn_arguments(call_method)
             for arg in call_args:
@@ -283,11 +289,14 @@ class LayerParser:
 
     @staticmethod
     def is_abstract(member):
-        return member in ABSTRACT_CLASSES or \
-               member.__name__.startswith('_') or \
+        return member.__name__.startswith('_') or \
                inspect.isabstract(member) or \
                'abstract' in (member.__name__.lower() or
                               member.__doc__.lower())
+
+    @staticmethod
+    def should_parse(member):
+        return member.__name__ not in ABSTRACT_CLASSES
 
     @staticmethod
     def is_standard_class_name(name):

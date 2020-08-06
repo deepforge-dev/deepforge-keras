@@ -144,7 +144,6 @@ define([
         // Create the category nodes
         const categories = this.getLayerCategories(schemas);
 
-
         // Add activation, constraint, etc, functions
         categories.forEach(name => {
             this.metaSheets[name] = this.createMetaSheetTab(root, name);
@@ -163,7 +162,7 @@ define([
     };
 
     CreateKerasMeta.prototype.getBaseName = function (filename) {
-        var type = filename.split('/').pop().replace(/\.py$/, '');
+        var type = filename.split('/').pop().replace(/(_v2)?\.py$/, '');
         return type[0].toUpperCase() + type.substring(1);
     };
 
@@ -263,7 +262,7 @@ define([
                 return undefined;
             }
             type = arg.type;
-            layer = this.getLayerSchema(layer.base);
+            layer = layer.name !== layer.base ? this.getLayerSchema(layer.base) : undefined;
         }
         return type;
     };
