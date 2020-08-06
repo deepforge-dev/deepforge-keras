@@ -9,5 +9,4 @@ install:
   - conda env create --file environment.server.yml
 script: source activate deepforge-keras-server && npm test
 node_js:
-  - "10"
   - "12"
