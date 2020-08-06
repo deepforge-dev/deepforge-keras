@@ -1,5 +1,6 @@
 /*eslint-env node, mocha*/
 describe('ExportKeras', function () {
+    this.timeout(5000);
     const testFixture = require('../../globals'),
         BlobClient = require('webgme-engine/src/server/middleware/blob/BlobClientWithFSBackend'),
         {promisify} = require('util'),

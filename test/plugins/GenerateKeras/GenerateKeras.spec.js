@@ -2,6 +2,7 @@
 
 'use strict';
 describe('GenerateKeras', function () {
+    this.timeout(5000);
     const testFixture = require('../../globals');
     const pluginName = 'GenerateKeras';
     const Q = require('q');

@@ -4,7 +4,7 @@
 var testFixture = require('../../globals');
 
 describe('CreateKerasMeta', function () {
-    this.timeout(5000);
+    this.timeout(7000);
     var gmeConfig = testFixture.getGmeConfig(),
         expect = testFixture.expect,
         path = testFixture.path,
