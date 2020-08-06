@@ -141,7 +141,7 @@ describe('CreateKerasMeta', function () {
             });
 
             it('should create nodes for regularizer fns', function () {
-                let node = getMetaNode('l1');
+                let node = getMetaNode('L1');
                 assert(node);
             });
 

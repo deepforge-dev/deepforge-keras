@@ -1,5 +1,105 @@
 [
   {
+    "name": "elu",
+    "arguments": [
+      {
+        "name": "x",
+        "default": null
+      },
+      {
+        "name": "alpha",
+        "default": 1.0
+      }
+    ],
+    "docstring": "Exponential Linear Unit.\n\n  The exponential linear unit (ELU) with `alpha > 0` is:\n  `x` if `x > 0` and\n  `alpha * (exp(x) - 1)` if `x < 0`\n  The ELU hyperparameter `alpha` controls the value to which an\n  ELU saturates for negative net inputs. ELUs diminish the\n  vanishing gradient effect.\n\n  ELUs have negative values which pushes the mean of the activations\n  closer to zero.\n  Mean activations that are closer to zero enable faster learning as they\n  bring the gradient closer to the natural gradient.\n  ELUs saturate to a negative value when the argument gets smaller.\n  Saturation means a small derivative which decreases the variation\n  and the information that is propagated to the next layer.\n\n  Example Usage:\n\n  >>> import tensorflow as tf\n  >>> model = tf.keras.Sequential()\n  >>> model.add(tf.keras.layers.Conv2D(32, (3, 3), activation='elu',\n  ...          input_shape=(28, 28, 1)))\n  >>> model.add(tf.keras.layers.MaxPooling2D((2, 2)))\n  >>> model.add(tf.keras.layers.Conv2D(64, (3, 3), activation='elu'))\n  >>> model.add(tf.keras.layers.MaxPooling2D((2, 2)))\n  >>> model.add(tf.keras.layers.Conv2D(64, (3, 3), activation='elu'))\n\n  <tensorflow.python.keras.engine.sequential.Sequential object ...>\n\n  Arguments:\n      x: Input tensor.\n      alpha: A scalar, slope of negative section. `alpha` controls the value to\n        which an ELU saturates for negative net inputs.\n\n  Returns:\n      The exponential linear unit (ELU) activation function: `x` if `x > 0` and\n      `alpha * (exp(x) - 1)` if `x < 0`.\n\n\n  Reference:\n      [Fast and Accurate Deep Network Learning by Exponential Linear Units\n      (ELUs) (Clevert et al, 2016)](https://arxiv.org/abs/1511.07289)\n  ",
+    "file": "tensorflow/python/keras/activations.py",
+    "aliases": []
+  },
+  {
+    "name": "exponential",
+    "arguments": [
+      {
+        "name": "x",
+        "default": null
+      }
+    ],
+    "docstring": "Exponential activation function.\n\n  For example:\n\n  >>> a = tf.constant([-3.0,-1.0, 0.0,1.0,3.0], dtype = tf.float32)\n  >>> b = tf.keras.activations.exponential(a)\n  >>> b.numpy()\n  array([0.04978707,  0.36787945,  1.,  2.7182817 , 20.085537], dtype=float32)\n\n  Arguments:\n      x: Input tensor.\n\n  Returns:\n      Tensor with exponential activation: `exp(x)`.\n  ",
+    "file": "tensorflow/python/keras/activations.py",
+    "aliases": []
+  },
+  {
+    "name": "hard_sigmoid",
+    "arguments": [
+      {
+        "name": "x",
+        "default": null
+      }
+    ],
+    "docstring": "Hard sigmoid activation function.\n\n  A faster approximation of the sigmoid activation.\n\n  For example:\n\n  >>> a = tf.constant([-3.0,-1.0, 0.0,1.0,3.0], dtype = tf.float32)\n  >>> b = tf.keras.activations.hard_sigmoid(a)\n  >>> b.numpy()\n  array([0. , 0.3, 0.5, 0.7, 1. ], dtype=float32)\n\n  Arguments:\n      x: Input tensor.\n\n  Returns:\n    The hard sigmoid activation, defined as:\n\n      - `if x < -2.5: return 0`\n      - `if x > 2.5: return 1`\n      - `if -2.5 <= x <= 2.5: return 0.2 * x + 0.5`\n  ",
+    "file": "tensorflow/python/keras/activations.py",
+    "aliases": []
+  },
+  {
+    "name": "linear",
+    "arguments": [
+      {
+        "name": "x",
+        "default": null
+      }
+    ],
+    "docstring": "Linear activation function (pass-through).\n\n  For example:\n\n  >>> a = tf.constant([-3.0,-1.0, 0.0,1.0,3.0], dtype = tf.float32)\n  >>> b = tf.keras.activations.linear(a)\n  >>> b.numpy()\n  array([-3., -1.,  0.,  1.,  3.], dtype=float32)\n\n  Arguments:\n      x: Input tensor.\n\n  Returns:\n      The input, unmodified.\n  ",
+    "file": "tensorflow/python/keras/activations.py",
+    "aliases": []
+  },
+  {
+    "name": "relu",
+    "arguments": [
+      {
+        "name": "x",
+        "default": null
+      },
+      {
+        "name": "alpha",
+        "default": 0.0
+      },
+      {
+        "name": "max_value",
+        "default": "None"
+      },
+      {
+        "name": "threshold",
+        "default": 0
+      }
+    ],
+    "docstring": "Applies the rectified linear unit activation function.\n\n  With default values, this returns the standard ReLU activation:\n  `max(x, 0)`, the element-wise maximum of 0 and the input tensor.\n\n  Modifying default parameters allows you to use non-zero thresholds,\n  change the max value of the activation,\n  and to use a non-zero multiple of the input for values below the threshold.\n\n  For example:\n\n  >>> foo = tf.constant([-10, -5, 0.0, 5, 10], dtype = tf.float32)\n  >>> tf.keras.activations.relu(foo).numpy()\n  array([ 0.,  0.,  0.,  5., 10.], dtype=float32)\n  >>> tf.keras.activations.relu(foo, alpha=0.5).numpy()\n  array([-5. , -2.5,  0. ,  5. , 10. ], dtype=float32)\n  >>> tf.keras.activations.relu(foo, max_value=5).numpy()\n  array([0., 0., 0., 5., 5.], dtype=float32)\n  >>> tf.keras.activations.relu(foo, threshold=5).numpy()\n  array([-0., -0.,  0.,  0., 10.], dtype=float32)\n\n  Arguments:\n      x: Input `tensor` or `variable`.\n      alpha: A `float` that governs the slope for values lower than the\n        threshold.\n      max_value: A `float` that sets the saturation threshold (the largest value\n        the function will return).\n      threshold: A `float` giving the threshold value of the activation function\n        below which values will be damped or set to zero.\n\n  Returns:\n      A `Tensor` representing the input tensor,\n      transformed by the relu activation function.\n      Tensor will be of the same shape and dtype of input `x`.\n  ",
+    "file": "tensorflow/python/keras/activations.py",
+    "aliases": []
+  },
+  {
+    "name": "selu",
+    "arguments": [
+      {
+        "name": "x",
+        "default": null
+      }
+    ],
+    "docstring": "Scaled Exponential Linear Unit (SELU).\n\n  The Scaled Exponential Linear Unit (SELU) activation function is defined as:\n\n  - `if x > 0: return scale * x`\n  - `if x < 0: return scale * alpha * (exp(x) - 1)`\n\n  where `alpha` and `scale` are pre-defined constants\n  (`alpha=1.67326324` and `scale=1.05070098`).\n\n  Basically, the SELU activation function multiplies `scale` (> 1) with the\n  output of the `tf.keras.activations.elu` function to ensure a slope larger\n  than one for positive inputs.\n\n  The values of `alpha` and `scale` are\n  chosen so that the mean and variance of the inputs are preserved\n  between two consecutive layers as long as the weights are initialized\n  correctly (see `tf.keras.initializers.LecunNormal` initializer)\n  and the number of input units is \"large enough\"\n  (see reference paper for more information).\n\n  Example Usage:\n\n  >>> num_classes = 10  # 10-class problem\n  >>> model = tf.keras.Sequential()\n  >>> model.add(tf.keras.layers.Dense(64, kernel_initializer='lecun_normal',\n  ...                                 activation='selu'))\n  >>> model.add(tf.keras.layers.Dense(32, kernel_initializer='lecun_normal',\n  ...                                 activation='selu'))\n  >>> model.add(tf.keras.layers.Dense(16, kernel_initializer='lecun_normal',\n  ...                                 activation='selu'))\n  >>> model.add(tf.keras.layers.Dense(num_classes, activation='softmax'))\n\n  Arguments:\n      x: A tensor or variable to compute the activation function for.\n\n  Returns:\n      The scaled exponential unit activation: `scale * elu(x, alpha)`.\n\n  Notes:\n      - To be used together with the\n        `tf.keras.initializers.LecunNormal` initializer.\n      - To be used together with the dropout variant\n        `tf.keras.layers.AlphaDropout` (not regular dropout).\n\n  References:\n      - [Klambauer et al., 2017](https://arxiv.org/abs/1706.02515)\n  ",
+    "file": "tensorflow/python/keras/activations.py",
+    "aliases": []
+  },
+  {
+    "name": "sigmoid",
+    "arguments": [
+      {
+        "name": "x",
+        "default": null
+      }
+    ],
+    "docstring": "Sigmoid activation function, `sigmoid(x) = 1 / (1 + exp(-x))`.\n\n  Applies the sigmoid activation function. For small values (<-5),\n  `sigmoid` returns a value close to zero, and for large values (>5)\n  the result of the function gets close to 1.\n\n  Sigmoid is equivalent to a 2-element Softmax, where the second element is\n  assumed to be zero. The sigmoid function always returns a value between\n  0 and 1.\n\n  For example:\n\n  >>> a = tf.constant([-20, -1.0, 0.0, 1.0, 20], dtype = tf.float32)\n  >>> b = tf.keras.activations.sigmoid(a)\n  >>> b.numpy()\n  array([2.0611537e-09, 2.6894143e-01, 5.0000000e-01, 7.3105860e-01,\n           1.0000000e+00], dtype=float32)\n\n  Arguments:\n      x: Input tensor.\n\n  Returns:\n      Tensor with the sigmoid activation: `1 / (1 + exp(-x))`.\n  ",
+    "file": "tensorflow/python/keras/activations.py",
+    "aliases": []
+  },
+  {
     "name": "softmax",
     "arguments": [
       {
@@ -11,36 +111,9 @@
         "default": -1
       }
     ],
-    "docstring": "Softmax activation function.\n\n    # Arguments\n        x : Tensor.\n        axis: Integer, axis along which the softmax normalization is applied.\n\n    # Returns\n        Tensor, output of softmax transformation.\n\n    # Raises\n        ValueError: In case `dim(x) == 1`.\n    ",
-    "aliases": [],
-    "file": "keras/activations.py"
-  },
-  {
-    "name": "elu",
-    "arguments": [
-      {
-        "name": "x",
-        "default": null
-      },
-      {
-        "name": "alpha",
-        "default": 1
-      }
-    ],
-    "aliases": [],
-    "file": "keras/activations.py"
-  },
-  {
-    "name": "selu",
-    "arguments": [
-      {
-        "name": "x",
-        "default": null
-      }
-    ],
-    "docstring": "Scaled Exponential Linear Unit. (Klambauer et al., 2017)\n\n    # Arguments\n        x: A tensor or variable to compute the activation function for.\n\n    # References\n        - [Self-Normalizing Neural Networks](https://arxiv.org/abs/1706.02515)\n    ",
-    "aliases": [],
-    "file": "keras/activations.py"
+    "docstring": "Softmax converts a real vector to a vector of categorical probabilities.\n\n  The elements of the output vector are in range (0, 1) and sum to 1.\n\n  Each vector is handled independently. The `axis` argument sets which axis\n  of the input the function is applied along.\n\n  Softmax is often used as the activation for the last\n  layer of a classification network because the result could be interpreted as\n  a probability distribution.\n\n  The softmax of each vector x is computed as\n  `exp(x) / tf.reduce_sum(exp(x))`.\n\n  The input values in are the log-odds of the resulting probability.\n\n  Arguments:\n      x : Input tensor.\n      axis: Integer, axis along which the softmax normalization is applied.\n\n  Returns:\n      Tensor, output of softmax transformation (all values are non-negative\n        and sum to 1).\n\n  Raises:\n      ValueError: In case `dim(x) == 1`.\n  ",
+    "file": "tensorflow/python/keras/activations.py",
+    "aliases": []
   },
   {
     "name": "softplus",
@@ -50,8 +123,9 @@
         "default": null
       }
     ],
-    "aliases": [],
-    "file": "keras/activations.py"
+    "docstring": "Softplus activation function, `softplus(x) = log(exp(x) + 1)`.\n  \n  Example Usage:\n  \n  >>> a = tf.constant([-20, -1.0, 0.0, 1.0, 20], dtype = tf.float32)\n  >>> b = tf.keras.activations.softplus(a) \n  >>> b.numpy()\n  array([2.0611537e-09, 3.1326166e-01, 6.9314718e-01, 1.3132616e+00,\n           2.0000000e+01], dtype=float32)\n  \n  Arguments:\n      x: Input tensor.\n\n  Returns:\n      The softplus activation: `log(exp(x) + 1)`.\n  ",
+    "file": "tensorflow/python/keras/activations.py",
+    "aliases": []
   },
   {
     "name": "softsign",
@@ -61,27 +135,21 @@
         "default": null
       }
     ],
-    "aliases": [],
-    "file": "keras/activations.py"
+    "docstring": "Softsign activation function, `softsign(x) = x / (abs(x) + 1)`.\n  \n  Example Usage:\n  \n  >>> a = tf.constant([-1.0, 0.0, 1.0], dtype = tf.float32)\n  >>> b = tf.keras.activations.softsign(a)\n  >>> b.numpy()\n  array([-0.5,  0. ,  0.5], dtype=float32)\n\n  Arguments:\n      x: Input tensor.\n\n  Returns:\n      The softsign activation: `x / (abs(x) + 1)`.\n  ",
+    "file": "tensorflow/python/keras/activations.py",
+    "aliases": []
   },
   {
-    "name": "relu",
+    "name": "swish",
     "arguments": [
       {
         "name": "x",
         "default": null
-      },
-      {
-        "name": "alpha",
-        "default": 0
-      },
-      {
-        "name": "max_value",
-        "default": "None"
       }
     ],
-    "aliases": [],
-    "file": "keras/activations.py"
+    "docstring": "Swish activation function, `swish(x) = x * sigmoid(x)`.\n\n  Swish activation function which returns `x*sigmoid(x)`.\n  It is a smooth, non-monotonic function that consistently matches\n  or outperforms ReLU on deep networks, it is unbounded above and\n  bounded below.\n\n\n  Example Usage:\n\n  >>> a = tf.constant([-20, -1.0, 0.0, 1.0, 20], dtype = tf.float32)\n  >>> b = tf.keras.activations.swish(a)\n  >>> b.numpy()\n  array([-4.1223075e-08, -2.6894143e-01,  0.0000000e+00,  7.3105860e-01,\n            2.0000000e+01], dtype=float32)\n\n  Arguments:\n      x: Input tensor.\n\n  Returns:\n      The swish activation applied to `x` (see reference paper for details).\n\n  Reference:\n    - [Ramachandran et al., 2017](https://arxiv.org/abs/1710.05941)\n  ",
+    "file": "tensorflow/python/keras/activations.py",
+    "aliases": []
   },
   {
     "name": "tanh",
@@ -91,40 +159,8 @@
         "default": null
       }
     ],
-    "aliases": [],
-    "file": "keras/activations.py"
-  },
-  {
-    "name": "sigmoid",
-    "arguments": [
-      {
-        "name": "x",
-        "default": null
-      }
-    ],
-    "aliases": [],
-    "file": "keras/activations.py"
-  },
-  {
-    "name": "hard_sigmoid",
-    "arguments": [
-      {
-        "name": "x",
-        "default": null
-      }
-    ],
-    "aliases": [],
-    "file": "keras/activations.py"
-  },
-  {
-    "name": "linear",
-    "arguments": [
-      {
-        "name": "x",
-        "default": null
-      }
-    ],
-    "aliases": [],
-    "file": "keras/activations.py"
+    "docstring": "Hyperbolic tangent activation function.\n\n  For example:\n\n  >>> a = tf.constant([-3.0,-1.0, 0.0,1.0,3.0], dtype = tf.float32)\n  >>> b = tf.keras.activations.tanh(a)\n  >>> b.numpy()\n  array([-0.9950547, -0.7615942,  0.,  0.7615942,  0.9950547], dtype=float32)\n\n  Arguments:\n      x: Input tensor.\n\n  Returns:\n      Tensor of same shape and dtype of input `x`, with tanh activation:\n      `tanh(x) = sinh(x)/cosh(x) = ((exp(x) - exp(-x))/(exp(x) + exp(-x)))`.\n  ",
+    "file": "tensorflow/python/keras/activations.py",
+    "aliases": []
   }
 ]

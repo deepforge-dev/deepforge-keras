@@ -67,6 +67,8 @@ class LayerParser:
         for initializer in initializers:
             if initializer['name'] == 'Constant':
                 initializer['base'] = 'Initializer'
+            if initializer['name'] == 'RandomUniform':
+                initializer['aliases'].append('uniform')
         self.delete_key(initializers)
         return initializers
 
@@ -283,7 +285,7 @@ class LayerParser:
 
     @staticmethod
     def remove_longest_name(list_of_names):
-        longest_name = max(list_of_names, key=len)
+        longest_name = min(list_of_names, key=len)
         list_of_names.remove(longest_name)
         return longest_name, list_of_names
 

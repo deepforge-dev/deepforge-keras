@@ -78,7 +78,7 @@ describe('GenerateKeras', function () {
         });
 
         it('should import all keras layers', function() {
-            assert(code.includes('from keras.layers import *'));
+            assert(code.includes('from tensorflow.keras.layers import *'));
         });
 
         it('should create a model', function() {

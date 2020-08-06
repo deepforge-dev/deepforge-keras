@@ -1,39 +1,99 @@
 [
   {
-    "name": "l1",
+    "name": "L1",
+    "base": "Regularizer",
+    "docstring": "A regularizer that applies a L1 regularization penalty.\n\n  The L1 regularization penalty is computed as:\n  `loss = l1 * reduce_sum(abs(x))`\n\n  L1 may be passed to a layer as a string identifier:\n\n  >>> dense = tf.keras.layers.Dense(3, kernel_regularizer='l1')\n\n  In this case, the default value used is `l1=0.01`.\n\n  Attributes:\n      l1: Float; L1 regularization factor.\n  ",
     "arguments": [
       {
-        "name": "l",
-        "default": 0.01
-      }
-    ],
-    "aliases": [],
-    "file": "keras/regularizers.py"
-  },
-  {
-    "name": "l2",
-    "arguments": [
-      {
-        "name": "l",
-        "default": 0.01
-      }
-    ],
-    "aliases": [],
-    "file": "keras/regularizers.py"
-  },
-  {
-    "name": "l1_l2",
-    "arguments": [
+        "name": "self",
+        "default": null
+      },
       {
         "name": "l1",
         "default": 0.01
+      }
+    ],
+    "abstract": false,
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "x",
+        "default": null
+      }
+    ],
+    "file": "tensorflow/python/keras/regularizers.py",
+    "aliases": [
+      "l1"
+    ]
+  },
+  {
+    "name": "L1L2",
+    "base": "Regularizer",
+    "docstring": "A regularizer that applies both L1 and L2 regularization penalties.\n\n  The L1 regularization penalty is computed as:\n  `loss = l1 * reduce_sum(abs(x))`\n\n  The L2 regularization penalty is computed as\n  `loss = l2 * reduce_sum(square(x))`\n\n  L1L2 may be passed to a layer as a string identifier:\n\n  >>> dense = tf.keras.layers.Dense(3, kernel_regularizer='l1_l2')\n\n  In this case, the default values used are `l1=0.01` and `l2=0.01`.\n\n  Attributes:\n      l1: Float; L1 regularization factor.\n      l2: Float; L2 regularization factor.\n  ",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "l1",
+        "default": 0.0
+      },
+      {
+        "name": "l2",
+        "default": 0.0
+      }
+    ],
+    "abstract": false,
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "x",
+        "default": null
+      }
+    ],
+    "file": "tensorflow/python/keras/regularizers.py",
+    "aliases": [
+      "l1l2"
+    ]
+  },
+  {
+    "name": "L2",
+    "base": "Regularizer",
+    "docstring": "A regularizer that applies a L2 regularization penalty.\n\n  The L2 regularization penalty is computed as:\n  `loss = l2 * reduce_sum(square(x))`\n\n  L2 may be passed to a layer as a string identifier:\n\n  >>> dense = tf.keras.layers.Dense(3, kernel_regularizer='l2')\n\n  In this case, the default value used is `l2=0.01`.\n\n  Attributes:\n      l2: Float; L2 regularization factor.\n  ",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
       },
       {
         "name": "l2",
         "default": 0.01
       }
     ],
-    "aliases": [],
-    "file": "keras/regularizers.py"
+    "abstract": false,
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "x",
+        "default": null
+      }
+    ],
+    "file": "tensorflow/python/keras/regularizers.py",
+    "aliases": [
+      "l2"
+    ]
   }
 ]
