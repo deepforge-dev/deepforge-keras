@@ -181,7 +181,6 @@ class LayerParser:
                     arguments = None if abstract else self._get_fn_arguments(member.__init__)
                     inputs = None if abstract else self._get_call_arguments(member)
 
-                    # TODO: could use inspect.getsourcefile()??
                     file = '/'.join(member.__module__.split('.')) + '.py'
 
                     classes.append({
