@@ -41,7 +41,7 @@ class LayerParser:
 
         Notes:
         ------
-        This method uses ``LayerParser._parse_class_module`` to parse activation functions
+        This method uses ``LayerParser._parse_fn_module`` to parse activation functions
         """
         return self._parse_fn_module(module_name=keras.activations)
 
@@ -292,8 +292,8 @@ class LayerParser:
     def is_abstract(member):
         return member.__name__.startswith('_') or \
                inspect.isabstract(member) or \
-               'abstract' in (member.__name__.lower() or
-                              member.__doc__.lower())
+               'abstract' in member.__name__.lower() or \
+               'abstract' in member.__doc__.lower()
 
     @staticmethod
     def should_parse(member):
