@@ -292,8 +292,7 @@ class LayerParser:
     def is_abstract(member):
         return member.__name__.startswith('_') or \
                inspect.isabstract(member) or \
-               'abstract' in member.__name__.lower() or \
-               'abstract' in member.__doc__.lower()
+               'abstract' in member.__name__.lower()
 
     @staticmethod
     def should_parse(member):

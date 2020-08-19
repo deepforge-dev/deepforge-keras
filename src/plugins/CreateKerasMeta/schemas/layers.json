@@ -4202,10 +4202,28 @@
     "name": "Wrapper",
     "base": "Layer",
     "docstring": "Abstract wrapper base class.\n\n  Wrappers take another layer and augment it in various ways.\n  Do not use this class as a layer, it is only an abstract base class.\n  Two usable wrappers are the `TimeDistributed` and `Bidirectional` wrappers.\n\n  Arguments:\n    layer: The layer to be wrapped.\n  ",
-    "arguments": null,
-    "abstract": true,
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "layer",
+        "default": null
+      }
+    ],
+    "abstract": false,
     "outputs": [],
-    "inputs": null,
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
     "file": "tensorflow/python/keras/layers/wrappers.py",
     "aliases": []
   },
