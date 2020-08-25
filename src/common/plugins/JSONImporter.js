@@ -88,8 +88,7 @@ define([
                 const child = (await this.findNode(node, children[i].id)) ||
                     await this.createNode(node, children[i].id);
 
-                const index = currentChildren
-                    .findIndex(node => this.core.getPath(node) === this.core.getPath(child));
+                const index = currentChildren.indexOf(child);
                 if (index > -1) {
                     currentChildren.splice(index, 1);
                 }
@@ -117,7 +116,6 @@ define([
                 .sort((p1, p2) => p1[0] - p2[0])
                 .map(pair => changes[pair[1]]);
 
-            // TODO: Sort the changes? pointer_meta > sets > member_attributes/registry
             for (let i = 0; i < sortedChanges.length; i++) {
                 if (sortedChanges[i].type === 'put') {
                     await this._put(node, sortedChanges[i]);
