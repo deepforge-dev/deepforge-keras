@@ -88,7 +88,8 @@ define([
                 const child = (await this.findNode(node, children[i].id)) ||
                     await this.createNode(node, children[i].id);
 
-                const index = currentChildren.indexOf(child);
+                const index = currentChildren
+                    .findIndex(node => this.core.getPath(node) === this.core.getPath(child));
                 if (index > -1) {
                     currentChildren.splice(index, 1);
                 }
@@ -98,13 +99,30 @@ define([
 
             const current = await this.toJSON(node);
             const changes = compare(current, state);
+            const keyOrder = [
+                'pointer_meta',
+                'pointers',
+                'sets',
+                'member_attributes',
+                'member_registry'
+            ];
+            const sortedChanges = changes
+                .map((change, index) => {
+                    let order = 2 * keyOrder.indexOf(change.key[0]);
+                    if (change.type === 'put') {
+                        order += 1;
+                    }
+                    return [order, index];
+                })
+                .sort((p1, p2) => p1[0] - p2[0])
+                .map(pair => changes[pair[1]]);
 
             // TODO: Sort the changes? pointer_meta > sets > member_attributes/registry
-            for (let i = 0; i < changes.length; i++) {
-                if (changes[i].type === 'put') {
-                    await this._put(node, changes[i]);
-                } else if (changes[i].type === 'del') {
-                    await this._delete(node, changes[i]);
+            for (let i = 0; i < sortedChanges.length; i++) {
+                if (sortedChanges[i].type === 'put') {
+                    await this._put(node, sortedChanges[i]);
+                } else if (sortedChanges[i].type === 'del') {
+                    await this._delete(node, sortedChanges[i]);
                 }
             }
 
