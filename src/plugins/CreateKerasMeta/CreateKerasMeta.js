@@ -256,14 +256,11 @@ define([
         // For now, we assume that arguments used by both a child and base class
         // are the same type. Ideally, we would inspect the usage of the
         // parameter. For now, this should be sufficient.
-        while (layer && !type) {
-            arg = layer.arguments && layer.arguments.find(arg => arg.name === name);
-            if (!arg) {  // if the argument is not used, stop tracing the inheritance
-                return undefined;
-            }
-            type = arg.type;
-            layer = layer.name !== layer.base ? this.getLayerSchema(layer.base) : undefined;
+        arg = layer.arguments && layer.arguments.find(arg => arg.name === name);
+        if (!arg) {  // if the argument is not used, stop tracing the inheritance
+            return undefined;
         }
+        type = arg.type || typeof arg.default;
         return type;
     };
 
