@@ -218,12 +218,16 @@ define([
     };
 
     Importer.prototype._delete.attribute_meta = function(node, change) {
-        assert(
-            change.key.length === 2,
-            `Nested values not supported for attribute meta: ${change.key.slice(1).join(', ')}`
-        );
+        const isAttrDeletion = change.key.length === 2;
         const [/*type*/, name] = change.key;
-        this.core.delAttributeMeta(node, name);
+        if (isAttrDeletion) {
+            this.core.delAttributeMeta(node, name);
+        } else {
+            const meta = this.core.getAttributeMeta(node, name);
+            const metaChange = {type: 'del', key: change.key.slice(2)};
+            const newMeta = diff.apply([metaChange], meta);
+            this.core.setAttributeMeta(node, name, newMeta);
+        }
     };
 
     Importer.prototype._put.pointers = async function(node, change) {
