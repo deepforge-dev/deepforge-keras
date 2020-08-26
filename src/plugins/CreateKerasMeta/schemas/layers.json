@@ -108,7 +108,8 @@
       },
       {
         "name": "use_scale",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       }
     ],
     "abstract": false,
@@ -186,7 +187,8 @@
       },
       {
         "name": "use_scale",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       }
     ],
     "abstract": false,
@@ -238,7 +240,7 @@
     "aliases": []
   },
   {
-    "name": "AvgPool1D",
+    "name": "AveragePooling1D",
     "base": "Pooling1D",
     "docstring": "Average pooling for temporal data.\n\n  Arguments:\n    pool_size: Integer, size of the average pooling windows.\n    strides: Integer, or None. Factor by which to downscale.\n      E.g. 2 will halve the input.\n      If None, it will default to `pool_size`.\n    padding: One of `\"valid\"` or `\"same\"` (case-insensitive).\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch, steps, features)` while `channels_first`\n      corresponds to inputs with shape\n      `(batch, features, steps)`.\n\n  Input shape:\n    - If `data_format='channels_last'`:\n      3D tensor with shape `(batch_size, steps, features)`.\n    - If `data_format='channels_first'`:\n      3D tensor with shape `(batch_size, features, steps)`.\n\n  Output shape:\n    - If `data_format='channels_last'`:\n      3D tensor with shape `(batch_size, downsampled_steps, features)`.\n    - If `data_format='channels_first'`:\n      3D tensor with shape `(batch_size, features, downsampled_steps)`.\n  ",
     "arguments": [
@@ -277,11 +279,11 @@
     ],
     "file": "tensorflow/python/keras/layers/pooling.py",
     "aliases": [
-      "AveragePooling1D"
+      "AvgPool1D"
     ]
   },
   {
-    "name": "AvgPool2D",
+    "name": "AveragePooling2D",
     "base": "Pooling2D",
     "docstring": "Average pooling operation for spatial data.\n\n  Arguments:\n    pool_size: integer or tuple of 2 integers,\n      factors by which to downscale (vertical, horizontal).\n      `(2, 2)` will halve the input in both spatial dimension.\n      If only one integer is specified, the same window length\n      will be used for both dimensions.\n    strides: Integer, tuple of 2 integers, or None.\n      Strides values.\n      If None, it will default to `pool_size`.\n    padding: One of `\"valid\"` or `\"same\"` (case-insensitive).\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch, height, width, channels)` while `channels_first`\n      corresponds to inputs with shape\n      `(batch, channels, height, width)`.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".\n\n  Input shape:\n    - If `data_format='channels_last'`:\n      4D tensor with shape `(batch_size, rows, cols, channels)`.\n    - If `data_format='channels_first'`:\n      4D tensor with shape `(batch_size, channels, rows, cols)`.\n\n  Output shape:\n    - If `data_format='channels_last'`:\n      4D tensor with shape `(batch_size, pooled_rows, pooled_cols, channels)`.\n    - If `data_format='channels_first'`:\n      4D tensor with shape `(batch_size, channels, pooled_rows, pooled_cols)`.\n  ",
     "arguments": [
@@ -323,11 +325,11 @@
     ],
     "file": "tensorflow/python/keras/layers/pooling.py",
     "aliases": [
-      "AveragePooling2D"
+      "AvgPool2D"
     ]
   },
   {
-    "name": "AvgPool3D",
+    "name": "AveragePooling3D",
     "base": "Pooling3D",
     "docstring": "Average pooling operation for 3D data (spatial or spatio-temporal).\n\n  Arguments:\n    pool_size: tuple of 3 integers,\n      factors by which to downscale (dim1, dim2, dim3).\n      `(2, 2, 2)` will halve the size of the 3D input in each dimension.\n    strides: tuple of 3 integers, or None. Strides values.\n    padding: One of `\"valid\"` or `\"same\"` (case-insensitive).\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n      while `channels_first` corresponds to inputs with shape\n      `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".\n\n  Input shape:\n    - If `data_format='channels_last'`:\n      5D tensor with shape:\n      `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n    - If `data_format='channels_first'`:\n      5D tensor with shape:\n      `(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`\n\n  Output shape:\n    - If `data_format='channels_last'`:\n      5D tensor with shape:\n      `(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n    - If `data_format='channels_first'`:\n      5D tensor with shape:\n      `(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`\n  ",
     "arguments": [
@@ -370,7 +372,7 @@
     ],
     "file": "tensorflow/python/keras/layers/pooling.py",
     "aliases": [
-      "AveragePooling3D"
+      "AvgPool3D"
     ]
   },
   {
@@ -396,11 +398,13 @@
       },
       {
         "name": "center",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "scale",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "beta_initializer",
@@ -436,7 +440,8 @@
       },
       {
         "name": "renorm",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "renorm_clipping",
@@ -452,7 +457,8 @@
       },
       {
         "name": "trainable",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "virtual_batch_size",
@@ -565,7 +571,7 @@
     "aliases": []
   },
   {
-    "name": "Conv1D",
+    "name": "Convolution1D",
     "base": "Conv",
     "docstring": "1D convolution layer (e.g. temporal convolution).\n\n  This layer creates a convolution kernel that is convolved\n  with the layer input over a single spatial (or temporal) dimension\n  to produce a tensor of outputs.\n  If `use_bias` is True, a bias vector is created and added to the outputs.\n  Finally, if `activation` is not `None`,\n  it is applied to the outputs as well.\n\n  When using this layer as the first layer in a model,\n  provide an `input_shape` argument\n  (tuple of integers or `None`, e.g.\n  `(10, 128)` for sequences of 10 vectors of 128-dimensional vectors,\n  or `(None, 128)` for variable-length sequences of 128-dimensional vectors.\n\n  Examples:\n\n  >>> # The inputs are 128-length vectors with 10 timesteps, and the batch size\n  >>> # is 4.\n  >>> input_shape = (4, 10, 128)\n  >>> x = tf.random.normal(input_shape)\n  >>> y = tf.keras.layers.Conv1D(\n  ... 32, 3, activation='relu',input_shape=input_shape[1:])(x)\n  >>> print(y.shape)\n  (4, 8, 32)\n\n  >>> # With extended batch shape [4, 7] (e.g. weather data where batch\n  >>> # dimensions correspond to spatial location and the third dimension\n  >>> # corresponds to time.)\n  >>> input_shape = (4, 7, 10, 128)\n  >>> x = tf.random.normal(input_shape)\n  >>> y = tf.keras.layers.Conv1D(\n  ... 32, 3, activation='relu', input_shape=input_shape[2:])(x)\n  >>> print(y.shape)\n  (4, 7, 8, 32)\n\n  Arguments:\n    filters: Integer, the dimensionality of the output space\n      (i.e. the number of output filters in the convolution).\n    kernel_size: An integer or tuple/list of a single integer,\n      specifying the length of the 1D convolution window.\n    strides: An integer or tuple/list of a single integer,\n      specifying the stride length of the convolution.\n      Specifying any stride value != 1 is incompatible with specifying\n      any `dilation_rate` value != 1.\n    padding: One of `\"valid\"`, `\"causal\"` or `\"same\"` (case-insensitive).\n      `\"causal\"` results in causal (dilated) convolutions, e.g. `output[t]`\n      does not depend on `input[t+1:]`. Useful when modeling temporal data\n      where the model should not violate the temporal order.\n      See [WaveNet: A Generative Model for Raw Audio, section\n        2.1](https://arxiv.org/abs/1609.03499).\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n    dilation_rate: an integer or tuple/list of a single integer, specifying\n      the dilation rate to use for dilated convolution.\n      Currently, specifying any `dilation_rate` value != 1 is\n      incompatible with specifying any `strides` value != 1.\n    groups: A positive integer specifying the number of groups in which the\n      input is split along the channel axis. Each group is convolved\n      separately with `filters / groups` filters. The output is the\n      concatenation of all the `groups` results along the channel axis.\n      Input channels and `filters` must both be divisible by `groups`.\n    activation: Activation function to use.\n      If you don't specify anything, no activation is applied (\n      see `keras.activations`).\n    use_bias: Boolean, whether the layer uses a bias vector.\n    kernel_initializer: Initializer for the `kernel` weights matrix (\n      see `keras.initializers`).\n    bias_initializer: Initializer for the bias vector (\n      see `keras.initializers`).\n    kernel_regularizer: Regularizer function applied to\n      the `kernel` weights matrix (see `keras.regularizers`).\n    bias_regularizer: Regularizer function applied to the bias vector (\n      see `keras.regularizers`).\n    activity_regularizer: Regularizer function applied to\n      the output of the layer (its \"activation\") (\n      see `keras.regularizers`).\n    kernel_constraint: Constraint function applied to the kernel matrix (\n      see `keras.constraints`).\n    bias_constraint: Constraint function applied to the bias vector (\n      see `keras.constraints`).\n\n  Input shape:\n    3+D tensor with shape: `batch_shape + (steps, input_dim)`\n\n  Output shape:\n    3+D tensor with shape: `batch_shape + (new_steps, filters)`\n      `steps` value might have changed due to padding or strides.\n\n  Returns:\n    A tensor of rank 3 representing\n    `activation(conv1d(inputs, kernel) + bias)`.\n\n  Raises:\n    ValueError: when both `strides > 1` and `dilation_rate > 1`.\n  ",
     "arguments": [
@@ -607,7 +613,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -652,11 +659,11 @@
     ],
     "file": "tensorflow/python/keras/layers/convolutional.py",
     "aliases": [
-      "Convolution1D"
+      "Conv1D"
     ]
   },
   {
-    "name": "Conv1DTranspose",
+    "name": "Convolution1DTranspose",
     "base": "Conv1D",
     "docstring": "Transposed convolution layer (sometimes called Deconvolution).\n\n  The need for transposed convolutions generally arises\n  from the desire to use a transformation going in the opposite direction\n  of a normal convolution, i.e., from something that has the shape of the\n  output of some convolution to something that has the shape of its input\n  while maintaining a connectivity pattern that is compatible with\n  said convolution.\n\n  When using this layer as the first layer in a model,\n  provide the keyword argument `input_shape`\n  (tuple of integers, does not include the sample axis),\n  e.g. `input_shape=(128, 3)` for data with 128 time steps and 3 channels.\n\n  Arguments:\n    filters: Integer, the dimensionality of the output space\n      (i.e. the number of output filters in the convolution).\n    kernel_size: An integer length of the 1D convolution window.\n    strides: An integer specifying the stride of the convolution along the\n      time dimension. Specifying a stride value != 1 is incompatible with\n      specifying a `dilation_rate` value != 1. Defaults to 1.\n    padding: one of `\"valid\"` or `\"same\"` (case-insensitive).\n    output_padding: An integer specifying the amount of padding along\n      the time dimension of the output tensor.\n      The amount of output padding must be lower than the stride.\n      If set to `None` (default), the output shape is inferred.\n    data_format: A string, one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch_size, length, channels)` while `channels_first` corresponds to\n      inputs with shape `(batch_size, channels, length)`.\n    dilation_rate: an integer, specifying\n      the dilation rate to use for dilated convolution.\n      Currently, specifying a `dilation_rate` value != 1 is\n      incompatible with specifying a stride value != 1.\n    activation: Activation function to use.\n      If you don't specify anything, no activation is applied (\n      see `keras.activations`).\n    use_bias: Boolean, whether the layer uses a bias vector.\n    kernel_initializer: Initializer for the `kernel` weights matrix (\n      see `keras.initializers`).\n    bias_initializer: Initializer for the bias vector (\n      see `keras.initializers`).\n    kernel_regularizer: Regularizer function applied to\n      the `kernel` weights matrix (see `keras.regularizers`).\n    bias_regularizer: Regularizer function applied to the bias vector (\n      see `keras.regularizers`).\n    activity_regularizer: Regularizer function applied to\n      the output of the layer (its \"activation\") (see `keras.regularizers`).\n    kernel_constraint: Constraint function applied to the kernel matrix (\n      see `keras.constraints`).\n    bias_constraint: Constraint function applied to the bias vector (\n      see `keras.constraints`).\n\n  Input shape:\n    3D tensor with shape:\n    `(batch_size, steps, channels)`\n\n  Output shape:\n    3D tensor with shape:\n    `(batch_size, new_steps, filters)`\n    If `output_padding` is specified:\n    ```\n    new_timesteps = ((timesteps - 1) * strides + kernel_size -\n    2 * padding + output_padding)\n    ```\n\n  Returns:\n    A tensor of rank 3 representing\n    `activation(conv1dtranspose(inputs, kernel) + bias)`.\n\n  Raises:\n    ValueError: if `padding` is \"causal\".\n    ValueError: when both `strides` > 1 and `dilation_rate` > 1.\n\n  References:\n    - [A guide to convolution arithmetic for deep learning](\n      https://arxiv.org/abs/1603.07285v1)\n    - [Deconvolutional Networks](\n      https://www.matthewzeiler.com/mattzeiler/deconvolutionalnetworks.pdf)\n  ",
     "arguments": [
@@ -698,7 +705,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -743,11 +751,11 @@
     ],
     "file": "tensorflow/python/keras/layers/convolutional.py",
     "aliases": [
-      "Convolution1DTranspose"
+      "Conv1DTranspose"
     ]
   },
   {
-    "name": "Conv2D",
+    "name": "Convolution2D",
     "base": "Conv",
     "docstring": "2D convolution layer (e.g. spatial convolution over images).\n\n  This layer creates a convolution kernel that is convolved\n  with the layer input to produce a tensor of\n  outputs. If `use_bias` is True,\n  a bias vector is created and added to the outputs. Finally, if\n  `activation` is not `None`, it is applied to the outputs as well.\n\n  When using this layer as the first layer in a model,\n  provide the keyword argument `input_shape`\n  (tuple of integers, does not include the sample axis),\n  e.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\n  in `data_format=\"channels_last\"`.\n\n  Examples:\n\n  >>> # The inputs are 28x28 RGB images with `channels_last` and the batch\n  >>> # size is 4.\n  >>> input_shape = (4, 28, 28, 3)\n  >>> x = tf.random.normal(input_shape)\n  >>> y = tf.keras.layers.Conv2D(\n  ... 2, 3, activation='relu', input_shape=input_shape[1:])(x)\n  >>> print(y.shape)\n  (4, 26, 26, 2)\n\n  >>> # With `dilation_rate` as 2.\n  >>> input_shape = (4, 28, 28, 3)\n  >>> x = tf.random.normal(input_shape)\n  >>> y = tf.keras.layers.Conv2D(\n  ... 2, 3, activation='relu', dilation_rate=2, input_shape=input_shape[1:])(x)\n  >>> print(y.shape)\n  (4, 24, 24, 2)\n\n  >>> # With `padding` as \"same\".\n  >>> input_shape = (4, 28, 28, 3)\n  >>> x = tf.random.normal(input_shape)\n  >>> y = tf.keras.layers.Conv2D(\n  ... 2, 3, activation='relu', padding=\"same\", input_shape=input_shape[1:])(x)\n  >>> print(y.shape)\n  (4, 28, 28, 2)\n\n  >>> # With extended batch shape [4, 7]:\n  >>> input_shape = (4, 7, 28, 28, 3)\n  >>> x = tf.random.normal(input_shape)\n  >>> y = tf.keras.layers.Conv2D(\n  ... 2, 3, activation='relu', input_shape=input_shape[2:])(x)\n  >>> print(y.shape)\n  (4, 7, 26, 26, 2)\n\n\n  Arguments:\n    filters: Integer, the dimensionality of the output space (i.e. the number of\n      output filters in the convolution).\n    kernel_size: An integer or tuple/list of 2 integers, specifying the height\n      and width of the 2D convolution window. Can be a single integer to specify\n      the same value for all spatial dimensions.\n    strides: An integer or tuple/list of 2 integers, specifying the strides of\n      the convolution along the height and width. Can be a single integer to\n      specify the same value for all spatial dimensions. Specifying any stride\n      value != 1 is incompatible with specifying any `dilation_rate` value != 1.\n    padding: one of `\"valid\"` or `\"same\"` (case-insensitive).\n    data_format: A string, one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs. `channels_last` corresponds\n      to inputs with shape `(batch_size, height, width, channels)` while\n      `channels_first` corresponds to inputs with shape `(batch_size, channels,\n      height, width)`. It defaults to the `image_data_format` value found in\n      your Keras config file at `~/.keras/keras.json`. If you never set it, then\n      it will be `channels_last`.\n    dilation_rate: an integer or tuple/list of 2 integers, specifying the\n      dilation rate to use for dilated convolution. Can be a single integer to\n      specify the same value for all spatial dimensions. Currently, specifying\n      any `dilation_rate` value != 1 is incompatible with specifying any stride\n      value != 1.\n    groups: A positive integer specifying the number of groups in which the\n      input is split along the channel axis. Each group is convolved separately\n      with `filters / groups` filters. The output is the concatenation of all\n      the `groups` results along the channel axis. Input channels and `filters`\n      must both be divisible by `groups`.\n    activation: Activation function to use. If you don't specify anything, no\n      activation is applied (see `keras.activations`).\n    use_bias: Boolean, whether the layer uses a bias vector.\n    kernel_initializer: Initializer for the `kernel` weights matrix (see\n      `keras.initializers`).\n    bias_initializer: Initializer for the bias vector (see\n      `keras.initializers`).\n    kernel_regularizer: Regularizer function applied to the `kernel` weights\n      matrix (see `keras.regularizers`).\n    bias_regularizer: Regularizer function applied to the bias vector (see\n      `keras.regularizers`).\n    activity_regularizer: Regularizer function applied to the output of the\n      layer (its \"activation\") (see `keras.regularizers`).\n    kernel_constraint: Constraint function applied to the kernel matrix (see\n      `keras.constraints`).\n    bias_constraint: Constraint function applied to the bias vector (see\n      `keras.constraints`).\n  Input shape:\n    4+D tensor with shape: `batch_shape + (channels, rows, cols)` if\n      `data_format='channels_first'`\n    or 4+D tensor with shape: `batch_shape + (rows, cols, channels)` if\n      `data_format='channels_last'`.\n  Output shape:\n    4+D tensor with shape: `batch_shape + (filters, new_rows, new_cols)` if\n    `data_format='channels_first'` or 4+D tensor with shape: `batch_shape +\n      (new_rows, new_cols, filters)` if `data_format='channels_last'`.  `rows`\n      and `cols` values might have changed due to padding.\n\n  Returns:\n    A tensor of rank 4+ representing\n    `activation(conv2d(inputs, kernel) + bias)`.\n\n  Raises:\n    ValueError: if `padding` is `\"causal\"`.\n    ValueError: when both `strides > 1` and `dilation_rate > 1`.\n  ",
     "arguments": [
@@ -795,7 +803,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -840,11 +849,11 @@
     ],
     "file": "tensorflow/python/keras/layers/convolutional.py",
     "aliases": [
-      "Convolution2D"
+      "Conv2D"
     ]
   },
   {
-    "name": "Conv2DTranspose",
+    "name": "Convolution2DTranspose",
     "base": "Conv2D",
     "docstring": "Transposed convolution layer (sometimes called Deconvolution).\n\n  The need for transposed convolutions generally arises\n  from the desire to use a transformation going in the opposite direction\n  of a normal convolution, i.e., from something that has the shape of the\n  output of some convolution to something that has the shape of its input\n  while maintaining a connectivity pattern that is compatible with\n  said convolution.\n\n  When using this layer as the first layer in a model,\n  provide the keyword argument `input_shape`\n  (tuple of integers, does not include the sample axis),\n  e.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\n  in `data_format=\"channels_last\"`.\n\n  Arguments:\n    filters: Integer, the dimensionality of the output space\n      (i.e. the number of output filters in the convolution).\n    kernel_size: An integer or tuple/list of 2 integers, specifying the\n      height and width of the 2D convolution window.\n      Can be a single integer to specify the same value for\n      all spatial dimensions.\n    strides: An integer or tuple/list of 2 integers,\n      specifying the strides of the convolution along the height and width.\n      Can be a single integer to specify the same value for\n      all spatial dimensions.\n      Specifying any stride value != 1 is incompatible with specifying\n      any `dilation_rate` value != 1.\n    padding: one of `\"valid\"` or `\"same\"` (case-insensitive).\n    output_padding: An integer or tuple/list of 2 integers,\n      specifying the amount of padding along the height and width\n      of the output tensor.\n      Can be a single integer to specify the same value for all\n      spatial dimensions.\n      The amount of output padding along a given dimension must be\n      lower than the stride along that same dimension.\n      If set to `None` (default), the output shape is inferred.\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch_size, height, width, channels)` while `channels_first`\n      corresponds to inputs with shape\n      `(batch_size, channels, height, width)`.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".\n    dilation_rate: an integer or tuple/list of 2 integers, specifying\n      the dilation rate to use for dilated convolution.\n      Can be a single integer to specify the same value for\n      all spatial dimensions.\n      Currently, specifying any `dilation_rate` value != 1 is\n      incompatible with specifying any stride value != 1.\n    activation: Activation function to use.\n      If you don't specify anything, no activation is applied (\n      see `keras.activations`).\n    use_bias: Boolean, whether the layer uses a bias vector.\n    kernel_initializer: Initializer for the `kernel` weights matrix (\n      see `keras.initializers`).\n    bias_initializer: Initializer for the bias vector (\n      see `keras.initializers`).\n    kernel_regularizer: Regularizer function applied to\n      the `kernel` weights matrix (see `keras.regularizers`).\n    bias_regularizer: Regularizer function applied to the bias vector (\n      see `keras.regularizers`).\n    activity_regularizer: Regularizer function applied to\n      the output of the layer (its \"activation\") (see `keras.regularizers`).\n    kernel_constraint: Constraint function applied to the kernel matrix (\n      see `keras.constraints`).\n    bias_constraint: Constraint function applied to the bias vector (\n      see `keras.constraints`).\n\n  Input shape:\n    4D tensor with shape:\n    `(batch_size, channels, rows, cols)` if data_format='channels_first'\n    or 4D tensor with shape:\n    `(batch_size, rows, cols, channels)` if data_format='channels_last'.\n\n  Output shape:\n    4D tensor with shape:\n    `(batch_size, filters, new_rows, new_cols)` if data_format='channels_first'\n    or 4D tensor with shape:\n    `(batch_size, new_rows, new_cols, filters)` if data_format='channels_last'.\n    `rows` and `cols` values might have changed due to padding.\n    If `output_padding` is specified:\n    ```\n    new_rows = ((rows - 1) * strides[0] + kernel_size[0] - 2 * padding[0] +\n    output_padding[0])\n    new_cols = ((cols - 1) * strides[1] + kernel_size[1] - 2 * padding[1] +\n    output_padding[1])\n    ```\n\n  Returns:\n    A tensor of rank 4 representing\n    `activation(conv2dtranspose(inputs, kernel) + bias)`.\n\n  Raises:\n    ValueError: if `padding` is \"causal\".\n    ValueError: when both `strides` > 1 and `dilation_rate` > 1.\n\n  References:\n    - [A guide to convolution arithmetic for deep\n      learning](https://arxiv.org/abs/1603.07285v1)\n    - [Deconvolutional\n      Networks](https://www.matthewzeiler.com/mattzeiler/deconvolutionalnetworks.pdf)\n  ",
     "arguments": [
@@ -892,7 +901,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -937,11 +947,11 @@
     ],
     "file": "tensorflow/python/keras/layers/convolutional.py",
     "aliases": [
-      "Convolution2DTranspose"
+      "Conv2DTranspose"
     ]
   },
   {
-    "name": "Conv3D",
+    "name": "Convolution3D",
     "base": "Conv",
     "docstring": "3D convolution layer (e.g. spatial convolution over volumes).\n\n  This layer creates a convolution kernel that is convolved\n  with the layer input to produce a tensor of\n  outputs. If `use_bias` is True,\n  a bias vector is created and added to the outputs. Finally, if\n  `activation` is not `None`, it is applied to the outputs as well.\n\n  When using this layer as the first layer in a model,\n  provide the keyword argument `input_shape`\n  (tuple of integers, does not include the sample axis),\n  e.g. `input_shape=(128, 128, 128, 1)` for 128x128x128 volumes\n  with a single channel,\n  in `data_format=\"channels_last\"`.\n\n  Examples:\n\n  >>> # The inputs are 28x28x28 volumes with a single channel, and the\n  >>> # batch size is 4\n  >>> input_shape =(4, 28, 28, 28, 1)\n  >>> x = tf.random.normal(input_shape)\n  >>> y = tf.keras.layers.Conv3D(\n  ... 2, 3, activation='relu', input_shape=input_shape[1:])(x)\n  >>> print(y.shape)\n  (4, 26, 26, 26, 2)\n\n  >>> # With extended batch shape [4, 7], e.g. a batch of 4 videos of 3D frames,\n  >>> # with 7 frames per video.\n  >>> input_shape = (4, 7, 28, 28, 28, 1)\n  >>> x = tf.random.normal(input_shape)\n  >>> y = tf.keras.layers.Conv3D(\n  ... 2, 3, activation='relu', input_shape=input_shape[2:])(x)\n  >>> print(y.shape)\n  (4, 7, 26, 26, 26, 2)\n\n  Arguments:\n    filters: Integer, the dimensionality of the output space (i.e. the number of\n      output filters in the convolution).\n    kernel_size: An integer or tuple/list of 3 integers, specifying the depth,\n      height and width of the 3D convolution window. Can be a single integer to\n      specify the same value for all spatial dimensions.\n    strides: An integer or tuple/list of 3 integers, specifying the strides of\n      the convolution along each spatial dimension. Can be a single integer to\n      specify the same value for all spatial dimensions. Specifying any stride\n      value != 1 is incompatible with specifying any `dilation_rate` value != 1.\n    padding: one of `\"valid\"` or `\"same\"` (case-insensitive).\n    data_format: A string, one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs. `channels_last` corresponds\n      to inputs with shape `batch_shape + (spatial_dim1, spatial_dim2,\n      spatial_dim3, channels)` while `channels_first` corresponds to inputs with\n      shape `batch_shape + (channels, spatial_dim1, spatial_dim2,\n      spatial_dim3)`. It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`. If you never set it, then it\n      will be \"channels_last\".\n    dilation_rate: an integer or tuple/list of 3 integers, specifying the\n      dilation rate to use for dilated convolution. Can be a single integer to\n      specify the same value for all spatial dimensions. Currently, specifying\n      any `dilation_rate` value != 1 is incompatible with specifying any stride\n      value != 1.\n    groups: A positive integer specifying the number of groups in which the\n      input is split along the channel axis. Each group is convolved separately\n      with `filters / groups` filters. The output is the concatenation of all\n      the `groups` results along the channel axis. Input channels and `filters`\n      must both be divisible by `groups`.\n    activation: Activation function to use. If you don't specify anything, no\n      activation is applied (see `keras.activations`).\n    use_bias: Boolean, whether the layer uses a bias vector.\n    kernel_initializer: Initializer for the `kernel` weights matrix (see\n      `keras.initializers`).\n    bias_initializer: Initializer for the bias vector (see\n      `keras.initializers`).\n    kernel_regularizer: Regularizer function applied to the `kernel` weights\n      matrix (see `keras.regularizers`).\n    bias_regularizer: Regularizer function applied to the bias vector (see\n      `keras.regularizers`).\n    activity_regularizer: Regularizer function applied to the output of the\n      layer (its \"activation\") (see `keras.regularizers`).\n    kernel_constraint: Constraint function applied to the kernel matrix (see\n      `keras.constraints`).\n    bias_constraint: Constraint function applied to the bias vector (see\n      `keras.constraints`).\n  Input shape:\n    5+D tensor with shape: `batch_shape + (channels, conv_dim1, conv_dim2,\n      conv_dim3)` if data_format='channels_first'\n    or 5+D tensor with shape: `batch_shape + (conv_dim1, conv_dim2, conv_dim3,\n      channels)` if data_format='channels_last'.\n  Output shape:\n    5+D tensor with shape: `batch_shape + (filters, new_conv_dim1,\n      new_conv_dim2, new_conv_dim3)` if data_format='channels_first'\n    or 5+D tensor with shape: `batch_shape + (new_conv_dim1, new_conv_dim2,\n      new_conv_dim3, filters)` if data_format='channels_last'. `new_conv_dim1`,\n      `new_conv_dim2` and `new_conv_dim3` values might have changed due to\n      padding.\n\n  Returns:\n    A tensor of rank 5+ representing\n    `activation(conv3d(inputs, kernel) + bias)`.\n\n  Raises:\n    ValueError: if `padding` is \"causal\".\n    ValueError: when both `strides > 1` and `dilation_rate > 1`.\n  ",
     "arguments": [
@@ -991,7 +1001,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -1036,11 +1047,11 @@
     ],
     "file": "tensorflow/python/keras/layers/convolutional.py",
     "aliases": [
-      "Convolution3D"
+      "Conv3D"
     ]
   },
   {
-    "name": "Conv3DTranspose",
+    "name": "Convolution3DTranspose",
     "base": "Conv3D",
     "docstring": "Transposed convolution layer (sometimes called Deconvolution).\n\n  The need for transposed convolutions generally arises\n  from the desire to use a transformation going in the opposite direction\n  of a normal convolution, i.e., from something that has the shape of the\n  output of some convolution to something that has the shape of its input\n  while maintaining a connectivity pattern that is compatible with\n  said convolution.\n\n  When using this layer as the first layer in a model,\n  provide the keyword argument `input_shape`\n  (tuple of integers, does not include the sample axis),\n  e.g. `input_shape=(128, 128, 128, 3)` for a 128x128x128 volume with 3 channels\n  if `data_format=\"channels_last\"`.\n\n  Arguments:\n    filters: Integer, the dimensionality of the output space\n        (i.e. the number of output filters in the convolution).\n    kernel_size: An integer or tuple/list of 3 integers, specifying the\n        depth, height and width of the 3D convolution window.\n        Can be a single integer to specify the same value for\n        all spatial dimensions.\n    strides: An integer or tuple/list of 3 integers,\n        specifying the strides of the convolution along the depth, height\n          and width.\n        Can be a single integer to specify the same value for\n        all spatial dimensions.\n        Specifying any stride value != 1 is incompatible with specifying\n        any `dilation_rate` value != 1.\n    padding: one of `\"valid\"` or `\"same\"` (case-insensitive).\n    output_padding: An integer or tuple/list of 3 integers,\n      specifying the amount of padding along the depth, height, and\n      width.\n      Can be a single integer to specify the same value for all\n      spatial dimensions.\n      The amount of output padding along a given dimension must be\n      lower than the stride along that same dimension.\n      If set to `None` (default), the output shape is inferred.\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch_size, depth, height, width, channels)` while `channels_first`\n      corresponds to inputs with shape\n      `(batch_size, channels, depth, height, width)`.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".\n    dilation_rate: an integer or tuple/list of 3 integers, specifying\n      the dilation rate to use for dilated convolution.\n      Can be a single integer to specify the same value for\n      all spatial dimensions.\n      Currently, specifying any `dilation_rate` value != 1 is\n      incompatible with specifying any stride value != 1.\n    activation: Activation function to use.\n      If you don't specify anything, no activation is applied (\n      see `keras.activations`).\n    use_bias: Boolean, whether the layer uses a bias vector.\n    kernel_initializer: Initializer for the `kernel` weights matrix.\n    bias_initializer: Initializer for the bias vector.\n    kernel_regularizer: Regularizer function applied to\n      the `kernel` weights matrix (\n      see `keras.regularizers`).\n    bias_regularizer: Regularizer function applied to the bias vector (\n      see `keras.regularizers`).\n    activity_regularizer: Regularizer function applied to\n      the output of the layer (its \"activation\") (\n      see `keras.regularizers`).\n    kernel_constraint: Constraint function applied to the kernel matrix (\n      see `keras.constraints`).\n    bias_constraint: Constraint function applied to the bias vector (\n      see `keras.constraints`).\n\n  Input shape:\n    5D tensor with shape:\n    `(batch_size, channels, depth, rows, cols)` if data_format='channels_first'\n    or 5D tensor with shape:\n    `(batch_size, depth, rows, cols, channels)` if data_format='channels_last'.\n\n  Output shape:\n    5D tensor with shape:\n    `(batch_size, filters, new_depth, new_rows, new_cols)` if\n      data_format='channels_first'\n    or 5D tensor with shape:\n    `(batch_size, new_depth, new_rows, new_cols, filters)` if\n      data_format='channels_last'.\n    `depth` and `rows` and `cols` values might have changed due to padding.\n    If `output_padding` is specified::\n    ```\n    new_depth = ((depth - 1) * strides[0] + kernel_size[0] - 2 * padding[0] +\n    output_padding[0])\n    new_rows = ((rows - 1) * strides[1] + kernel_size[1] - 2 * padding[1] +\n    output_padding[1])\n    new_cols = ((cols - 1) * strides[2] + kernel_size[2] - 2 * padding[2] +\n    output_padding[2])\n    ```\n\n  Returns:\n    A tensor of rank 5 representing\n    `activation(conv3dtranspose(inputs, kernel) + bias)`.\n\n  Raises:\n    ValueError: if `padding` is \"causal\".\n    ValueError: when both `strides` > 1 and `dilation_rate` > 1.\n\n  References:\n    - [A guide to convolution arithmetic for deep\n      learning](https://arxiv.org/abs/1603.07285v1)\n    - [Deconvolutional\n      Networks](https://www.matthewzeiler.com/mattzeiler/deconvolutionalnetworks.pdf)\n  ",
     "arguments": [
@@ -1090,7 +1101,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -1135,7 +1147,7 @@
     ],
     "file": "tensorflow/python/keras/layers/convolutional.py",
     "aliases": [
-      "Convolution3DTranspose"
+      "Conv3DTranspose"
     ]
   },
   {
@@ -1187,7 +1199,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -1203,7 +1216,8 @@
       },
       {
         "name": "unit_forget_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_regularizer",
@@ -1235,19 +1249,23 @@
       },
       {
         "name": "return_sequences",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "return_state",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "go_backwards",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "stateful",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "dropout",
@@ -1424,7 +1442,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -1485,7 +1504,8 @@
       },
       {
         "name": "trainable",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "name",
@@ -1560,7 +1580,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "depthwise_initializer",
@@ -1621,7 +1642,8 @@
       },
       {
         "name": "normalize",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       }
     ],
     "abstract": false,
@@ -1744,7 +1766,8 @@
       },
       {
         "name": "mask_zero",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "input_length",
@@ -1818,7 +1841,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -1874,31 +1898,38 @@
       },
       {
         "name": "return_sequences",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "return_state",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "go_backwards",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "stateful",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "unroll",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "time_major",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "reset_after",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       }
     ],
     "abstract": false,
@@ -1951,7 +1982,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -2003,7 +2035,8 @@
       },
       {
         "name": "reset_after",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       }
     ],
     "abstract": false,
@@ -2096,7 +2129,7 @@
     "aliases": []
   },
   {
-    "name": "GlobalAvgPool1D",
+    "name": "GlobalAveragePooling1D",
     "base": "GlobalPooling1D",
     "docstring": "Global average pooling operation for temporal data.\n\n  Examples:\n\n  >>> input_shape = (2, 3, 4)\n  >>> x = tf.random.normal(input_shape)\n  >>> y = tf.keras.layers.GlobalAveragePooling1D()(x)\n  >>> print(y.shape)\n  (2, 4)\n\n  Arguments:\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch, steps, features)` while `channels_first`\n      corresponds to inputs with shape\n      `(batch, features, steps)`.\n\n  Call arguments:\n    inputs: A 3D tensor.\n    mask: Binary tensor of shape `(batch_size, steps)` indicating whether\n      a given step should be masked (excluded from the average).\n\n  Input shape:\n    - If `data_format='channels_last'`:\n      3D tensor with shape:\n      `(batch_size, steps, features)`\n    - If `data_format='channels_first'`:\n      3D tensor with shape:\n      `(batch_size, features, steps)`\n\n  Output shape:\n    2D tensor with shape `(batch_size, features)`.\n  ",
     "arguments": [
@@ -2127,11 +2160,11 @@
     ],
     "file": "tensorflow/python/keras/layers/pooling.py",
     "aliases": [
-      "GlobalAveragePooling1D"
+      "GlobalAvgPool1D"
     ]
   },
   {
-    "name": "GlobalAvgPool2D",
+    "name": "GlobalAveragePooling2D",
     "base": "GlobalPooling2D",
     "docstring": "Global average pooling operation for spatial data.\n\n  Examples:\n\n  >>> input_shape = (2, 4, 5, 3)\n  >>> x = tf.random.normal(input_shape)\n  >>> y = tf.keras.layers.GlobalAveragePooling2D()(x)\n  >>> print(y.shape)\n  (2, 3)\n\n  Arguments:\n      data_format: A string,\n        one of `channels_last` (default) or `channels_first`.\n        The ordering of the dimensions in the inputs.\n        `channels_last` corresponds to inputs with shape\n        `(batch, height, width, channels)` while `channels_first`\n        corresponds to inputs with shape\n        `(batch, channels, height, width)`.\n        It defaults to the `image_data_format` value found in your\n        Keras config file at `~/.keras/keras.json`.\n        If you never set it, then it will be \"channels_last\".\n\n  Input shape:\n    - If `data_format='channels_last'`:\n      4D tensor with shape `(batch_size, rows, cols, channels)`.\n    - If `data_format='channels_first'`:\n      4D tensor with shape `(batch_size, channels, rows, cols)`.\n\n  Output shape:\n    2D tensor with shape `(batch_size, channels)`.\n  ",
     "arguments": [
@@ -2158,11 +2191,11 @@
     ],
     "file": "tensorflow/python/keras/layers/pooling.py",
     "aliases": [
-      "GlobalAveragePooling2D"
+      "GlobalAvgPool2D"
     ]
   },
   {
-    "name": "GlobalAvgPool3D",
+    "name": "GlobalAveragePooling3D",
     "base": "GlobalPooling3D",
     "docstring": "Global Average pooling operation for 3D data.\n\n  Arguments:\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n      while `channels_first` corresponds to inputs with shape\n      `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".\n\n  Input shape:\n    - If `data_format='channels_last'`:\n      5D tensor with shape:\n      `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n    - If `data_format='channels_first'`:\n      5D tensor with shape:\n      `(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`\n\n  Output shape:\n    2D tensor with shape `(batch_size, channels)`.\n  ",
     "arguments": [
@@ -2189,11 +2222,11 @@
     ],
     "file": "tensorflow/python/keras/layers/pooling.py",
     "aliases": [
-      "GlobalAveragePooling3D"
+      "GlobalAvgPool3D"
     ]
   },
   {
-    "name": "GlobalMaxPool1D",
+    "name": "GlobalMaxPooling1D",
     "base": "GlobalPooling1D",
     "docstring": "Global max pooling operation for 1D temporal data.\n\n  Downsamples the input representation by taking the maximum value over\n  the time dimension.\n\n  For example:\n\n  >>> x = tf.constant([[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]])\n  >>> x = tf.reshape(x, [3, 3, 1])\n  >>> x\n  <tf.Tensor: shape=(3, 3, 1), dtype=float32, numpy=\n  array([[[1.], [2.], [3.]],\n         [[4.], [5.], [6.]],\n         [[7.], [8.], [9.]]], dtype=float32)>\n  >>> max_pool_1d = tf.keras.layers.GlobalMaxPooling1D()\n  >>> max_pool_1d(x)\n  <tf.Tensor: shape=(3, 1), dtype=float32, numpy=\n  array([[3.],\n         [6.],\n         [9.], dtype=float32)>\n\n  Arguments:\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch, steps, features)` while `channels_first`\n      corresponds to inputs with shape\n      `(batch, features, steps)`.\n\n  Input shape:\n    - If `data_format='channels_last'`:\n      3D tensor with shape:\n      `(batch_size, steps, features)`\n    - If `data_format='channels_first'`:\n      3D tensor with shape:\n      `(batch_size, features, steps)`\n\n  Output shape:\n    2D tensor with shape `(batch_size, features)`.\n  ",
     "arguments": [
@@ -2220,11 +2253,11 @@
     ],
     "file": "tensorflow/python/keras/layers/pooling.py",
     "aliases": [
-      "GlobalMaxPooling1D"
+      "GlobalMaxPool1D"
     ]
   },
   {
-    "name": "GlobalMaxPool2D",
+    "name": "GlobalMaxPooling2D",
     "base": "GlobalPooling2D",
     "docstring": "Global max pooling operation for spatial data.\n\n  Examples:\n\n  >>> input_shape = (2, 4, 5, 3)\n  >>> x = tf.random.normal(input_shape)\n  >>> y = tf.keras.layers.GlobalMaxPool2D()(x)\n  >>> print(y.shape)\n  (2, 3)\n\n  Arguments:\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch, height, width, channels)` while `channels_first`\n      corresponds to inputs with shape\n      `(batch, channels, height, width)`.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".\n\n  Input shape:\n    - If `data_format='channels_last'`:\n      4D tensor with shape `(batch_size, rows, cols, channels)`.\n    - If `data_format='channels_first'`:\n      4D tensor with shape `(batch_size, channels, rows, cols)`.\n\n  Output shape:\n    2D tensor with shape `(batch_size, channels)`.\n  ",
     "arguments": [
@@ -2251,11 +2284,11 @@
     ],
     "file": "tensorflow/python/keras/layers/pooling.py",
     "aliases": [
-      "GlobalMaxPooling2D"
+      "GlobalMaxPool2D"
     ]
   },
   {
-    "name": "GlobalMaxPool3D",
+    "name": "GlobalMaxPooling3D",
     "base": "GlobalPooling3D",
     "docstring": "Global Max pooling operation for 3D data.\n\n  Arguments:\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n      while `channels_first` corresponds to inputs with shape\n      `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".\n\n  Input shape:\n    - If `data_format='channels_last'`:\n      5D tensor with shape:\n      `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n    - If `data_format='channels_first'`:\n      5D tensor with shape:\n      `(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`\n\n  Output shape:\n    2D tensor with shape `(batch_size, channels)`.\n  ",
     "arguments": [
@@ -2282,7 +2315,7 @@
     ],
     "file": "tensorflow/python/keras/layers/pooling.py",
     "aliases": [
-      "GlobalMaxPooling3D"
+      "GlobalMaxPool3D"
     ]
   },
   {
@@ -2312,7 +2345,8 @@
       },
       {
         "name": "sparse",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "name",
@@ -2320,7 +2354,8 @@
       },
       {
         "name": "ragged",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       }
     ],
     "abstract": false,
@@ -2403,7 +2438,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -2419,7 +2455,8 @@
       },
       {
         "name": "unit_forget_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_regularizer",
@@ -2463,27 +2500,33 @@
       },
       {
         "name": "return_sequences",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "return_state",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "go_backwards",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "stateful",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "time_major",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "unroll",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       }
     ],
     "abstract": false,
@@ -2536,7 +2579,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -2552,7 +2596,8 @@
       },
       {
         "name": "unit_forget_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_regularizer",
@@ -2682,11 +2727,13 @@
       },
       {
         "name": "center",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "scale",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "beta_initializer",
@@ -2714,7 +2761,8 @@
       },
       {
         "name": "trainable",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "name",
@@ -2800,7 +2848,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -2888,7 +2937,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -2968,7 +3018,7 @@
     "aliases": []
   },
   {
-    "name": "MaxPool1D",
+    "name": "MaxPooling1D",
     "base": "Pooling1D",
     "docstring": "Max pooling operation for 1D temporal data.\n\n  Downsamples the input representation by taking the maximum value over the\n  window defined by `pool_size`. The window is shifted by `strides`.  The\n  resulting output when using \"valid\" padding option has a shape of:\n  `output_shape = (input_shape - pool_size + 1) / strides)`\n\n  The resulting output shape when using the \"same\" padding option is:\n  `output_shape = input_shape / strides`\n\n  For example, for strides=1 and padding=\"valid\":\n\n  >>> x = tf.constant([1., 2., 3., 4., 5.])\n  >>> x = tf.reshape(x, [1, 5, 1])\n  >>> max_pool_1d = tf.keras.layers.MaxPooling1D(pool_size=2,\n  ...    strides=1, padding='valid')\n  >>> max_pool_1d(x)\n  <tf.Tensor: shape=(1, 4, 1), dtype=float32, numpy=\n  array([[[2.],\n          [3.],\n          [4.],\n          [5.]]], dtype=float32)>\n\n  For example, for strides=2 and padding=\"valid\":\n\n  >>> x = tf.constant([1., 2., 3., 4., 5.])\n  >>> x = tf.reshape(x, [1, 5, 1])\n  >>> max_pool_1d = tf.keras.layers.MaxPooling1D(pool_size=2,\n  ...    strides=2, padding='valid')\n  >>> max_pool_1d(x)\n  <tf.Tensor: shape=(1, 2, 1), dtype=float32, numpy=\n  array([[[2.],\n          [4.]]], dtype=float32)>\n\n  For example, for strides=1 and padding=\"same\":\n\n  >>> x = tf.constant([1., 2., 3., 4., 5.])\n  >>> x = tf.reshape(x, [1, 5, 1])\n  >>> max_pool_1d = tf.keras.layers.MaxPooling1D(pool_size=2,\n  ...    strides=1, padding='same')\n  >>> max_pool_1d(x)\n  <tf.Tensor: shape=(1, 5, 1), dtype=float32, numpy=\n  array([[[2.],\n          [3.],\n          [4.],\n          [5.],\n          [5.]]], dtype=float32)>\n\n  Arguments:\n    pool_size: Integer, size of the max pooling window.\n    strides: Integer, or None. Specifies how much the pooling window moves\n      for each pooling step.\n      If None, it will default to `pool_size`.\n    padding: One of `\"valid\"` or `\"same\"` (case-insensitive).\n      \"valid\" adds no padding.  \"same\" adds padding such that if the stride\n      is 1, the output shape is the same as the input shape.\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch, steps, features)` while `channels_first`\n      corresponds to inputs with shape\n      `(batch, features, steps)`.\n\n  Input shape:\n    - If `data_format='channels_last'`:\n      3D tensor with shape `(batch_size, steps, features)`.\n    - If `data_format='channels_first'`:\n      3D tensor with shape `(batch_size, features, steps)`.\n\n  Output shape:\n    - If `data_format='channels_last'`:\n      3D tensor with shape `(batch_size, downsampled_steps, features)`.\n    - If `data_format='channels_first'`:\n      3D tensor with shape `(batch_size, features, downsampled_steps)`.\n  ",
     "arguments": [
@@ -3007,11 +3057,11 @@
     ],
     "file": "tensorflow/python/keras/layers/pooling.py",
     "aliases": [
-      "MaxPooling1D"
+      "MaxPool1D"
     ]
   },
   {
-    "name": "MaxPool2D",
+    "name": "MaxPooling2D",
     "base": "Pooling2D",
     "docstring": "Max pooling operation for 2D spatial data.\n\n  Downsamples the input representation by taking the maximum value over the\n  window defined by `pool_size` for each dimension along the features axis.\n  The window is shifted by `strides` in each dimension.  The resulting output\n  when using \"valid\" padding option has a shape(number of rows or columns) of:\n  `output_shape = (input_shape - pool_size + 1) / strides)`\n\n  The resulting output shape when using the \"same\" padding option is:\n  `output_shape = input_shape / strides`\n\n  For example, for stride=(1,1) and padding=\"valid\":\n\n  >>> x = tf.constant([[1., 2., 3.],\n  ...                  [4., 5., 6.],\n  ...                  [7., 8., 9.]])\n  >>> x = tf.reshape(x, [1, 3, 3, 1])\n  >>> max_pool_2d = tf.keras.layers.MaxPooling2D(pool_size=(2, 2),\n  ...    strides=(1, 1), padding='valid')\n  >>> max_pool_2d(x)\n  <tf.Tensor: shape=(1, 2, 2, 1), dtype=float32, numpy=\n    array([[[[5.],\n             [6.]],\n            [[8.],\n             [9.]]]], dtype=float32)>\n\n  For example, for stride=(2,2) and padding=\"valid\":\n\n  >>> x = tf.constant([[1., 2., 3., 4.],\n  ...                  [5., 6., 7., 8.],\n  ...                  [9., 10., 11., 12.]])\n  >>> x = tf.reshape(x, [1, 3, 4, 1])\n  >>> max_pool_2d = tf.keras.layers.MaxPooling2D(pool_size=(2, 2),\n  ...    strides=(1, 1), padding='valid')\n  >>> max_pool_2d(x)\n  <tf.Tensor: shape=(1, 2, 3, 1), dtype=float32, numpy=\n    array([[[[ 6.],\n             [ 7.],\n             [ 8.]],\n            [[10.],\n             [11.],\n             [12.]]]], dtype=float32)>\n             \n  Usage Example:\n  \n  >>> input_image = tf.constant([[[[1.], [1.], [2.], [4.]],\n  ...                            [[2.], [2.], [3.], [2.]],\n  ...                            [[4.], [1.], [1.], [1.]],\n  ...                            [[2.], [2.], [1.], [4.]]]]) \n  >>> output = tf.constant([[[[1], [0]],\n  ...                       [[0], [1]]]]) \n  >>> model = tf.keras.models.Sequential()\n  >>> model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2), \n  ...    input_shape=(4,4,1)))\n  >>> model.compile('adam', 'mean_squared_error')\n  >>> model.predict(input_image, steps=1)\n  array([[[[2.],\n           [4.]],\n          [[4.],\n           [4.]]]], dtype=float32)\n\n  For example, for stride=(1,1) and padding=\"same\":\n\n  >>> x = tf.constant([[1., 2., 3.],\n  ...                  [4., 5., 6.],\n  ...                  [7., 8., 9.]])\n  >>> x = tf.reshape(x, [1, 3, 3, 1])\n  >>> max_pool_2d = tf.keras.layers.MaxPooling2D(pool_size=(2, 2),\n  ...    strides=(1, 1), padding='same')\n  >>> max_pool_2d(x)\n  <tf.Tensor: shape=(1, 3, 3, 1), dtype=float32, numpy=\n    array([[[[5.],\n             [6.],\n             [6.]],\n            [[8.],\n             [9.],\n             [9.]],\n            [[8.],\n             [9.],\n             [9.]]]], dtype=float32)>\n\n  Arguments:\n    pool_size: integer or tuple of 2 integers,\n      window size over which to take the maximum.\n      `(2, 2)` will take the max value over a 2x2 pooling window.\n      If only one integer is specified, the same window length\n      will be used for both dimensions.\n    strides: Integer, tuple of 2 integers, or None.\n      Strides values.  Specifies how far the pooling window moves\n      for each pooling step. If None, it will default to `pool_size`.\n    padding: One of `\"valid\"` or `\"same\"` (case-insensitive).\n      \"valid\" adds no zero padding.  \"same\" adds padding such that if the stride\n      is 1, the output shape is the same as input shape.\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch, height, width, channels)` while `channels_first`\n      corresponds to inputs with shape\n      `(batch, channels, height, width)`.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".\n\n  Input shape:\n    - If `data_format='channels_last'`:\n      4D tensor with shape `(batch_size, rows, cols, channels)`.\n    - If `data_format='channels_first'`:\n      4D tensor with shape `(batch_size, channels, rows, cols)`.\n\n  Output shape:\n    - If `data_format='channels_last'`:\n      4D tensor with shape `(batch_size, pooled_rows, pooled_cols, channels)`.\n    - If `data_format='channels_first'`:\n      4D tensor with shape `(batch_size, channels, pooled_rows, pooled_cols)`.\n\n  Returns:\n    A tensor of rank 4 representing the maximum pooled values.  See above for\n    output shape.\n  ",
     "arguments": [
@@ -3053,11 +3103,11 @@
     ],
     "file": "tensorflow/python/keras/layers/pooling.py",
     "aliases": [
-      "MaxPooling2D"
+      "MaxPool2D"
     ]
   },
   {
-    "name": "MaxPool3D",
+    "name": "MaxPooling3D",
     "base": "Pooling3D",
     "docstring": "Max pooling operation for 3D data (spatial or spatio-temporal).\n\n  Arguments:\n    pool_size: Tuple of 3 integers,\n      factors by which to downscale (dim1, dim2, dim3).\n      `(2, 2, 2)` will halve the size of the 3D input in each dimension.\n    strides: tuple of 3 integers, or None. Strides values.\n    padding: One of `\"valid\"` or `\"same\"` (case-insensitive).\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n      while `channels_first` corresponds to inputs with shape\n      `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".\n\n  Input shape:\n    - If `data_format='channels_last'`:\n      5D tensor with shape:\n      `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n    - If `data_format='channels_first'`:\n      5D tensor with shape:\n      `(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`\n\n  Output shape:\n    - If `data_format='channels_last'`:\n      5D tensor with shape:\n      `(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n    - If `data_format='channels_first'`:\n      5D tensor with shape:\n      `(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`\n  ",
     "arguments": [
@@ -3100,7 +3150,7 @@
     ],
     "file": "tensorflow/python/keras/layers/pooling.py",
     "aliases": [
-      "MaxPooling3D"
+      "MaxPool3D"
     ]
   },
   {
@@ -3263,27 +3313,33 @@
       },
       {
         "name": "return_sequences",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "return_state",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "go_backwards",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "stateful",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "unroll",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "time_major",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       }
     ],
     "abstract": false,
@@ -3407,7 +3463,7 @@
     "aliases": []
   },
   {
-    "name": "SeparableConv1D",
+    "name": "SeparableConvolution1D",
     "base": "SeparableConv",
     "docstring": "Depthwise separable 1D convolution.\n\n  This layer performs a depthwise convolution that acts separately on\n  channels, followed by a pointwise convolution that mixes channels.\n  If `use_bias` is True and a bias initializer is provided,\n  it adds a bias vector to the output.\n  It then optionally applies an activation function to produce the final output.\n\n  Arguments:\n    filters: Integer, the dimensionality of the output space (i.e. the number\n      of filters in the convolution).\n    kernel_size: A single integer specifying the spatial\n      dimensions of the filters.\n    strides: A single integer specifying the strides\n      of the convolution.\n      Specifying any `stride` value != 1 is incompatible with specifying\n      any `dilation_rate` value != 1.\n    padding: One of `\"valid\"`, `\"same\"`, or `\"causal\"` (case-insensitive).\n    data_format: A string, one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch_size, length, channels)` while `channels_first` corresponds to\n      inputs with shape `(batch_size, channels, length)`.\n    dilation_rate: A single integer, specifying\n      the dilation rate to use for dilated convolution.\n      Currently, specifying any `dilation_rate` value != 1 is\n      incompatible with specifying any stride value != 1.\n    depth_multiplier: The number of depthwise convolution output channels for\n      each input channel. The total number of depthwise convolution output\n      channels will be equal to `num_filters_in * depth_multiplier`.\n    activation: Activation function to use.\n      If you don't specify anything, no activation is applied (\n      see `keras.activations`).\n    use_bias: Boolean, whether the layer uses a bias.\n    depthwise_initializer: An initializer for the depthwise convolution kernel (\n      see `keras.initializers`).\n    pointwise_initializer: An initializer for the pointwise convolution kernel (\n      see `keras.initializers`).\n    bias_initializer: An initializer for the bias vector. If None, the default\n      initializer will be used (see `keras.initializers`).\n    depthwise_regularizer: Optional regularizer for the depthwise\n      convolution kernel (see `keras.regularizers`).\n    pointwise_regularizer: Optional regularizer for the pointwise\n      convolution kernel (see `keras.regularizers`).\n    bias_regularizer: Optional regularizer for the bias vector (\n      see `keras.regularizers`).\n    activity_regularizer: Optional regularizer function for the output (\n      see `keras.regularizers`).\n    depthwise_constraint: Optional projection function to be applied to the\n      depthwise kernel after being updated by an `Optimizer` (e.g. used for\n      norm constraints or value constraints for layer weights). The function\n      must take as input the unprojected variable and must return the\n      projected variable (which must have the same shape). Constraints are\n      not safe to use when doing asynchronous distributed training (\n      see `keras.constraints`).\n    pointwise_constraint: Optional projection function to be applied to the\n      pointwise kernel after being updated by an `Optimizer` (\n      see `keras.constraints`).\n    bias_constraint: Optional projection function to be applied to the\n      bias after being updated by an `Optimizer` (\n      see `keras.constraints`).\n    trainable: Boolean, if `True` the weights of this layer will be marked as\n      trainable (and listed in `layer.trainable_weights`).\n    name: A string, the name of the layer.\n\n  Input shape:\n    3D tensor with shape:\n    `(batch_size, channels, steps)` if data_format='channels_first'\n    or 5D tensor with shape:\n    `(batch_size, steps, channels)` if data_format='channels_last'.\n\n  Output shape:\n    3D tensor with shape:\n    `(batch_size, filters, new_steps)` if data_format='channels_first'\n    or 3D tensor with shape:\n    `(batch_size,  new_steps, filters)` if data_format='channels_last'.\n    `new_steps` value might have changed due to padding or strides.\n\n  Returns:\n    A tensor of rank 3 representing\n    `activation(separableconv1d(inputs, kernel) + bias)`.\n\n  Raises:\n    ValueError: when both `strides` > 1 and `dilation_rate` > 1.\n  ",
     "arguments": [
@@ -3449,7 +3505,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "depthwise_initializer",
@@ -3506,11 +3563,11 @@
     ],
     "file": "tensorflow/python/keras/layers/convolutional.py",
     "aliases": [
-      "SeparableConvolution1D"
+      "SeparableConv1D"
     ]
   },
   {
-    "name": "SeparableConv2D",
+    "name": "SeparableConvolution2D",
     "base": "SeparableConv",
     "docstring": "Depthwise separable 2D convolution.\n\n  Separable convolutions consist of first performing\n  a depthwise spatial convolution\n  (which acts on each input channel separately)\n  followed by a pointwise convolution which mixes the resulting\n  output channels. The `depth_multiplier` argument controls how many\n  output channels are generated per input channel in the depthwise step.\n\n  Intuitively, separable convolutions can be understood as\n  a way to factorize a convolution kernel into two smaller kernels,\n  or as an extreme version of an Inception block.\n\n  Arguments:\n    filters: Integer, the dimensionality of the output space\n      (i.e. the number of output filters in the convolution).\n    kernel_size: An integer or tuple/list of 2 integers, specifying the\n      height and width of the 2D convolution window.\n      Can be a single integer to specify the same value for\n      all spatial dimensions.\n    strides: An integer or tuple/list of 2 integers,\n      specifying the strides of the convolution along the height and width.\n      Can be a single integer to specify the same value for\n      all spatial dimensions.\n      Specifying any stride value != 1 is incompatible with specifying\n      any `dilation_rate` value != 1.\n    padding: one of `\"valid\"` or `\"same\"` (case-insensitive).\n    data_format: A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch_size, height, width, channels)` while `channels_first`\n      corresponds to inputs with shape\n      `(batch_size, channels, height, width)`.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".\n    dilation_rate: An integer or tuple/list of 2 integers, specifying\n      the dilation rate to use for dilated convolution.\n      Currently, specifying any `dilation_rate` value != 1 is\n      incompatible with specifying any `strides` value != 1.\n    depth_multiplier: The number of depthwise convolution output channels\n      for each input channel.\n      The total number of depthwise convolution output\n      channels will be equal to `filters_in * depth_multiplier`.\n    activation: Activation function to use.\n      If you don't specify anything, no activation is applied (\n      see `keras.activations`).\n    use_bias: Boolean, whether the layer uses a bias vector.\n    depthwise_initializer: Initializer for the depthwise kernel matrix (\n      see `keras.initializers`).\n    pointwise_initializer: Initializer for the pointwise kernel matrix (\n      see `keras.initializers`).\n    bias_initializer: Initializer for the bias vector (\n      see `keras.initializers`).\n    depthwise_regularizer: Regularizer function applied to\n      the depthwise kernel matrix (see `keras.regularizers`).\n    pointwise_regularizer: Regularizer function applied to\n      the pointwise kernel matrix (see `keras.regularizers`).\n    bias_regularizer: Regularizer function applied to the bias vector (\n      see `keras.regularizers`).\n    activity_regularizer: Regularizer function applied to\n      the output of the layer (its \"activation\") (\n      see `keras.regularizers`).\n    depthwise_constraint: Constraint function applied to\n      the depthwise kernel matrix (\n      see `keras.constraints`).\n    pointwise_constraint: Constraint function applied to\n      the pointwise kernel matrix (\n      see `keras.constraints`).\n    bias_constraint: Constraint function applied to the bias vector (\n      see `keras.constraints`).\n\n  Input shape:\n    4D tensor with shape:\n    `(batch_size, channels, rows, cols)` if data_format='channels_first'\n    or 4D tensor with shape:\n    `(batch_size, rows, cols, channels)` if data_format='channels_last'.\n\n  Output shape:\n    4D tensor with shape:\n    `(batch_size, filters, new_rows, new_cols)` if data_format='channels_first'\n    or 4D tensor with shape:\n    `(batch_size, new_rows, new_cols, filters)` if data_format='channels_last'.\n    `rows` and `cols` values might have changed due to padding.\n\n  Returns:\n    A tensor of rank 4 representing\n    `activation(separableconv2d(inputs, kernel) + bias)`.\n\n  Raises:\n    ValueError: if `padding` is \"causal\".\n    ValueError: when both `strides` > 1 and `dilation_rate` > 1.\n  ",
     "arguments": [
@@ -3558,7 +3615,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "depthwise_initializer",
@@ -3615,7 +3673,7 @@
     ],
     "file": "tensorflow/python/keras/layers/convolutional.py",
     "aliases": [
-      "SeparableConvolution2D"
+      "SeparableConv2D"
     ]
   },
   {
@@ -3637,7 +3695,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -3689,23 +3748,28 @@
       },
       {
         "name": "return_sequences",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "return_state",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "go_backwards",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "stateful",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "unroll",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       }
     ],
     "abstract": false,
@@ -3754,7 +3818,8 @@
       },
       {
         "name": "use_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_initializer",
@@ -4384,19 +4449,23 @@
       },
       {
         "name": "return_sequences",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "return_state",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "go_backwards",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "stateful",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       }
     ],
     "abstract": false,
@@ -4453,7 +4522,8 @@
       },
       {
         "name": "unit_forget_bias",
-        "default": true
+        "default": "True",
+        "type": "boolean"
       },
       {
         "name": "kernel_regularizer",
@@ -4485,19 +4555,23 @@
       },
       {
         "name": "return_sequences",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "return_state",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "go_backwards",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       },
       {
         "name": "stateful",
-        "default": false
+        "default": "False",
+        "type": "boolean"
       }
     ],
     "abstract": false,
@@ -4536,6 +4610,44 @@
     "outputs": [],
     "inputs": null,
     "file": "tensorflow/python/keras/layers/cudnn_recurrent.py",
+    "aliases": []
+  },
+  {
+    "name": "Input",
+    "arguments": [
+      {
+        "name": "shape",
+        "default": "None"
+      },
+      {
+        "name": "batch_size",
+        "default": "None"
+      },
+      {
+        "name": "name",
+        "default": "None"
+      },
+      {
+        "name": "dtype",
+        "default": "None"
+      },
+      {
+        "name": "sparse",
+        "default": "False",
+        "type": "boolean"
+      },
+      {
+        "name": "tensor",
+        "default": "None"
+      },
+      {
+        "name": "ragged",
+        "default": "False",
+        "type": "boolean"
+      }
+    ],
+    "docstring": "`Input()` is used to instantiate a Keras tensor.\n\n  A Keras tensor is a TensorFlow symbolic tensor object,\n  which we augment with certain attributes that allow us to build a Keras model\n  just by knowing the inputs and outputs of the model.\n\n  For instance, if `a`, `b` and `c` are Keras tensors,\n  it becomes possible to do:\n  `model = Model(input=[a, b], output=c)`\n\n  Arguments:\n      shape: A shape tuple (integers), not including the batch size.\n          For instance, `shape=(32,)` indicates that the expected input\n          will be batches of 32-dimensional vectors. Elements of this tuple\n          can be None; 'None' elements represent dimensions where the shape is\n          not known.\n      batch_size: optional static batch size (integer).\n      name: An optional name string for the layer.\n          Should be unique in a model (do not reuse the same name twice).\n          It will be autogenerated if it isn't provided.\n      dtype: The data type expected by the input, as a string\n          (`float32`, `float64`, `int32`...)\n      sparse: A boolean specifying whether the placeholder to be created is\n          sparse. Only one of 'ragged' and 'sparse' can be True. Note that,\n          if `sparse` is False, sparse tensors can still be passed into the\n          input - they will be densified with a default value of 0.\n      tensor: Optional existing tensor to wrap into the `Input` layer.\n          If set, the layer will not create a placeholder tensor.\n      ragged: A boolean specifying whether the placeholder to be created is\n          ragged. Only one of 'ragged' and 'sparse' can be True. In this case,\n          values of 'None' in the 'shape' argument represent ragged dimensions.\n          For more information about RaggedTensors, see\n          [this guide](https://www.tensorflow.org/guide/ragged_tensors).\n      **kwargs: deprecated arguments support. Supports `batch_shape` and\n          `batch_input_shape`.\n\n  Returns:\n    A `tensor`.\n\n  Example:\n\n  ```python\n  # this is a logistic regression in Keras\n  x = Input(shape=(32,))\n  y = Dense(16, activation='softmax')(x)\n  model = Model(x, y)\n  ```\n\n  Note that even if eager execution is enabled,\n  `Input` produces a symbolic tensor (i.e. a placeholder).\n  This symbolic tensor can be used with other\n  TensorFlow ops, as such:\n\n  ```python\n  x = Input(shape=(32,))\n  y = tf.square(x)\n  ```\n\n  Raises:\n    ValueError: If both `sparse` and `ragged` are provided.\n    ValueError: If both `shape` and (`batch_input_shape` or `batch_shape`) are\n      provided.\n    ValueError: If both `shape` and `tensor` are None.\n    ValueError: if any unrecognized parameters are provided.\n  ",
+    "file": "tensorflow/python/keras/engine/input_layer.py",
     "aliases": []
   }
 ]
