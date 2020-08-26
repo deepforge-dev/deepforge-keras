@@ -128,6 +128,18 @@ describe('JSONImporter', function () {
             await importer.apply(node, original);
             assert.equal(core.getAttributeMeta(node, 'name').type, 'boolean');
         });
+
+        it('should change attribute to enum', async function() {
+            original.attribute_meta.name.enum = ['a', 'b'];
+            await importer.apply(node, original);
+            assert.deepEqual(core.getAttributeMeta(node, 'name').enum, ['a', 'b']);
+        });
+
+        it('should change attribute from enum', async function() {
+            core.setAttributeMeta(node, 'name', {type: 'string', enum: ['a', 'b']});
+            await importer.apply(node, original);
+            assert.equal(core.getAttributeMeta(node, 'name').enum, undefined);
+        });
     });
 
     describe('registry', function() {
