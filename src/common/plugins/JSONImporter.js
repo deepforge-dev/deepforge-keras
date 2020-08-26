@@ -98,18 +98,39 @@ define([
 
             const current = await this.toJSON(node);
             const changes = compare(current, state);
+            const keyOrder = [
+                'pointer_meta',
+                'pointers',
+                'sets',
+                'member_attributes',
+                'member_registry'
+            ];
+            const sortedChanges = changes
+                .map((change, index) => {
+                    let order = 2 * keyOrder.indexOf(change.key[0]);
+                    if (change.type === 'put') {
+                        order += 1;
+                    }
+                    return [order, index];
+                })
+                .sort((p1, p2) => p1[0] - p2[0])
+                .map(pair => changes[pair[1]]);
 
-            // TODO: Sort the changes? pointer_meta > sets > member_attributes/registry
-            for (let i = 0; i < changes.length; i++) {
-                if (changes[i].type === 'put') {
-                    await this._put(node, changes[i]);
-                } else if (changes[i].type === 'del') {
-                    await this._delete(node, changes[i]);
+            for (let i = 0; i < sortedChanges.length; i++) {
+                if (sortedChanges[i].type === 'put') {
+                    await this._put(node, sortedChanges[i]);
+                } else if (sortedChanges[i].type === 'del') {
+                    await this._delete(node, sortedChanges[i]);
                 }
             }
 
             if (state.children) {
                 for (let i = currentChildren.length; i--;) {
+                    console.log(
+                        'deleting node:',
+                        this.core.getAttribute(currentChildren[i], 'name'),
+                        '(' + this.core.getPath(currentChildren[i]) + ')'
+                    );
                     this.core.deleteNode(currentChildren[i]);
                 }
             }
@@ -142,6 +163,7 @@ define([
             const fco = await this.core.loadByPath(this.rootNode, '/1');
             const node = this.core.createNode({base: fco, parent});
             const selector = new NodeSelector(idString);
+            console.log(`creating node for ${idString} (${this.core.getPath(node)})`);
             await selector.prepare(this.core, this.rootNode, node);
             return node;
         }

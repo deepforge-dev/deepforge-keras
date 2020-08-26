@@ -42,7 +42,7 @@ function compare(path, old, new_) {
     });
 
     var delKeys = _.difference(oldKeys, newKeys);
-    delKeys.forEach(function (k) {
+    delKeys.reverse().forEach(function (k) {
       changes.push({ type: 'del', key: path.concat(k) });
     });
 
@@ -120,7 +120,6 @@ function apply(changes, target, modify) {
   });
   return obj;
 }
-
 },{"udc":3,"underscore":4}],3:[function(require,module,exports){
 (function (root, factory) {
 		"use strict";
