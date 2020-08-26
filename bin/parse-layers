@@ -22,6 +22,10 @@ ABSTRACT_CLASSES = [
     'Layer'
 ]
 
+PRIMITIVE_TYPE_MAPS = {
+    bool: 'boolean',
+}
+
 
 class LayerParser:
     """A generic parser for keras.
@@ -91,15 +95,18 @@ class LayerParser:
         layers.extend(self._parse_class_module(module_name=tf.python.keras.layers.cudnn_recurrent))
         layers = self._replace_duplicate_with_aliases(layers)
         self.delete_key(layers)
+        layers.extend(self._parse_fn_module(module_name=keras.layers, include=['Input']))
         return layers
 
-    def _parse_fn_module(self, module_name):
+    def _parse_fn_module(self, module_name, include=None):
         """Parse module definitions with function exports
 
         Parameters
         ----------
         module_name : types.ModuleType or types.MethodWrapperType
             The module to parse function exports for
+        include: iterable, default=None
+            If provided, only include function with names in the iterable
 
         Returns
         -------
@@ -114,6 +121,9 @@ class LayerParser:
         """
         members = inspect.getmembers(module_name)
         functions = []
+        if include is not None:
+            members = filter(lambda x: x[0] in include, members)
+
         for name, member in members:
             if inspect.isfunction(member) and not self.is_helper_type(name):
                 arguments = self._get_fn_arguments(member)
@@ -252,9 +262,9 @@ class LayerParser:
             for param_name, param in params.items():
                 if param_name == 'kwargs':
                     continue
-
-                if param.default is None:
-                    default = 'None'
+                type_ = self._infer_argument_type(param_name, param)
+                if param.default is None or isinstance(param.default, bool):
+                    default = str(param.default)
                 else:
                     default = None if param.default is param.empty else param.default
 
@@ -265,6 +275,8 @@ class LayerParser:
                     'name': param_name,
                     'default': default
                 })
+                if type_:
+                    params_list[-1].update({'type': type_})
 
             if len(params_list) and inspect.isclass(member):
                 params_list.insert(0, {'name': 'self', 'default': None})
@@ -272,6 +284,11 @@ class LayerParser:
                 params_list = None
 
             return params_list
+
+    @staticmethod
+    def _infer_argument_type(param_name, param):
+        if type(param.default) in PRIMITIVE_TYPE_MAPS:
+            return PRIMITIVE_TYPE_MAPS[type(param.default)]
 
     @staticmethod
     def delete_key(list_of_dict, key='reference'):
@@ -284,7 +301,7 @@ class LayerParser:
 
     @staticmethod
     def remove_longest_name(list_of_names):
-        longest_name = min(list_of_names, key=len)
+        longest_name = max(list_of_names, key=len)
         list_of_names.remove(longest_name)
         return longest_name, list_of_names
 
