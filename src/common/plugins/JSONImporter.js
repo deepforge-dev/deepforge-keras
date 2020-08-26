@@ -126,6 +126,11 @@ define([
 
             if (state.children) {
                 for (let i = currentChildren.length; i--;) {
+                    console.log(
+                        'deleting node:',
+                        this.core.getAttribute(currentChildren[i], 'name'),
+                        this.core.getPath(currentChildren[i])
+                    );
                     this.core.deleteNode(currentChildren[i]);
                 }
             }
