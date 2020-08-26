@@ -86,7 +86,7 @@ class LayerParser:
         regularizers = self._parse_class_module(module_name=keras.regularizers)
         for regularizer in regularizers:
             if regularizer.get('name') == 'L1L2':
-                regularizer['aliases'] = ['l1l2']
+                regularizer['aliases'] = ['l1_l2']
         self.delete_key(regularizers)
         return regularizers
 

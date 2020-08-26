@@ -62,7 +62,7 @@
     ],
     "file": "tensorflow/python/keras/regularizers.py",
     "aliases": [
-      "l1l2"
+      "l1_l2"
     ]
   },
   {

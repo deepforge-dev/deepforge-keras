@@ -219,7 +219,7 @@ define([
         baseName = baseName || this.getBaseName(layer.file);
 
         const base = `@meta:${baseName}`;
-        const node = this.createMetaNode(root, layer.name, base, category);
+        const node = this.createMetaNode(root, layer.name, base, category, layer.aliases);
 
         // Clean the arguments
         const layerArgs = this.getCleanLayerArgs(layer);
@@ -359,11 +359,19 @@ define([
         return null;
     };
 
-    CreateKerasMeta.prototype.createMetaNode = function (root, name, baseId, tabName) {
+    CreateKerasMeta.prototype.createMetaNode = function (root, name, baseId, tabName, aliases) {
         tabName = tabName || DEFAULT_META_TAB;
+        aliases = aliases || [];
+
+        let id = name;
+
+        if(!Object.keys(this.META).includes(name)) {
+            id = aliases.find(alias => Object.keys(this.META).includes(alias)) || name;
+            console.log(`Found node ${name} as ${id}`);
+        }
 
         const node = {
-            id: `@meta:${name}`,
+            id: `@meta:${id}`,
             pointers: {base: baseId},
             attributes: {name},
             registry: {},
@@ -376,6 +384,13 @@ define([
         this.language.children.push(node);
         this.addNodeToMeta(root, node, tabName);
         return node;
+    };
+
+    CreateKerasMeta.prototype.getIdKey = async function (root, name, aliases=[]) {
+        aliases.push(name);
+        const names = (await this.core.loadChildren(root)).map(node => this.core.getAttribute(node, 'name'));
+        console.log(names);
+        return name;
     };
 
     CreateKerasMeta.prototype.addNodeToMeta = function(root, node, tabName=DEFAULT_META_TAB) {
