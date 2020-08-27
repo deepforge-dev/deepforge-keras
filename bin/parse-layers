@@ -93,7 +93,7 @@ class LayerParser:
     def parse_layers(self):
         layers = self._parse_class_module(module_name=keras.layers)
         layers.extend(self._parse_class_module(module_name=tf.python.keras.layers.cudnn_recurrent))
-        layers = self._replace_duplicate_with_aliases(layers)
+        layers = self._replace_aliases(layers)
         self.delete_key(layers)
         layers.extend(self._parse_fn_module(module_name=keras.layers, include=['Input']))
         return layers
@@ -216,24 +216,24 @@ class LayerParser:
                 class_['aliases'] = []
         return classes
 
-    def _replace_duplicate_with_aliases(self,
-                                        list_of_dict,
-                                        ref_key='reference'):
+    def _replace_aliases(self, list_of_dict, ref_key='reference'):
         references_dict = {}
         for member in list_of_dict:
-            if member[ref_key] not in references_dict:
-                references_dict[member[ref_key]] = [member]
-            else:
-                references_dict[member[ref_key]].append(member)
-        members_with_aliases = []
-        for key in references_dict:
+            mem_list = references_dict.get(member[ref_key], [])
+            mem_list.append(member)
+            references_dict[member[ref_key]] = mem_list
+        refined_list = []
+        for member, list_of_members in references_dict.items():
+            original_member = {}
             aliases = []
-            if len(references_dict[key]) > 1:
-                for j in range(len(references_dict[key])):
-                    aliases.append(references_dict[key][j]['name'])
-                references_dict[key][0]['name'], references_dict[key][0]['aliases'] = self.remove_longest_name(aliases)
-            members_with_aliases.append(references_dict[key][0])
-        return members_with_aliases
+            for value in list_of_members:
+                original_member.update(value)
+                aliases.append(value['name'])
+            original_member['name'] = member.__name__
+            aliases.remove(member.__name__)
+            original_member['aliases'] = aliases
+            refined_list.append(original_member)
+        return refined_list
 
     def _get_call_arguments(self, member):
         mros = member.mro()
@@ -298,12 +298,6 @@ class LayerParser:
     @staticmethod
     def is_helper_type(member):
         return member in SERIALIZATION_HELPERS or member in INIT_HELPERS
-
-    @staticmethod
-    def remove_longest_name(list_of_names):
-        longest_name = max(list_of_names, key=len)
-        list_of_names.remove(longest_name)
-        return longest_name, list_of_names
 
     @staticmethod
     def is_abstract(member):
