@@ -129,6 +129,25 @@ describe('JSONImporter', function () {
             await importer.apply(node, original);
             assert.equal(core.getAttributeMeta(node, 'name').type, 'boolean');
         });
+
+        it('should change attribute to enum', async function() {
+            original.attribute_meta.name.enum = ['a', 'b'];
+            await importer.apply(node, original);
+            assert.deepEqual(core.getAttributeMeta(node, 'name').enum, ['a', 'b']);
+        });
+
+        it('should change attribute from enum', async function() {
+            core.setAttributeMeta(node, 'name', {type: 'string', enum: ['a', 'b']});
+            await importer.apply(node, original);
+            assert.equal(core.getAttributeMeta(node, 'name').enum, undefined);
+        });
+
+        it('should change attribute enum values', async function() {
+            core.setAttributeMeta(node, 'name', {type: 'string', enum: ['a', 'b']});
+            original.attribute_meta.name.enum = ['b', 'c', 'a'];
+            await importer.apply(node, original);
+            assert.deepEqual(core.getAttributeMeta(node, 'name').enum, ['b', 'c', 'a']);
+        });
     });
 
     describe('registry', function() {
@@ -198,6 +217,35 @@ describe('JSONImporter', function () {
                 original2.pointers.base = nodePath;
                 await importer.apply(node2, original2);
                 assert.equal(core.getPointerPath(node2, 'base'), nodePath);
+            });
+
+            it('should resolve @meta tag even if renamed during changes', async function() {
+                const fco = await core.loadByPath(root, '/1');
+                const node = core.createNode({base: fco, parent: root});
+                core.setAttribute(node, 'name', 'MetaNode');
+                core.addMember(root, 'MetaAspectSet', node);
+
+                const newJSON = {
+                    attributes: {name: 'root'},
+                    children: [
+                        {
+                            id: '@meta:MetaNode',
+                            attributes: {
+                                name: 'NewMetaNodeName',
+                            }
+                        },
+                        {
+                            id: '@meta:FCO',
+                            pointers: {
+                                testPtr: '@meta:MetaNode',
+                            }
+                        },
+                    ]
+                };
+
+                await importer.apply(root, newJSON);
+                assert.equal(core.getAttribute(node, 'name'), 'NewMetaNodeName');
+                assert.equal(core.getPointerPath(fco, 'testPtr'), core.getPath(node));
             });
         });
 
