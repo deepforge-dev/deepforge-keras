@@ -81,19 +81,20 @@ define([
             return json;
         }
 
-        async apply (node, state) {
+        async apply (node, state, resolvedSelectors={}) {
             const children = state.children || [];
             const currentChildren = await this.core.loadChildren(node);
             for (let i = 0; i < children.length; i++) {
-                const child = (await this.findNode(node, children[i].id)) ||
+                const child = (await this.findNode(node, children[i].id, resolvedSelectors)) ||
                     await this.createNode(node, children[i].id);
 
+                resolvedSelectors[children[i].id] = child;
                 const index = currentChildren.indexOf(child);
                 if (index > -1) {
                     currentChildren.splice(index, 1);
                 }
 
-                await this.apply(child, children[i]);
+                await this.apply(child, children[i], resolvedSelectors);
             }
 
             const current = await this.toJSON(node);
@@ -118,9 +119,9 @@ define([
 
             for (let i = 0; i < sortedChanges.length; i++) {
                 if (sortedChanges[i].type === 'put') {
-                    await this._put(node, sortedChanges[i]);
+                    await this._put(node, sortedChanges[i], resolvedSelectors);
                 } else if (sortedChanges[i].type === 'del') {
-                    await this._delete(node, sortedChanges[i]);
+                    await this._delete(node, sortedChanges[i], resolvedSelectors);
                 }
             }
 
@@ -131,9 +132,12 @@ define([
             }
         }
 
-        async findNode(parent, idString) {
+        async findNode(parent, idString, resolvedSelectors) {
             if (idString === undefined) {
                 return;
+            }
+            if (resolvedSelectors[idString]) {
+                return resolvedSelectors[idString];
             }
             assert(typeof idString === 'string');
 
@@ -141,16 +145,16 @@ define([
             return await selector.findNode(this.core, this.rootNode, parent);
         }
 
-        async getNode(parent, idString) {
-            const node = await this.findNode(parent, idString);
+        async getNode(parent, idString, resolvedSelectors) {
+            const node = await this.findNode(parent, idString, resolvedSelectors);
             if (!node) {
                 throw new Error(`Could not resolve ${idString} to an existing node.`);
             }
             return node;
         }
 
-        async getNodeId(parent, id) {
-            const node = await this.getNode(parent, id);
+        async getNodeId(parent, id, resolvedSelectors) {
+            const node = await this.getNode(parent, id, resolvedSelectors);
             return this.core.getPath(node);
         }
 
@@ -167,7 +171,7 @@ define([
             if (!this._put[type]) {
                 throw new Error(`Unrecognized key ${type}`);
             }
-            return await this._put[type].call(this, node, change);
+            return await this._put[type].call(this, ...arguments);
         }
 
         async _delete (node, change) {
@@ -176,7 +180,7 @@ define([
                 throw new Error(`Unrecognized key ${type}`);
             }
             if (change.key.length > 1) {
-                return await this._delete[type].call(this, node, change);
+                return await this._delete[type].call(this, ...arguments);
             }
         }
 
@@ -230,13 +234,13 @@ define([
         }
     };
 
-    Importer.prototype._put.pointers = async function(node, change) {
+    Importer.prototype._put.pointers = async function(node, change, resolvedSelectors) {
         assert(
             change.key.length === 2,
             `Invalid key for pointer: ${change.key.slice(1).join(', ')}`
         );
         const [/*type*/, name] = change.key;
-        const target = await this.getNode(node, change.value);
+        const target = await this.getNode(node, change.value, resolvedSelectors);
         this.core.setPointer(node, name, target);
     };
 
@@ -249,7 +253,7 @@ define([
         this.core.delPointer(node, name);
     };
 
-    Importer.prototype._put.pointer_meta = async function(node, change) {
+    Importer.prototype._put.pointer_meta = async function(node, change, resolvedSelectors) {
         const [/*"pointer_meta"*/, name, idOrMinMax] = change.key;
         const isNewPointer = change.key.length === 2;
 
@@ -265,7 +269,7 @@ define([
 
             for (let i = targets.length; i--;) {
                 const [nodeId, meta] = targets[i];
-                const target = await this.getNode(node, nodeId);
+                const target = await this.getNode(node, nodeId, resolvedSelectors);
                 this.core.setPointerMetaTarget(node, name, target, meta.min, meta.max);
             }
         } else if (['min', 'max'].includes(idOrMinMax)) {
@@ -277,7 +281,7 @@ define([
             setNested(meta, change.key.slice(2), change.value);
 
             const targetMeta = meta[idOrMinMax];
-            const target = await this.getNode(node, idOrMinMax);
+            const target = await this.getNode(node, idOrMinMax, resolvedSelectors);
             this.core.setPointerMetaTarget(node, name, target, targetMeta.min, targetMeta.max);
         }
     };
@@ -292,7 +296,7 @@ define([
         }
     };
 
-    Importer.prototype._put.sets = async function(node, change) {
+    Importer.prototype._put.sets = async function(node, change, resolvedSelectors) {
         const [/*type*/, name] = change.key;
         const isNewSet = change.key.length === 2;
         if (isNewSet) {
@@ -300,11 +304,11 @@ define([
             const memberPaths = change.value;
 
             for (let i = 0; i < memberPaths.length; i++) {
-                const member = await this.getNode(node, memberPaths[i]);
+                const member = await this.getNode(node, memberPaths[i], resolvedSelectors);
                 this.core.addMember(node, name, member);
             }
         } else {
-            const member = await this.getNode(node, change.value);
+            const member = await this.getNode(node, change.value, resolvedSelectors);
             this.core.addMember(node, name, member);
         }
     };
@@ -320,7 +324,7 @@ define([
         }
     };
 
-    Importer.prototype._put.member_attributes = async function(node, change) {
+    Importer.prototype._put.member_attributes = async function(node, change, resolvedSelectors) {
         const [/*type*/, set, nodeId, name] = change.key;
         const isNewSet = nodeId === undefined;
         const isNewMember = name === undefined;
@@ -336,7 +340,7 @@ define([
                 await this._put(node, changesets[i]);
             }
         } else {
-            const gmeId = await this.getNodeId(node, nodeId);
+            const gmeId = await this.getNodeId(node, nodeId, resolvedSelectors);
             this.core.setMemberAttribute(node, set, gmeId, name, change.value);
         }
     };
@@ -352,7 +356,7 @@ define([
         });
     };
 
-    Importer.prototype._put.member_registry = async function(node, change) {
+    Importer.prototype._put.member_registry = async function(node, change, resolvedSelectors) {
         const [/*type*/, set, nodeId, name] = change.key;
         const isNewSet = nodeId === undefined;
         const isNewMember = name === undefined;
@@ -368,7 +372,7 @@ define([
                 await this._put(node, changesets[i]);
             }
         } else {
-            const gmeId = await this.getNodeId(node, nodeId);
+            const gmeId = await this.getNodeId(node, nodeId, resolvedSelectors);
             const isNested = change.key.length > 4;
             if (isNested) {
                 const value = this.core.getMemberRegistry(node, set, gmeId, name);
