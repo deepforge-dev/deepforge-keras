@@ -210,7 +210,15 @@ define([
         if (layerArgs[0] && layerArgs[0].name === 'self') {
             layerArgs.shift();
         }
-        return layerArgs.filter(arg => arg.name !== 'name');
+
+        return layerArgs
+            .filter(arg => arg.name !== 'name')
+            .map(arg => {
+                if (!arg.type && Array.isArray(arg.default)) {
+                    arg.default = `(${arg.default.join(', ')})`;
+                }
+                return arg;
+            });
     };
 
     CreateKerasMeta.prototype.createMetaLayer = function (root, layer, baseName, category) {
