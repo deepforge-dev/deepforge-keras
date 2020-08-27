@@ -132,7 +132,7 @@ define([
             }
         }
 
-        async findNode(parent, idString, resolvedSelectors) {
+        async findNode(parent, idString, resolvedSelectors={}) {
             if (idString === undefined) {
                 return;
             }
