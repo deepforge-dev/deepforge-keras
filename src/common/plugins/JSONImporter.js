@@ -137,11 +137,6 @@ define([
 
             if (state.children) {
                 for (let i = currentChildren.length; i--;) {
-                    console.log(
-                        'deleting node:',
-                        this.core.getAttribute(currentChildren[i], 'name'),
-                        '(' + this.core.getPath(currentChildren[i]) + ')'
-                    );
                     this.core.deleteNode(currentChildren[i]);
                 }
             }
@@ -180,7 +175,6 @@ define([
             const fco = await this.core.loadByPath(this.rootNode, '/1');
             const node = this.core.createNode({base: fco, parent});
             const selector = new NodeSelector(idString);
-            console.log(`creating node for ${idString} (${this.core.getPath(node)})`);
             await selector.prepare(this.core, this.rootNode, node);
             return node;
         }

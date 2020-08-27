@@ -380,13 +380,6 @@ define([
         return node;
     };
 
-    CreateKerasMeta.prototype.getIdKey = async function (root, name, aliases=[]) {
-        aliases.push(name);
-        const names = (await this.core.loadChildren(root)).map(node => this.core.getAttribute(node, 'name'));
-        console.log(names);
-        return name;
-    };
-
     CreateKerasMeta.prototype.addNodeToMeta = function(root, node, tabName=DEFAULT_META_TAB) {
         let tabId = this.metaSheets[tabName];
         let position = this.getNextPositionFor(tabName);
