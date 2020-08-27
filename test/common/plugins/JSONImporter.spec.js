@@ -3,7 +3,6 @@
 'use strict';
 
 describe('JSONImporter', function () {
-    this.timeout(7000);
     const testFixture = require('../../globals');
     const Core = testFixture.requirejs('common/core/coreQ');
     const Importer = testFixture.requirejs('deepforge-keras/plugins/JSONImporter');
