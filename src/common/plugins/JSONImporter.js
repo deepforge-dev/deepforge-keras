@@ -350,7 +350,7 @@ define([
                 }));
 
             for (let i = changesets.length; i--;) {
-                await this._put(node, changesets[i]);
+                await this._put(node, changesets[i], resolvedSelectors);
             }
         } else {
             const gmeId = await this.getNodeId(node, nodeId, resolvedSelectors);
@@ -382,7 +382,7 @@ define([
                 }));
 
             for (let i = changesets.length; i--;) {
-                await this._put(node, changesets[i]);
+                await this._put(node, changesets[i], resolvedSelectors);
             }
         } else {
             const gmeId = await this.getNodeId(node, nodeId, resolvedSelectors);
