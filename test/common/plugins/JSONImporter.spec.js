@@ -217,6 +217,35 @@ describe('JSONImporter', function () {
                 await importer.apply(node2, original2);
                 assert.equal(core.getPointerPath(node2, 'base'), nodePath);
             });
+
+            it('should resolve @meta tag even if renamed during changes', async function() {
+                const fco = await core.loadByPath(root, '/1');
+                const node = core.createNode({base: fco, parent: root});
+                core.setAttribute(node, 'name', 'MetaNode');
+                core.addMember(root, 'MetaAspectSet', node);
+
+                const newJSON = {
+                    attributes: {name: 'root'},
+                    children: [
+                        {
+                            id: '@meta:MetaNode',
+                            attributes: {
+                                name: 'NewMetaNodeName',
+                            }
+                        },
+                        {
+                            id: '@meta:FCO',
+                            pointers: {
+                                testPtr: '@meta:MetaNode',
+                            }
+                        },
+                    ]
+                };
+
+                await importer.apply(root, newJSON);
+                assert.equal(core.getAttribute(node, 'name'), 'NewMetaNodeName');
+                assert.equal(core.getPointerPath(fco, 'testPtr'), core.getPath(node));
+            });
         });
 
         describe('pointer meta', function() {
