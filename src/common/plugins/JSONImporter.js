@@ -81,14 +81,24 @@ define([
             return json;
         }
 
-        async apply (node, state, resolvedSelectors={}) {
+        async apply (node, state, resolvedSelectors=new NodeSelections()) {
             const children = state.children || [];
             const currentChildren = await this.core.loadChildren(node);
+            const nodeId = this.core.getPath(node);
+            const parent = this.core.getParent(node);
+
+            if (state.id && parent) {
+                const parentId = this.core.getPath(parent);
+                const selector = new NodeSelector(state.id);
+                resolvedSelectors.record(parentId, selector, node);
+            }
+
             for (let i = 0; i < children.length; i++) {
                 const child = (await this.findNode(node, children[i].id, resolvedSelectors)) ||
                     await this.createNode(node, children[i].id);
 
-                resolvedSelectors[children[i].id] = child;
+                const selector = new NodeSelector(children[i].id);
+                resolvedSelectors.record(nodeId, selector, child);
                 const index = currentChildren.indexOf(child);
                 if (index > -1) {
                     currentChildren.splice(index, 1);
@@ -132,16 +142,19 @@ define([
             }
         }
 
-        async findNode(parent, idString, resolvedSelectors={}) {
+        async findNode(parent, idString, resolvedSelectors=new NodeSelections()) {
             if (idString === undefined) {
                 return;
             }
-            if (resolvedSelectors[idString]) {
-                return resolvedSelectors[idString];
-            }
             assert(typeof idString === 'string');
 
+            const parentId = this.core.getPath(parent);
             const selector = new NodeSelector(idString);
+            const resolved = resolvedSelectors.get(parentId, selector);
+            if (resolved) {
+                return resolved;
+            }
+
             return await selector.findNode(this.core, this.rootNode, parent);
         }
 
@@ -497,6 +510,38 @@ define([
             }
 
             throw new Error(`Unknown tag: ${this.tag}`);
+        }
+
+        toString() {
+            const data = Array.isArray(this.value) ? this.value : [this.value];
+            return [this.tag, ...data].join(':');
+        }
+
+        isAbsolute() {
+            return this.tag === '@meta' || this.tag === '@path';
+        }
+    }
+
+    class NodeSelections {
+        constructor() {
+            this.selections = {};
+        }
+
+        getAbsoluteTag(parentId, selector) {
+            let absTag = selector.toString();
+            if (!selector.isAbsolute()) {
+                absTag = parentId + ':' + absTag;
+            }
+            return absTag;
+        }
+
+        record(parentId, selector, node) {
+            const absTag = this.getAbsoluteTag(parentId, selector);
+            this.selections[absTag] = node;
+        }
+
+        get(parentId, selector) {
+            return this.selections[this.getAbsoluteTag(parentId, selector)];
         }
     }
 
