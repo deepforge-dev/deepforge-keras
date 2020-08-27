@@ -363,13 +363,7 @@ define([
         tabName = tabName || DEFAULT_META_TAB;
         aliases = aliases || [];
 
-        let id = name;
-
-        if(!Object.keys(this.META).includes(name)) {
-            id = aliases.find(alias => Object.keys(this.META).includes(alias)) || name;
-            console.log(`Found node ${name} as ${id}`);
-        }
-
+        const id = aliases.find(alias => this.META.hasOwnProperty(alias)) || name;
         const node = {
             id: `@meta:${id}`,
             pointers: {base: baseId},
