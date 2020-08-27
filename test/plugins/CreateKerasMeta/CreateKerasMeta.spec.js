@@ -21,7 +21,7 @@ describe('CreateKerasMeta', function () {
         plugin;
 
     before(async function () {
-        this.timeout(1000);
+        this.timeout(7500);
         gmeAuth = await testFixture.clearDBAndGetGMEAuth(gmeConfig, projectName);
         storage = testFixture.getMemoryStorage(logger, gmeConfig, gmeAuth);
         await storage.openDatabase();
