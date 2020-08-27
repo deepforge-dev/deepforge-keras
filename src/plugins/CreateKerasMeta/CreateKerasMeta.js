@@ -259,16 +259,11 @@ define([
     };
 
     CreateKerasMeta.prototype.getArgumentType = function (layer, name) {
-        let arg, type;
-
-        // For now, we assume that arguments used by both a child and base class
-        // are the same type. Ideally, we would inspect the usage of the
-        // parameter. For now, this should be sufficient.
-        arg = layer.arguments && layer.arguments.find(arg => arg.name === name);
-        if (!arg) {  // if the argument is not used, stop tracing the inheritance
+        const arg = layer.arguments && layer.arguments.find(arg => arg.name === name);
+        if (!arg) {
             return undefined;
         }
-        type = arg.type || typeof arg.default;
+        const type = arg.type || typeof arg.default;
         return type;
     };
 
