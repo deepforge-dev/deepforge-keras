@@ -96,6 +96,7 @@ class LayerParser:
         layers = self._replace_aliases(layers)
         self.delete_key(layers)
         layers.extend(self._parse_fn_module(module_name=keras.layers, include=['Input']))
+        layers[-1]['abstract'] = False
         return layers
 
     def _parse_fn_module(self, module_name, include=None):
