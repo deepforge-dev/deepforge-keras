@@ -27,6 +27,11 @@ PRIMITIVE_TYPE_MAPS = {
     bool: 'boolean',
 }
 
+EXCLUDED_INPUT_LAYERS = {
+    'InputLayer',
+    'InputSpec'
+}
+
 
 class LayerParser:
     """A generic parser for keras.
@@ -98,6 +103,7 @@ class LayerParser:
         self.delete_key(layers)
         layers.extend(self._parse_fn_module(module_name=keras.layers, include=['Input']))
         layers[-1]['abstract'] = False
+        layers = [layer for layer in layers if layer['name'] not in EXCLUDED_INPUT_LAYERS]
         return layers
 
     def _parse_fn_module(self, module_name, include=None):

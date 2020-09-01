@@ -133,7 +133,10 @@ define([
 
         schemas = schemas || ConcreteLayers;
         schemas.forEach(layer => {
-            var type = this.getBaseName(layer.file);
+            const layerBase = layer.category || layer.file;
+            var type = this.getBaseName(layerBase);
+            console.log(type);
+
             content[type] = true;
         });
         return Object.keys(content);
@@ -223,8 +226,9 @@ define([
 
     CreateKerasMeta.prototype.createMetaLayer = function (root, layer, baseName, category) {
         // create a meta node for the given layer
-        category = category || this.getBaseName(layer.file);
-        baseName = baseName || this.getBaseName(layer.file);
+        const layerCategory = layer.category || layer.file;
+        category = category || this.getBaseName(layerCategory);
+        baseName = baseName || this.getBaseName(layerCategory);
 
         const base = `@meta:${baseName}`;
         const node = this.createMetaNode(root, layer.name, base, category, layer.aliases);

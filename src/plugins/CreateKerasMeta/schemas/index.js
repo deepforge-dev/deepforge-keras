@@ -31,6 +31,9 @@ define([
             if (layer.name === 'Bidirectional') {
                 layer.arguments[1].type = 'Recurrent';
             }
+            if (layer.name === 'Input') {
+                layer.category = 'topology'
+            }
 
             if (layer.arguments) {
                 layer.arguments.forEach(argument => {
