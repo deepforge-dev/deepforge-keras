@@ -135,7 +135,6 @@ define([
         schemas.forEach(layer => {
             const layerBase = layer.category || layer.file;
             var type = this.getBaseName(layerBase);
-            console.log(type);
 
             content[type] = true;
         });
