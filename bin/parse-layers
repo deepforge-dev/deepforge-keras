@@ -19,7 +19,8 @@ ABSTRACT_CLASSES = [
     'Initializer',
     'Constraint',
     'Regularizer',
-    'Layer'
+    'Layer',
+    'Wrapper'
 ]
 
 PRIMITIVE_TYPE_MAPS = {

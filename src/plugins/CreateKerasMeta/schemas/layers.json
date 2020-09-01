@@ -4264,35 +4264,6 @@
     "aliases": []
   },
   {
-    "name": "Wrapper",
-    "base": "Layer",
-    "docstring": "Abstract wrapper base class.\n\n  Wrappers take another layer and augment it in various ways.\n  Do not use this class as a layer, it is only an abstract base class.\n  Two usable wrappers are the `TimeDistributed` and `Bidirectional` wrappers.\n\n  Arguments:\n    layer: The layer to be wrapped.\n  ",
-    "arguments": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "layer",
-        "default": null
-      }
-    ],
-    "abstract": false,
-    "outputs": [],
-    "inputs": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "inputs",
-        "default": null
-      }
-    ],
-    "file": "tensorflow/python/keras/layers/wrappers.py",
-    "aliases": []
-  },
-  {
     "name": "ZeroPadding1D",
     "base": "Layer",
     "docstring": "Zero-padding layer for 1D input (e.g. temporal sequence).\n\n  Examples:\n\n  >>> input_shape = (2, 2, 3)\n  >>> x = np.arange(np.prod(input_shape)).reshape(input_shape)\n  >>> print(x)\n  [[[ 0  1  2]\n    [ 3  4  5]]\n   [[ 6  7  8]\n    [ 9 10 11]]]\n  >>> y = tf.keras.layers.ZeroPadding1D(padding=2)(x)\n  >>> print(y)\n  tf.Tensor(\n    [[[ 0  0  0]\n      [ 0  0  0]\n      [ 0  1  2]\n      [ 3  4  5]\n      [ 0  0  0]\n      [ 0  0  0]]\n     [[ 0  0  0]\n      [ 0  0  0]\n      [ 6  7  8]\n      [ 9 10 11]\n      [ 0  0  0]\n      [ 0  0  0]]], shape=(2, 6, 3), dtype=int64)\n\n  Arguments:\n      padding: Int, or tuple of int (length 2), or dictionary.\n          - If int:\n          How many zeros to add at the beginning and end of\n          the padding dimension (axis 1).\n          - If tuple of int (length 2):\n          How many zeros to add at the beginning and the end of\n          the padding dimension (`(left_pad, right_pad)`).\n\n  Input shape:\n      3D tensor with shape `(batch_size, axis_to_pad, features)`\n\n  Output shape:\n      3D tensor with shape `(batch_size, padded_axis, features)`\n  ",
