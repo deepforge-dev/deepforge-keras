@@ -32,7 +32,7 @@ define([
                 layer.arguments[1].type = 'Recurrent';
             }
             if (layer.name === 'Input') {
-                layer.category = 'topology'
+                layer.category = 'topology';
             }
 
             if (layer.arguments) {
