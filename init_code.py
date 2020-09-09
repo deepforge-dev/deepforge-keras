@@ -36,4 +36,5 @@ def load_model(infile):
     return model
 
 
-deepforge.serialization.register(keras.models.Model, dump_model, load_model)
+for subclass in keras.Model.__subclasses__():
+    deepforge.serialization.register(subclass, dump_model, load_model)
