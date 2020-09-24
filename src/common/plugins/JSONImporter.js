@@ -83,23 +83,16 @@ define([
         }
 
         async apply (node, state, resolvedSelectors=new NodeSelections()) {
+            await this.resolveSelectors(node, state, resolvedSelectors);
+
             const children = state.children || [];
             const currentChildren = await this.core.loadChildren(node);
-            const nodeId = this.core.getPath(node);
-            const parent = this.core.getParent(node);
-
-            if (state.id && parent) {
-                const parentId = this.core.getPath(parent);
-                const selector = new NodeSelector(state.id);
-                resolvedSelectors.record(parentId, selector, node);
-            }
 
             for (let i = 0; i < children.length; i++) {
-                const child = (await this.findNode(node, children[i].id, resolvedSelectors)) ||
-                    await this.createNode(node, children[i].id);
-
-                const selector = new NodeSelector(children[i].id);
-                resolvedSelectors.record(nodeId, selector, child);
+                const idString = children[i].id;
+                const child = idString ?
+                    await this.findNode(node, children[i].id, resolvedSelectors) :
+                    await this.createNode(node);
                 const index = currentChildren.indexOf(child);
                 if (index > -1) {
                     currentChildren.splice(index, 1);
@@ -140,6 +133,28 @@ define([
                 for (let i = currentChildren.length; i--;) {
                     this.core.deleteNode(currentChildren[i]);
                 }
+            }
+        }
+
+        async resolveSelectors(node, state, resolvedSelectors=new NodeSelections()) {
+            const children = state.children || [];
+            const nodeId = this.core.getPath(node);
+            const parent = this.core.getParent(node);
+
+            if (state.id && parent) {
+                const parentId = this.core.getPath(parent);
+                const selector = new NodeSelector(state.id);
+                resolvedSelectors.record(parentId, selector, node);
+            }
+
+            for (let i = 0; i < children.length; i++) {
+                const child = (await this.findNode(node, children[i].id, resolvedSelectors)) ||
+                    await this.createNode(node, children[i].id);
+
+                const selector = new NodeSelector(children[i].id);
+                resolvedSelectors.record(nodeId, selector, child);
+
+                await this.resolveSelectors(child, children[i], resolvedSelectors);
             }
         }
 
@@ -512,6 +527,10 @@ define([
                     .find(child => core.getAttribute(child, attr) === value);
             }
 
+            if (this.tag === '@id') {
+                return null;
+            }
+
             throw new Error(`Unknown tag: ${this.tag}`);
         }
 
@@ -521,7 +540,7 @@ define([
         }
 
         isAbsolute() {
-            return this.tag === '@meta' || this.tag === '@path';
+            return this.tag === '@meta' || this.tag === '@path' || this.tag === '@id';
         }
     }
 
