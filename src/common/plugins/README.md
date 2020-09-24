@@ -40,7 +40,7 @@ An example JSON is as follows:
     },
     member_registry: {
         set_name: {
-            nodeId: {
+            idOrPath: {
                 name: value
             }
         }
@@ -54,6 +54,7 @@ In the above JSON, `id` can be one of the following:
 - `@meta:<name of metanode>`: a node in the metamodel with the given name
 - `@attribute:<attribute name>:<attribute value>`: a node contained in the given node with the given attribute value
 - `@name:<name of node>`: shorthand for `@attribute:name:<name of node>`
+- `@id:<ID>`: another node in the schema with a matching `id` field
 - `<node path>`: a node with the given path
 
 The rest of the fields correspond to the similarly named concepts in WebGME. For more information, check out https://webgme.readthedocs.io/en/latest/meta_modeling/meta_modeling_concepts.html (or the [source docs](https://editor.webgme.org/docs/source/Core.html) for usage with the Core).

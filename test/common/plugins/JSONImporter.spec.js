@@ -4,6 +4,7 @@
 
 describe('JSONImporter', function () {
     const testFixture = require('../../globals');
+    const _ = testFixture.requirejs('underscore');
     const Core = testFixture.requirejs('common/core/coreQ');
     const Importer = testFixture.requirejs('deepforge-keras/plugins/JSONImporter');
     const assert = require('assert');
@@ -635,6 +636,74 @@ describe('JSONImporter', function () {
         it('should not find nodes outside parent', async function() {
             const fco = await importer.findNode(node, '@name:FCO');
             assert.equal(fco, undefined);
+        });
+    });
+
+    describe('selectors', function() {
+        it('should resolve @id', async function() {
+            const container = {
+                attributes: {name: 'test'},
+                children: []
+            };
+            container.children.push(
+                {
+                    id: '@id:child1',
+                    attributes: {name: 'child'},
+                },
+                {
+                    attributes: {name: 'otherChild'},
+                    pointers: {base: '@id:child1'}
+                }
+            );
+            await importer.import(root, container);
+            const containerNode = (await core.loadChildren(root))
+                .find(node => core.getAttribute(node, 'name') === 'test');
+            assert(containerNode, 'Container not created');
+            const childNodes = await core.loadChildren(containerNode);
+            assert(childNodes.length, 'Child nodes not created');
+            const [[child], [otherChild]] = _.partition(
+                childNodes,
+                node => core.getAttribute(node, 'name') === 'child'
+            );
+
+            assert.equal(
+                core.getPath(child),
+                core.getPointerPath(otherChild, 'base'),
+                '@id tag not resolved to sibling node'
+            );
+        });
+
+        it('should resolve @id when used before target\'s DFS order', async () => {
+            const container = {
+                attributes: {name: 'test'},
+                children: []
+            };
+            container.children.push(
+                {
+                    attributes: {name: 'otherChild'},
+                    pointers: {base: '@id:child1'}
+                },
+                {
+                    id: '@id:child1',
+                    attributes: {name: 'child'},
+                }
+            );
+            await importer.import(root, container);
+            const containerNode = (await core.loadChildren(root))
+                .find(node => core.getAttribute(node, 'name') === 'test');
+            assert(containerNode, 'Container not created');
+            const childNodes = await core.loadChildren(containerNode);
+            assert(childNodes.length, 'Child nodes not created');
+            const [[child], [otherChild]] = _.partition(
+                childNodes,
+                node => core.getAttribute(node, 'name') === 'child'
+            );
+
+            assert.equal(
+                core.getPath(child),
+                core.getPointerPath(otherChild, 'base'),
+                '@id tag not resolved to sibling node'
+            );
         });
     });
 
