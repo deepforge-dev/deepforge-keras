@@ -18,6 +18,7 @@ define([
         async toJSON (node, shallow=false) {
             const json = {
                 id: this.core.getGuid(node),
+                path: this.core.getPath(node),
                 attributes: {},
                 attribute_meta: {},
                 pointers: {},
