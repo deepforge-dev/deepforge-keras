@@ -182,18 +182,20 @@ define([
 
         async _put (node, change) {
             const [type] = change.key;
-            if (!this._put[type]) {
-                throw new Error(`Unrecognized key ${type}`);
+            if (type !== 'path' && type !== 'id') {
+                if (!this._put[type]) {
+                    throw new Error(`Unrecognized key ${type}`);
+                }
+                return await this._put[type].call(this, ...arguments);
             }
-            return await this._put[type].call(this, ...arguments);
         }
 
         async _delete (node, change) {
             const [type] = change.key;
-            if (!this._delete[type]) {
-                throw new Error(`Unrecognized key ${type}`);
-            }
             if (change.key.length > 1) {
+                if (!this._delete[type]) {
+                    throw new Error(`Unrecognized key ${type}`);
+                }
                 return await this._delete[type].call(this, ...arguments);
             }
         }
