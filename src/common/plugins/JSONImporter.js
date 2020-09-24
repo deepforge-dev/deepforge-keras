@@ -218,6 +218,7 @@ define([
         async import(parent, state) {
             const node = await this.createNode(parent);
             await this.apply(node, state);
+            return node;
         }
     }
 
@@ -272,7 +273,11 @@ define([
         );
         const [/*type*/, name] = change.key;
         const target = await this.getNode(node, change.value, resolvedSelectors);
-        this.core.setPointer(node, name, target);
+        if (name !== 'base') {
+            this.core.setBase(node, target);
+        } else {
+            this.core.setPointer(node, name, target);
+        }
     };
 
     Importer.prototype._delete.pointers = function(node, change) {

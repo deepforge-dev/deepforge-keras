@@ -640,6 +640,29 @@ describe('JSONImporter', function () {
     });
 
     describe('selectors', function() {
+        it('should find new inherited children using @name', async function() {
+            const fco = await core.loadByPath(root, '/1');
+            const base = core.createNode({parent: root, base: fco});
+            const baseChild = core.createNode({parent: base, base: fco});
+            core.setAttribute(baseChild, 'name', 'TestChild');
+
+            const newNodeState = {
+                pointers: {base: core.getPath(base)},
+                children: [
+                    {
+                        id: '@name:TestChild',
+                        attributes: {name: 'InheritedChild'},
+                    }
+                ]
+            };
+            const newNode = await importer.import(root, newNodeState);
+            assert.equal(
+                core.getChildrenPaths(newNode).length,
+                1,
+                'Created extra child node'
+            );
+        });
+
         it('should resolve @id', async function() {
             const container = {
                 attributes: {name: 'test'},
