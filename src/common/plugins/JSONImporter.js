@@ -273,7 +273,7 @@ define([
         );
         const [/*type*/, name] = change.key;
         const target = await this.getNode(node, change.value, resolvedSelectors);
-        if (name !== 'base') {
+        if (name === 'base') {
             this.core.setBase(node, target);
         } else {
             this.core.setPointer(node, name, target);
