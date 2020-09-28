@@ -90,9 +90,7 @@ define([
 
             for (let i = 0; i < children.length; i++) {
                 const idString = children[i].id;
-                const child = idString ?
-                    await this.findNode(node, children[i].id, resolvedSelectors) :
-                    await this.createNode(node);
+                const child = await this.findNode(node, idString, resolvedSelectors);
                 const index = currentChildren.indexOf(child);
                 if (index > -1) {
                     currentChildren.splice(index, 1);
@@ -111,6 +109,7 @@ define([
                 'member_registry'
             ];
             const sortedChanges = changes
+                .filter(change => change.key.length > 1)
                 .map((change, index) => {
                     let order = 2 * keyOrder.indexOf(change.key[0]);
                     if (change.type === 'put') {
@@ -136,26 +135,75 @@ define([
             }
         }
 
-        async resolveSelectors(node, state, resolvedSelectors=new NodeSelections()) {
-            const children = state.children || [];
-            const nodeId = this.core.getPath(node);
+        async resolveSelector(node, state, resolvedSelectors) {
             const parent = this.core.getParent(node);
 
-            if (state.id && parent) {
+            if (!parent) {
+                throw new Error(`Cannot resolve selector ${state.id}: no parent`);
+            }
+            if (state.id) {
                 const parentId = this.core.getPath(parent);
                 const selector = new NodeSelector(state.id);
                 resolvedSelectors.record(parentId, selector, node);
             }
+        }
 
-            for (let i = 0; i < children.length; i++) {
-                const child = (await this.findNode(node, children[i].id, resolvedSelectors)) ||
-                    await this.createNode(node, children[i].id);
+        getChildStateNodePairs(node, state) {
+            return (state.children || []).map(s => [s, node]);
+        }
 
-                const selector = new NodeSelector(children[i].id);
-                resolvedSelectors.record(nodeId, selector, child);
+        async tryResolveSelectors(stateNodePairs, resolvedSelectors) {
+            let childResolved = true;
+            while (childResolved) {
+                childResolved = false;
+                for (let i = stateNodePairs.length; i--;) {
+                    const [state, parentNode] = stateNodePairs[i];
+                    let child = await this.findNode(parentNode, state.id, resolvedSelectors);
+                    //const canCreate = !state.id;
+                    if (!child /*&& canCreate*/) {
+                        let baseNode;
+                        if (state.pointers) {
+                            const {base} = state.pointers;
+                            if (!base) {
+                                const stateID = state.id || JSON.stringify(state);
+                                throw new Error(`No base provided for ${stateID}`);
+                            }
+                            baseNode = await this.findNode(parentNode, base, resolvedSelectors);
 
-                await this.resolveSelectors(child, children[i], resolvedSelectors);
+
+                        } else {
+                            const fco = await this.core.loadByPath(this.rootNode, '/1');
+                            baseNode = fco;
+                        }
+
+                        if (baseNode) {
+                            child = await this.createNode(parentNode, state, baseNode);
+                        }
+                    }
+
+                    if (child) {
+                        this.resolveSelector(child, state, resolvedSelectors);
+                        const pairs = this.getChildStateNodePairs(child, state);
+                        stateNodePairs.splice(i, 1, ...pairs);
+                        childResolved = true;
+                    }
+                }
             }
+
+            if (stateNodePairs.length) {
+                throw new Error('Cannot resolve all node selectors (circular references)');
+            }
+        }
+
+        async resolveSelectors(node, state, resolvedSelectors) {
+            const parent = this.core.getParent(node);
+
+            if (state.id && parent) {
+                this.resolveSelector(node, state, resolvedSelectors);
+            }
+
+            const stateNodePairs = this.getChildStateNodePairs(node, state);
+            await this.tryResolveSelectors(stateNodePairs, resolvedSelectors);
         }
 
         async findNode(parent, idString, resolvedSelectors=new NodeSelections()) {
@@ -187,9 +235,13 @@ define([
             return this.core.getPath(node);
         }
 
-        async createNode(parent, idString) {
+        async createNode(parent, state={}, base) {
+            if (!state.id) {
+                state.id = `@id:${Date.now() + Math.floor(100*Math.random())}`;
+            }
+            const idString = state.id;
             const fco = await this.core.loadByPath(this.rootNode, '/1');
-            const node = this.core.createNode({base: fco, parent});
+            const node = this.core.createNode({base: base || fco, parent});
             const selector = new NodeSelector(idString);
             await selector.prepare(this.core, this.rootNode, node);
             return node;
@@ -273,7 +325,10 @@ define([
         );
         const [/*type*/, name] = change.key;
         const target = await this.getNode(node, change.value, resolvedSelectors);
-        this.core.setPointer(node, name, target);
+        const hasChanged = this.core.getPath(target) !== this.core.getPointerPath(node, name);
+        if (hasChanged) {
+            this.core.setPointer(node, name, target);
+        }
     };
 
     Importer.prototype._delete.pointers = function(node, change) {
