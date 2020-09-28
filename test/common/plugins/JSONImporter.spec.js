@@ -745,6 +745,46 @@ describe('JSONImporter', function () {
                 '@id tag not resolved to sibling node'
             );
         });
+
+        it('should resolve @guid', async function() {
+            const fco = await core.loadByPath(root, '/1');
+            const node = core.createNode({base: fco, parent: root});
+            core.setAttribute(node, 'name', 'MyNode!');
+            const guid = core.getGuid(node);
+            const container = {
+                attributes: {name: 'guidtest'},
+                pointers: {
+                    base: core.getPath(fco),
+                    test: '@guid:' + guid,
+                },
+            };
+            const containerNode = await importer.import(root, container);
+            assert.equal(
+                core.getPointerPath(containerNode, 'test'),
+                core.getPath(node),
+                'Did not resolve guid'
+            );
+        });
+
+        it('should detect @guid', async function() {
+            const fco = await core.loadByPath(root, '/1');
+            const node = core.createNode({base: fco, parent: root});
+            core.setAttribute(node, 'name', 'MyNode!');
+            const guid = core.getGuid(node);
+            const container = {
+                attributes: {name: 'guidtest'},
+                pointers: {
+                    base: core.getPath(fco),
+                    test: guid,
+                },
+            };
+            const containerNode = await importer.import(root, container);
+            assert.equal(
+                core.getPointerPath(containerNode, 'test'),
+                core.getPath(node),
+                'Did not resolve guid'
+            );
+        });
     });
 
     describe('import', function() {

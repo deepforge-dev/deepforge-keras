@@ -536,7 +536,7 @@ define([
             if (idString.startsWith('/')) {
                 this.tag = '@path';
                 this.value = idString;
-            } else {
+            } else if (idString.startsWith('@')) {
                 const data = idString.split(':');
                 const tag = data[0];
                 if (tag === '@name') {
@@ -548,6 +548,9 @@ define([
                 } else {
                     this.value = [data[0], data.slice(1).join(':')];
                 }
+            } else {
+                this.tag = '@guid';
+                this.value = idString;
             }
         }
 
@@ -587,7 +590,29 @@ define([
                 return null;
             }
 
+            if (this.tag === '@guid') {
+                return await this.findNodeWhere(
+                    core,
+                    rootNode,
+                    node => core.getGuid(node) === this.value
+                );
+            }
+
             throw new Error(`Unknown tag: ${this.tag}`);
+        }
+
+        async findNodeWhere(core, node, fn) {
+            if (await fn(node)) {
+                return node;
+            }
+
+            const children = await core.loadChildren(node);
+            for (let i = 0; i < children.length; i++) {
+                const match = await this.findNodeWhere(core, children[i], fn);
+                if (match) {
+                    return match;
+                }
+            }
         }
 
         toString() {
@@ -596,7 +621,8 @@ define([
         }
 
         isAbsolute() {
-            return this.tag === '@meta' || this.tag === '@path' || this.tag === '@id';
+            return this.tag === '@meta' || this.tag === '@path' ||
+                this.tag === '@id' || this.tag === '@guid';
         }
     }
 
