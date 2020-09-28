@@ -219,6 +219,23 @@ describe('JSONImporter', function () {
                 assert.equal(core.getPointerPath(node2, 'base'), nodePath);
             });
 
+            it('should preserve children on base change', async function() {
+                const fco = await core.loadByPath(root, '/1');
+                const childNode = core.createNode({base: fco, parent: node2});
+                const childPath = core.getPath(childNode);
+                core.setAttribute(childNode, 'name', 'ChildNode');
+                original2 = await importer.toJSON(node2);
+                const nodePath = core.getPath(node3);
+                original2.pointers.base = nodePath;
+
+                await importer.apply(node2, original2);
+                assert.equal(core.getPointerPath(node2, 'base'), nodePath);
+                assert(
+                    core.getChildrenPaths(node2).includes(childPath),
+                    `Child node not present after changing the base`
+                );
+            });
+
             it('should resolve @meta tag even if renamed during changes', async function() {
                 const fco = await core.loadByPath(root, '/1');
                 const node = core.createNode({base: fco, parent: root});
@@ -723,8 +740,8 @@ describe('JSONImporter', function () {
             );
 
             assert.equal(
-                core.getPath(child),
                 core.getPointerPath(otherChild, 'base'),
+                core.getPath(child),
                 '@id tag not resolved to sibling node'
             );
         });
