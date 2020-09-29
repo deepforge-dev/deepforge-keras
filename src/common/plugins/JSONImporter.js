@@ -37,6 +37,7 @@ define([
                 json.attribute_meta[name] = this.core.getAttributeMeta(node, name);
             });
 
+            json.pointers.base = this.core.getPointerPath(node, 'base');
             this.core.getOwnPointerNames(node).forEach(name => {
                 json.pointers[name] = this.core.getPointerPath(node, name);
             });
