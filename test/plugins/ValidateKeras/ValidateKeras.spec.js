@@ -7,7 +7,7 @@ const testFixture = require('../../globals');
 const pluginName = 'ValidateKeras';
 
 describe(pluginName, function () {
-    this.timeout(5000);
+    this.timeout(7000);
     const Q = require('q');
     const gmeConfig = testFixture.getGmeConfig();
     const expect = testFixture.expect;
@@ -117,5 +117,64 @@ describe(pluginName, function () {
             // Check that it has a 0 (from it's alpha arg)
             assert(custom_relu.includes('0'));
         });
+    });
+
+    describe('code trials', function () {
+        let codes = {};
+        before(async function () {
+            for(const [archName, ID] of Object.entries(testFixture.ARCHITECTURE)) {
+                codes[archName] = await getGeneratedCode(ID);
+            }
+        });
+
+        it(`should validate code without any errors for seq2seq`, (done) => {
+            const execResults = testFixture.executePython(codes.Seq2Seq);
+            assert(execResults.success);
+            assert(execResults.stdout);
+            done();
+        });
+
+        it(`should validate code without any errors for Basic`, (done) => {
+            const execResults = testFixture.executePython(codes.Basic);
+            assert(execResults.success);
+            assert(execResults.stdout);
+            done();
+        });
+
+        it(`should validate code without any errors for LayerListInput`, (done) => {
+            const execResults = testFixture.executePython(codes.LayerListInput);
+            assert(execResults.success);
+            assert(execResults.stdout);
+            done();
+        });
+
+        it(`should validate code without any errors for MultiArchInputs`, (done) => {
+            const execResults = testFixture.executePython(codes.MultiArchInputs);
+            assert(execResults.success);
+            assert(execResults.stdout);
+            done();
+        });
+
+        it(`should validate code without any errors for MultiArchOutputs`, (done) => {
+            const execResults = testFixture.executePython(codes.MultiArchOutputs);
+            assert(execResults.success);
+            assert(execResults.stdout);
+            done();
+        });
+
+        it(`should validate code without any errors for NestedLayers`, (done) => {
+            const execResults = testFixture.executePython(codes.NestedLayers);
+            assert(execResults.success);
+            assert(execResults.stdout);
+            done();
+        });
+
+        it(`should validate code without any errors for Seq2Seq`, (done) => {
+            const execResults = testFixture.executePython(codes.Seq2Seq);
+            assert(execResults.success);
+            assert(execResults.stdout);
+            done();
+        });
+
     });
 });
