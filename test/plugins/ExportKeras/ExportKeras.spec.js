@@ -1,5 +1,6 @@
 /*eslint-env node, mocha*/
 describe('ExportKeras', function () {
+    this.timeout(5000);
     const testFixture = require('../../globals'),
         BlobClient = require('webgme-engine/src/server/middleware/blob/BlobClientWithFSBackend'),
         {promisify} = require('util'),
@@ -72,7 +73,7 @@ describe('ExportKeras', function () {
     describe('multi arch output', function () {
         let modelJSON;
         let layers;
-        const layerNames = ['input_1', 'activation_1', 'dense_1', 'dropout_1'];
+        const layerNames = ['input_1', 'activation', 'dense', 'dropout'];
         const layerClassNames = ['InputLayer', 'Activation', 'Dense', 'Dropout'];
 
         before(async function () {
@@ -112,7 +113,7 @@ describe('ExportKeras', function () {
     describe('nested (wrapped) layers', function () {
         let modelJSON;
         let layers;
-        const layerNames = ['input_1', 'time_distributed_1'];
+        const layerNames = ['input_1', 'time_distributed'];
         const layerClassNames = ['InputLayer', 'TimeDistributed'];
 
         before(async function () {
@@ -152,7 +153,7 @@ describe('ExportKeras', function () {
     describe('seq to seq', function () {
         let modelJSON;
         let layers;
-        const layerNames = ['input_2', 'input_1', 'lstm_1', 'lstm_2', 'dense_1'];
+        const layerNames = ['input_1', 'input_2', 'lstm', 'lstm_1', 'dense'];
         const layerClassNames = ['InputLayer', 'InputLayer', 'LSTM', 'LSTM', 'Dense'];
 
         before(async function () {

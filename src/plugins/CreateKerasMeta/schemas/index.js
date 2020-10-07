@@ -25,11 +25,14 @@ define([
     const AdditionalLayers = JSON.parse(AdditionalLayerTxt);
     const Layers = JSON.parse(LayerTxt).concat(AdditionalLayers)
         .map(layer => {  // apply any special case patching
-            if (layer.name === 'Wrapper') {
+            if (layer.name === 'Wrapper' || layer.name === 'TimeDistributed') {
                 layer.arguments[1].type = 'Layer';
             }
             if (layer.name === 'Bidirectional') {
                 layer.arguments[1].type = 'Recurrent';
+            }
+            if (layer.name === 'Input') {
+                layer.category = 'topology';
             }
 
             if (layer.arguments) {

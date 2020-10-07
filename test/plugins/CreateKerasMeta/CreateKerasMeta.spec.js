@@ -4,7 +4,6 @@
 var testFixture = require('../../globals');
 
 describe('CreateKerasMeta', function () {
-    this.timeout(5000);
     var gmeConfig = testFixture.getGmeConfig(),
         expect = testFixture.expect,
         path = testFixture.path,
@@ -22,7 +21,7 @@ describe('CreateKerasMeta', function () {
         plugin;
 
     before(async function () {
-        this.timeout(1000);
+        this.timeout(7500);
         gmeAuth = await testFixture.clearDBAndGetGMEAuth(gmeConfig, projectName);
         storage = testFixture.getMemoryStorage(logger, gmeConfig, gmeAuth);
         await storage.openDatabase();
@@ -142,7 +141,7 @@ describe('CreateKerasMeta', function () {
             });
 
             it('should create nodes for regularizer fns', function () {
-                let node = getMetaNode('l1');
+                let node = getMetaNode('L1');
                 assert(node);
             });
 

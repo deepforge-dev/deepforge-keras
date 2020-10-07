@@ -36,3 +36,5 @@ notes/
 
 # VSCode
 .vscode
+
+bin/__pycache__/

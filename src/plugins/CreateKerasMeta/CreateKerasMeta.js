@@ -133,7 +133,9 @@ define([
 
         schemas = schemas || ConcreteLayers;
         schemas.forEach(layer => {
-            var type = this.getBaseName(layer.file);
+            const layerBase = layer.category || layer.file;
+            var type = this.getBaseName(layerBase);
+
             content[type] = true;
         });
         return Object.keys(content);
@@ -143,7 +145,6 @@ define([
         // Get the categories
         // Create the category nodes
         const categories = this.getLayerCategories(schemas);
-
 
         // Add activation, constraint, etc, functions
         categories.forEach(name => {
@@ -163,7 +164,7 @@ define([
     };
 
     CreateKerasMeta.prototype.getBaseName = function (filename) {
-        var type = filename.split('/').pop().replace(/\.py$/, '');
+        var type = filename.split('/').pop().replace(/(_v2)?\.py$/, '');
         return type[0].toUpperCase() + type.substring(1);
     };
 
@@ -211,16 +212,25 @@ define([
         if (layerArgs[0] && layerArgs[0].name === 'self') {
             layerArgs.shift();
         }
-        return layerArgs.filter(arg => arg.name !== 'name');
+
+        return layerArgs
+            .filter(arg => arg.name !== 'name')
+            .map(arg => {
+                if (!arg.type && Array.isArray(arg.default)) {
+                    arg.default = `(${arg.default.join(', ')})`;
+                }
+                return arg;
+            });
     };
 
     CreateKerasMeta.prototype.createMetaLayer = function (root, layer, baseName, category) {
         // create a meta node for the given layer
-        category = category || this.getBaseName(layer.file);
-        baseName = baseName || this.getBaseName(layer.file);
+        const layerCategory = layer.category || layer.file;
+        category = category || this.getBaseName(layerCategory);
+        baseName = baseName || this.getBaseName(layerCategory);
 
         const base = `@meta:${baseName}`;
-        const node = this.createMetaNode(root, layer.name, base, category);
+        const node = this.createMetaNode(root, layer.name, base, category, layer.aliases);
 
         // Clean the arguments
         const layerArgs = this.getCleanLayerArgs(layer);
@@ -252,19 +262,11 @@ define([
     };
 
     CreateKerasMeta.prototype.getArgumentType = function (layer, name) {
-        let arg, type;
-
-        // For now, we assume that arguments used by both a child and base class
-        // are the same type. Ideally, we would inspect the usage of the
-        // parameter. For now, this should be sufficient.
-        while (layer && !type) {
-            arg = layer.arguments && layer.arguments.find(arg => arg.name === name);
-            if (!arg) {  // if the argument is not used, stop tracing the inheritance
-                return undefined;
-            }
-            type = arg.type;
-            layer = this.getLayerSchema(layer.base);
+        const arg = layer.arguments && layer.arguments.find(arg => arg.name === name);
+        if (!arg) {
+            return undefined;
         }
+        const type = arg.type || typeof arg.default;
         return type;
     };
 
@@ -363,11 +365,13 @@ define([
         return null;
     };
 
-    CreateKerasMeta.prototype.createMetaNode = function (root, name, baseId, tabName) {
+    CreateKerasMeta.prototype.createMetaNode = function (root, name, baseId, tabName, aliases) {
         tabName = tabName || DEFAULT_META_TAB;
+        aliases = aliases || [];
 
+        const id = aliases.find(alias => this.META.hasOwnProperty(alias)) || name;
         const node = {
-            id: `@meta:${name}`,
+            id: `@meta:${id}`,
             pointers: {base: baseId},
             attributes: {name},
             registry: {},

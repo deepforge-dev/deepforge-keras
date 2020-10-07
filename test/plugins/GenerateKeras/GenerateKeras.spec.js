@@ -2,6 +2,7 @@
 
 'use strict';
 describe('GenerateKeras', function () {
+    this.timeout(5000);
     const testFixture = require('../../globals');
     const pluginName = 'GenerateKeras';
     const Q = require('q');
@@ -78,7 +79,7 @@ describe('GenerateKeras', function () {
         });
 
         it('should import all keras layers', function() {
-            assert(code.includes('from keras.layers import *'));
+            assert(code.includes('from tensorflow.keras.layers import *'));
         });
 
         it('should create a model', function() {

@@ -145,9 +145,9 @@ define([
 
         // Import the layers
         code.unshift('');
-        code.unshift('from keras.layers import *');
-        code.unshift('from keras.models import Model');
-        code.unshift('import keras');
+        code.unshift('from tensorflow.keras.layers import *');
+        code.unshift('from tensorflow.keras.models import Model');
+        code.unshift('import tensorflow.keras as keras');
 
         // Return the model
         const modelCtor = this.getModelIODefinition(allLayers);

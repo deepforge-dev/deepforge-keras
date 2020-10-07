@@ -1,5 +1,6 @@
 import sys
 import json
+import typing
 
 layer_registry = {}
 def register_layer(name, node_id):
@@ -19,12 +20,20 @@ def record_error(e):
         info['message'] = e.args[0]
     <%= resultsVar %>['errors'].append(info)
 
+def _convert_to_int(shape_or_int):
+    if isinstance(shape_or_int, typing.Iterable):
+        return list(map(_convert_to_int, shape_or_int))
+    elif shape_or_int:
+        return int(shape_or_int)
+
 def record_dimensions(model):
     for layer in model.layers:
         layer_name = layer.name
         node_id = layer_registry[layer.name]
         # Convert any int64 to python int
-        shape = [ int(i) if i is not None else None for i in layer.output_shape ]
+        shape = _convert_to_int(layer.output_shape)
+        if isinstance(shape[0], list):
+            shape = shape[0]
         <%= resultsVar %>['dimensions'][node_id] = shape
 
 def print_stats(results):
