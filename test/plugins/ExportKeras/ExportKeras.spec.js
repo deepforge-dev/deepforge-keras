@@ -153,7 +153,7 @@ describe('ExportKeras', function () {
     describe('seq to seq', function () {
         let modelJSON;
         let layers;
-        const layerNames = ['input_2', 'input_1', 'lstm', 'lstm_1', 'dense'];
+        const layerNames = ['input_1', 'input_2', 'lstm', 'lstm_1', 'dense'];
         const layerClassNames = ['InputLayer', 'InputLayer', 'LSTM', 'LSTM', 'Dense'];
 
         before(async function () {
