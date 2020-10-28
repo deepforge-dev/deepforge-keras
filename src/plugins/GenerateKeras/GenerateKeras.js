@@ -342,7 +342,11 @@ define([
     GenerateKeras.prototype.getVariableForNode = function(layer, basename) {
         if (!layer.variableName) {
             basename = basename || layer.name.toLowerCase();
-            layer.variableName = this.generateVariableName(basename);
+            const sanitizedBasename = basename
+                .replace(/ /g, '_')
+                .replace(/[^a-zA-Z0-9_]/g, '')
+                .replace(/^[^a-zA-Z]/, startLetter => '_' + startLetter);
+            layer.variableName = this.generateVariableName(sanitizedBasename);
         }
         return layer.variableName;
     };

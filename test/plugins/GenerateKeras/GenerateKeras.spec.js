@@ -303,5 +303,12 @@ describe('GenerateKeras', function () {
             const name = plugin.generateVariableName('lambda');
             assert.notEqual(name, 'lambda');
         });
+
+        it('should sanitize layer names', function() {
+            const name = '1 new name!';
+            const newName = plugin.getVariableForNode({name});
+            assert.notEqual(newName, name, 'Did not change variable name');
+            assert.equal(newName, '_1_new_name');
+        });
     });
 });
