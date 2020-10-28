@@ -61,7 +61,8 @@ describe('CreateKerasMeta', function () {
 
     describe('execution', function() {
         let pluginResult = null;
-        before(done => {
+        before(function(done) {
+            this.timeout(7500);
             manager.runPluginMain(plugin, (err, res) => {
                 pluginResult = res;
                 done(err);
