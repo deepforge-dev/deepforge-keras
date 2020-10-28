@@ -24,6 +24,12 @@ define([
     const SpecialTypeNames = Object.keys(SpecialTypes);
     const AdditionalLayers = JSON.parse(AdditionalLayerTxt);
     const Layers = JSON.parse(LayerTxt).concat(AdditionalLayers)
+        .filter(layer => {
+            const {file} = layer;
+            const isSpektralLayer = file.startsWith('spektral');
+            const isSpektralMisc = isSpektralLayer && file.includes('base.py');
+            return !isSpektralMisc;
+        })
         .map(layer => {  // apply any special case patching
             if (layer.name === 'Wrapper' || layer.name === 'TimeDistributed') {
                 layer.arguments[1].type = 'Layer';
@@ -33,6 +39,16 @@ define([
             }
             if (layer.name === 'Input') {
                 layer.category = 'topology';
+            }
+            if (layer.file.startsWith('spektral')) {
+                if (layer.file.includes('pooling')) {
+                    layer.category = 'Graph_Pooling';
+                } else {
+                    layer.category = 'Graph';
+                }
+                if (layer.name === 'MessagePassing') {
+                    layer.abstract = true;
+                }
             }
 
             if (layer.arguments) {

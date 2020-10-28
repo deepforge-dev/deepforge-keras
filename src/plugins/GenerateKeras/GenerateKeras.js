@@ -146,6 +146,7 @@ define([
         // Import the layers
         code.unshift('');
         code.unshift('from tensorflow.keras.layers import *');
+        code.unshift('from spektral.layers import *');
         code.unshift('from tensorflow.keras.models import Model');
         code.unshift('import tensorflow.keras as keras');
 
