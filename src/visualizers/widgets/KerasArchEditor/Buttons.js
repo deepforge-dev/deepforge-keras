@@ -3,12 +3,14 @@ define([
     'widgets/EasyDAG/Buttons',
     'webgme-easydag/Icons',
     'underscore',
-    './lib/showdown.min'
+    './lib/showdown.min',
+    './Doc2MarkDown'
 ], function(
     Buttons,
     Icons,
     _,
-    showdown
+    showdown,
+    Doc2MarkDown
 ) {
 
     var client = WebGMEGlobal.Client;
@@ -179,11 +181,32 @@ define([
     };
 
     ShowHelpDocs.convertDocsToHtml = function(docs) {
+        const doc2MarkDown = new Doc2MarkDown();
         // First preprocess the docstring to (nice) markdown
-        docs = docs
-            .replace(/^\s*/mg, '')  // default indentation creates code blocks
-            // Convert the arguments to a list
-            .replace(/^([a-zA-Z_]+):/mg, (match, argName) => `- ${argName}:`);
+        // const docstringKeyWords = [
+        //     'note',
+        //     'notes',
+        //     'arguments',
+        //     'call arguments',
+        //     'input shape',
+        //     'output shape',
+        //     'returns',
+        //     'raises'
+        // ]
+        //
+        // docs = docs
+        //     .replace(/^\s*/mg, '')  // default indentation creates code blocks
+        //     // Remove examples section
+        //     .replace(/(^(Examples:)[\s\S]*?)   (^[a-zA-Z]+:)/mg, '$2')
+        //     // Convert the arguments to a list
+        //     .replace(/^([a-zA-Z_\s]+):/mg, (match, argName) => {
+        //         if(docstringKeyWords.includes(argName.toLowerCase())) {
+        //             return `### ${argName}:\n`;
+        //         } else {
+        //             return `- ${argName}:`
+        //         }
+        //     });
+        docs = doc2MarkDown.process(docs);
 
         return mdConverter.makeHtml(docs);
     };
@@ -218,6 +241,15 @@ define([
             }
 
             anchors[i].setAttribute('target', '_blank');
+        }
+
+        const codes = docsDialog.find('code');
+        for (let i = codes.length; i--;) {
+            const text = codes[i].textContent;
+            const url = text.split('.').pop();
+            if(text.includes('keras.') && !text.includes('keras.json')) {
+                codes[i].innerHTML = `<a href=https://keras.io/${url} target="_blank">${text}</a>`;
+            }
         }
         docsDialog.modal('show');
     };
