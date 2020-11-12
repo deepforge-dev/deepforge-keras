@@ -10,12 +10,17 @@
 deepforge extensions add deepforge-dev/deepforge-keras
 ```
 
-This requires that some additional python dependencies are available on the worker machines (including keras and tensorflow). These can be installed (on the worker machines) with:
+This requires that some additional python dependencies are available on the worker machines (including tensorflow). Before starting the worker, be sure to install the conda environment and activate it:
 ```
-pip install -r requirements.txt
+conda env create --file environment.worker.yml
+conda activate deepforge-keras
 ```
 
-where `requirements.txt` is the requirements file in the root of this repository.
+Similarly, be sure to install the server dependencies and activate the respective conda environment:
+```
+conda env create --file environment.server.yml
+conda activate deepforge-keras-server
+```
 
 ## Development and Debugging Setup
 deepforge-keras is set up and developed just like a standalone webgme app. First, install the deepforge-keras following:
