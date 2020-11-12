@@ -22,8 +22,6 @@ conda env create --file environment.server.yml
 conda activate deepforge-keras-server
 ```
 
-```bash
-```
 ## Development and Debugging Setup
 deepforge-keras is set up and developed just like a standalone webgme app. First, install the deepforge-keras following:
 - [NodeJS](https://nodejs.org/en/) (LTS recommended)
