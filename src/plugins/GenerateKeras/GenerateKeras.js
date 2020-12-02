@@ -73,13 +73,6 @@ define([
             });
         }
 
-        // Try to sort shared weight layers after the original layer
-        if (this.core.isTypeOf(node, this.META.SharedWeightLayer)) {
-            const src = this.core.getPointerPath(node, 'source');
-            const dst = this.core.getPath(node);
-            this._connections.push({src, dst});
-        }
-
         // Always return false since layers are implied by set containment
         return false;
     };
@@ -222,14 +215,21 @@ define([
     GenerateKeras.prototype.generateLayerCtor = function(layer) {
         this.sortLayerInputsByIndex(layer);
 
-        if (!this.isSharedWeightLayer(layer)) {
+        if (this.isSharedWeightLayer(layer)) {
+            return this.generateLayerCtor(layer.source);
+        } else
+        if (this.hasVariable(layer)) {
+            return this.getVariableForNode(layer);
+        } else {
             const ctor = layer[SimpleConstants.BASE].name;
             const args = this.getArgumentsString(layer);
 
             return `${ctor}(${args})`;
-        } else {
-            return this.getVariableForNode(layer.source);
         }
+    };
+
+    GenerateKeras.prototype.hasVariable = function(node) {
+        return node.variableName;
     };
 
     GenerateKeras.prototype.isSharedWeightLayer = function(layer) {
@@ -243,9 +243,11 @@ define([
             return `${outputs} = ${ctor}`;
         } else {  // add the inputs
             const args = this.generateInputValues(layer);
-            const varName = this.getVariableForNode(layer);
+            const originalLayer = this.isSharedWeightLayer(layer) ?
+                layer.source : layer;
 
-            if (!this.isSharedWeightLayer(layer)) {
+            if (!this.hasVariable(originalLayer)) {
+                const varName = this.getVariableForNode(originalLayer);
                 return [
                     `${varName} = ${ctor}`,
                     `${outputs} = ${varName}(${args})`,
@@ -353,7 +355,7 @@ define([
     };
 
     GenerateKeras.prototype.getVariableForNode = function(layer, basename) {
-        if (!layer.variableName) {
+        if (!this.hasVariable(layer)) {
             basename = basename || layer.name.toLowerCase();
             const sanitizedBasename = basename
                 .replace(/ /g, '_')
