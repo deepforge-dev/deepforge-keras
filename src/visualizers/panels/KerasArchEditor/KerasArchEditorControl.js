@@ -953,6 +953,20 @@ define([
         this._widget.disconnectNodes = this._disconnectNodes.bind(this);
         this._widget.delAttribute = this._delAttribute.bind(this);
         this._widget.createSharedWeightLayer = this.createSharedWeightLayer.bind(this);
+
+        // Wrap edit events
+        this._widget.setPointerForNode = this.addSharedWeightSupport(this._setPointerForNode);
+        this._widget.saveAttributeForNode = this.addSharedWeightSupport(this._saveAttributeForNode);
+    };
+
+    KerasArchEditorControl.prototype.addSharedWeightSupport = function(fn) {
+        const self = this;
+        return function(id) {
+            const weightsOrigin = self._getWeightsOrigin(id);
+            const args = [...arguments];
+            args[0] = weightsOrigin || id;
+            return fn.call(self, ...args);
+        };
     };
 
     KerasArchEditorControl.prototype.insertLayer = function(layerBaseId, connId) {
