@@ -193,7 +193,7 @@ define([
             return index1 < index2 ? -1 : 1;
         });
 
-        const outputNames = outputs.map(layer => layer.variableName)
+        const outputNames = outputs.map(layer => this.generateOutputNames(layer)[0])
             .join(',');
 
         return `Model(inputs=[${inputNames}], outputs=[${outputNames}])`;
@@ -210,7 +210,7 @@ define([
                 .map(id => inputIndexDict[id]);
             return index1 < index2 ? -1 : 1;
         });
-        return inputs.map(layer => layer.variableName).join(',');
+        return inputs.map(layer => this.generateOutputNames(layer)[0]).join(',');
     };
 
     GenerateKeras.prototype.defineCustomObject = function(name, def) {
