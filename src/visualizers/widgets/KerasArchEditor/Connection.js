@@ -13,11 +13,7 @@ define([
 
     var Connection = function($parent, desc) {
         BaseConnection.apply(this, arguments);
-        desc.color = desc.color || 'black';
-        desc.tooltip = desc.tooltip || {};
-        desc.tooltip.color = desc.tooltip.color || '#dddddd';
-        desc.tooltip.text = desc.tooltip.text || 'unavailable';
-        desc.tooltip.fontStyle = desc.tooltip.fontStyle || 'normal';
+        this.setDefaults(desc);
 
         this.$index = this.$el.append('g')
             .attr('class', 'connection-index');
@@ -147,9 +143,18 @@ define([
     };
 
     Connection.prototype.update = function(desc) {
+        this.setDefaults(desc);
         BaseConnection.prototype.update.apply(this, arguments);
         const index = desc.index !== null ? desc.index+1 : '';
         this.$indexText.text(index);
+    };
+
+    Connection.prototype.setDefaults = function(desc) {
+        desc.color = desc.color || 'black';
+        desc.tooltip = desc.tooltip || {};
+        desc.tooltip.color = desc.tooltip.color || '#dddddd';
+        desc.tooltip.text = desc.tooltip.text || 'unavailable';
+        desc.tooltip.fontStyle = desc.tooltip.fontStyle || 'normal';
     };
 
     return Connection;
