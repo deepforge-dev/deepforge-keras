@@ -65,7 +65,8 @@ define([
             .transition()
             .attr('opacity', 1);
 
-        this.$path.attr('stroke-width', 3);
+        const strokeWidth = this.desc.dash ? 6 : 4;
+        this.$path.attr('stroke-width', strokeWidth);
         this.showingTooltip = true;
     };
 
