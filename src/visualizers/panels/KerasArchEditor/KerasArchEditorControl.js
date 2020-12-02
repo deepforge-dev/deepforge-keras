@@ -166,7 +166,7 @@ define([
         const dst = desc.id;
         const connection = {
             id: `weights-${src}-${dst}`,
-            color: '#b2ebf2',
+            color: '#81c784',
             index: null,
             src,
             dst,
@@ -176,7 +176,7 @@ define([
             canDelete: false,
             dash: 4,
             tooltip: {
-                color: '#b2ebf2',
+                color: '#81c784',
                 text: 'sharing weights',
                 fontStyle: 'italic',
             }
