@@ -70,7 +70,7 @@ define([
             `    current_layer_name = '${layerName}'`,
             `    register_layer(current_layer_name, '${layerId}')`,
             '    if not has_bad_layer:',
-            `        ${code}`,
+            `        ${code.replace(/\n/g, '\n        ')}`,
             `        last_layer = ${outputs[0]}`,
             '    else:',
             `        ${ctor}`,

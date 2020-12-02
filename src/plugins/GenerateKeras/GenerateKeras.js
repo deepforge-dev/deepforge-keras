@@ -73,6 +73,13 @@ define([
             });
         }
 
+        // Try to sort shared weight layers after the original layer
+        if (this.core.isTypeOf(node, this.META.SharedWeightLayer)) {
+            const src = this.core.getPointerPath(node, 'source');
+            const dst = this.core.getPath(node);
+            this._connections.push({src, dst});
+        }
+
         // Always return false since layers are implied by set containment
         return false;
     };
@@ -215,10 +222,18 @@ define([
     GenerateKeras.prototype.generateLayerCtor = function(layer) {
         this.sortLayerInputsByIndex(layer);
 
-        const ctor = layer[SimpleConstants.BASE].name;
-        const args = this.getArgumentsString(layer);
+        if (!this.isSharedWeightLayer(layer)) {
+            const ctor = layer[SimpleConstants.BASE].name;
+            const args = this.getArgumentsString(layer);
 
-        return `${ctor}(${args})`;
+            return `${ctor}(${args})`;
+        } else {
+            return this.getVariableForNode(layer.source);
+        }
+    };
+
+    GenerateKeras.prototype.isSharedWeightLayer = function(layer) {
+        return layer[SimpleConstants.BASE].name === 'SharedWeightLayer';
     };
 
     GenerateKeras.prototype.generateLayerCode = function(layer) {
@@ -227,10 +242,17 @@ define([
         if (layer[SimpleConstants.BASE].name === 'Input') {
             return `${outputs} = ${ctor}`;
         } else {  // add the inputs
-            // Add different types of inputs
-            // Add multiple outputs support
             const args = this.generateInputValues(layer);
-            return `${outputs} = ${ctor}(${args})`;
+            const varName = this.getVariableForNode(layer);
+
+            if (!this.isSharedWeightLayer(layer)) {
+                return [
+                    `${varName} = ${ctor}`,
+                    `${outputs} = ${varName}(${args})`,
+                ].join('\n');
+            } else {
+                return `${outputs} = ${ctor}(${args})`;
+            }
         }
     };
 
@@ -257,17 +279,7 @@ define([
     GenerateKeras.prototype.generateOutputNames = function(layer) {
         const outputs = this.getSortedMembers(layer, 'outputs');
 
-        if (outputs.length === 1) {
-            // use the same variable for the output and layer since they are
-            // basically the same
-            const name = this.getVariableForNode(layer);
-            outputs[0].variableName = name;
-            return [name];
-        } else {
-            // Generate variable names for each
-            // Add these variable names to the children json nodes
-            return outputs.map(output => this.getVariableForNode(output));
-        }
+        return outputs.map(output => this.getVariableForNode(output, layer.name.toLowerCase() + '_' + output.name));
     };
 
     GenerateKeras.prototype.getMemberIndicesDict = function(node, set) {
