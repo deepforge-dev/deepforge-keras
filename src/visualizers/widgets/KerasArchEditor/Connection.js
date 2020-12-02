@@ -50,6 +50,7 @@ define([
             .text('unavailable');
 
         this.update(desc);
+        this.desc = desc;
     };
 
     _.extend(Connection.prototype, BaseConnection.prototype);
@@ -109,7 +110,17 @@ define([
     };
 
     Connection.prototype.redraw = function() {
-        BaseConnection.prototype.redraw.apply(this, arguments);
+        const marker = `arrowhead_${this.color}`;
+        const markerLoc = this.desc.inverted ? 'marker-start' : 'marker-end';
+        this.$path.attr('d', lineFn(this.points))
+            .transition()
+            .attr('stroke-width', 2)
+            .attr('stroke', this.color)
+            .attr('fill', 'none')
+            .attr(markerLoc, `url(#${marker})`);
+
+        // Update the x,y,width, height from the points
+        this.updateBounds();
 
         this.$padding.attr('d', lineFn(this.points))
             .transition()

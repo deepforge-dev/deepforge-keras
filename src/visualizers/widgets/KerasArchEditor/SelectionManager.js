@@ -49,7 +49,18 @@ define([
                 });
             }
 
-        } else {
+            if (!this.selectedItem.desc.weightsOrigin) {
+                btn = new Buttons.ReuseLayer({
+                    context: this._widget,
+                    $pEl: this.$selection,
+                    item: this.selectedItem,
+                    transition: transition,
+                    x: width,
+                    y: height,
+                });
+            }
+
+        } else if (!this.selectedItem.desc.weightsOrigin) {
             // Remove button
             btn = new Buttons.DisconnectLayers({
                 context: this._widget,

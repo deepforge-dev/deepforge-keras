@@ -155,6 +155,30 @@ define([
                     srcArgId => this.removeConnectionByEndpoints(srcArgId, id)
                 );
             });
+
+        if (desc.weightsOrigin) {
+            this.addSharedWeightsConnection(desc);
+        }
+    };
+
+    KerasArchEditorControl.prototype.addSharedWeightsConnection = function (desc) {
+        const src = desc.weightsOrigin;
+        const srcArgId = this._getObjectDescriptor(src).outputs[0].getId();
+        const dst = desc.id;
+        const dstArgId = desc.inputs[0].getId();
+        const connection = {
+            id: `weights-${src}-${dst}`,
+            color: 'blue',
+            index: null,
+            src,
+            dst,
+            srcArgId,
+            dstArgId,
+            inverted: true,
+        };
+        this.removeConnectionByEndpoints(src, dst);
+        this._widget.addConnection(connection);
+        this.connections.push(connection);
     };
 
     KerasArchEditorControl.prototype.removeConnectionByEndpoints = function (src, dst) {
@@ -203,9 +227,18 @@ define([
         // Update the child containing the id
         const childId = this.getParentAtDepth(gmeId);
         const desc = this._getObjectDescriptor(childId);
+        this.updateLayersSharingWeights(childId);
 
         this._widget.updateNode(desc);
         this.updateConnections(desc);
+    };
+
+    KerasArchEditorControl.prototype.updateLayersSharingWeights = function (layerId) {
+        const currentNode = this._client.getNode(this._currentNodeId);
+        const sharedWeightsIds = currentNode.getChildrenIds()
+            .filter(nodeId => this._getWeightsOrigin(nodeId) === layerId);
+
+        sharedWeightsIds.forEach(id => this._onUpdate(id));
     };
 
     KerasArchEditorControl.prototype.onActiveNodeUpdate = function (id) {
@@ -232,6 +265,7 @@ define([
     KerasArchEditorControl.prototype._getMetaObjectDescriptor = function(id) {
         // Do not sort inputs/outputs since those nodes are probably not loaded...
         var node = this._client.getNode(id),
+            base = this._client.getNode(node.getMetaTypeId()),
             desc = ThumbnailControl.prototype._getObjectDescriptor.call(this, id);
 
         // Filter attributes
@@ -274,8 +308,7 @@ define([
         // Add layer type (base class's base class)
         desc.layerType = null;
         if (desc.baseName) {
-            var base = this._client.getNode(node.getMetaTypeId()),
-                layerType = this._client.getNode(base.getBaseId()),
+            var layerType = this._client.getNode(base.getBaseId()),
                 color;
 
             desc.baseName = base.getAttribute(nodePropertyNames.Attributes.name);
@@ -312,7 +345,32 @@ define([
             }
         }
 
+        const weightsOrigin = this._getWeightsOrigin(node.getId());
+        const isSharingWeights = !!weightsOrigin;
+        if (isSharingWeights) {
+            const sourceDesc = this._getObjectDescriptor(weightsOrigin);
+
+            desc.attributes = sourceDesc.attributes;
+            desc.pointers = sourceDesc.pointers;
+            desc.Decorator = sourceDesc.Decorator;
+            desc.color = sourceDesc.color;
+            desc.docs = sourceDesc.docs;
+            desc.layerType = sourceDesc.layerType;
+            desc.name = sourceDesc.name;
+
+            desc.weightsOrigin = weightsOrigin;
+        }
+
         return desc;
+    };
+
+    KerasArchEditorControl.prototype._getWeightsOrigin = function(id) {
+        const node = this._client.getNode(id);
+        const base = this._client.getNode(node.getMetaTypeId());
+        const isSharingWeights = base.getAttribute('name') === 'SharedWeightLayer';
+        if (isSharingWeights) {
+            return node.getPointer('source').to;
+        }
     };
 
     KerasArchEditorControl.prototype._getObjectDescriptor = function(id) {
@@ -889,6 +947,7 @@ define([
         this._widget.insertLayer = this.insertLayer.bind(this);
         this._widget.disconnectNodes = this._disconnectNodes.bind(this);
         this._widget.delAttribute = this._delAttribute.bind(this);
+        this._widget.createSharedWeightLayer = this.createSharedWeightLayer.bind(this);
     };
 
     KerasArchEditorControl.prototype.insertLayer = function(layerBaseId, connId) {
@@ -1018,6 +1077,41 @@ define([
             dstId = node.getMemberIds(ioSetName)[0];
 
         return ThumbnailControl.prototype.getSrcDstIdsForConn.call(this, srcId, dstId, reverse);
+    };
+
+    KerasArchEditorControl.prototype.createSharedWeightLayer = function(srcId) {
+        const SharedWeightLayer = this._client.getAllMetaNodes()
+            .find(node => node.getAttribute('name') === 'SharedWeightLayer');
+
+        if (!SharedWeightLayer) {
+            throw new Error(`Cannot create layer sharing weights of ${srcId}: SharedWeightLayer not found`);
+        }
+        const src = this._client.getNode(srcId);
+        const srcName = src.getAttribute('name');
+        const parentId = src.getParentId();
+        this._client.startTransaction(`Creating layer sharing weights of ${srcName}`);
+        const newNodeId = this._client.createNode({
+            baseId: SharedWeightLayer.getId(),
+            parentId,
+        });
+        this._client.setPointer(newNodeId, 'source', srcId);
+        const layerInterfaces = ['inputs', 'outputs'];
+        layerInterfaces.forEach(set => {
+            const memberIds = src.getMemberIds(set);
+            memberIds.forEach(memberId => {
+                const newMemberId = this._client.copyNode(memberId, newNodeId);
+                const index = src.getMemberAttribute(set, memberId, 'index') || 0;
+                this._client.addMember(newNodeId, newMemberId, set);
+                this._client.setMemberAttribute(
+                    newNodeId,
+                    newMemberId,
+                    set,
+                    'index',
+                    index
+                );
+            });
+        });
+        this._client.completeTransaction();
     };
 
     return KerasArchEditorControl;

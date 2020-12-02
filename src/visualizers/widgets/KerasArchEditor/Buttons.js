@@ -239,5 +239,42 @@ define([
 
     Buttons.ShowDocs = ShowHelpDocs;
 
+    var ReuseLayer = function(params) {
+        this.scale = params.scale || 1.0;
+        Buttons.ButtonBase.call(this, params);
+    };
+
+    ReuseLayer.SIZE = 10;
+    ReuseLayer.BORDER = 1;
+    ReuseLayer.prototype.BTN_CLASS = 'reuse-layer';
+    ReuseLayer.prototype = Object.create(Buttons.ButtonBase.prototype);
+
+    ReuseLayer.prototype._onClick = function(layer) {
+        this.createSharedWeightLayer(layer.id);
+        this.selectionManager.deselect();
+    };
+
+    ReuseLayer.prototype._render = function() {
+        var lineRadius = ReuseLayer.SIZE - ReuseLayer.BORDER,
+            btnColor = '#80cbc4';
+
+        if (this.disabled) {
+            btnColor = '#e0e0e0';
+        }
+
+        this.$el
+            .append('circle')
+            .attr('r', ReuseLayer.SIZE * this.scale)
+            .attr('fill', btnColor);
+
+        // Show the 'code' icon
+        Icons.addIcon('link-intact', this.$el, {
+            radius: lineRadius * this.scale
+        });
+    };
+
+    Buttons.ReuseLayer = ReuseLayer;
+
+    // TODO: Add "Create Shared Layer" or "Reuse Layer"
     return Buttons;
 });
