@@ -426,6 +426,8 @@ define([
                     [dimensions[conn.src]] : dimensions[conn.src];
 
                 const index = outputIds.indexOf(conn.desc.srcArgId);
+                const dimsText = dims.map(dim => dim || 'None')
+                    .join(' x ');
                 conn.setDimensionality(dims[index]);
             });
     };

@@ -13,7 +13,12 @@ define([
 
     var Connection = function($parent, desc) {
         BaseConnection.apply(this, arguments);
-        this.color = desc.color || 'black';
+        desc.color = desc.color || 'black';
+        desc.tooltip = desc.tooltip || {};
+        desc.tooltip.color = desc.tooltip.color || '#dddddd';
+        desc.tooltip.text = desc.tooltip.text || 'unavailable';
+        desc.tooltip.fontStyle = desc.tooltip.fontStyle || 'normal';
+
         this.$index = this.$el.append('g')
             .attr('class', 'connection-index');
 
@@ -28,27 +33,27 @@ define([
             .on('mouseenter', () => this.onMouseOver())
             .on('mouseleave', () =>  this.onMouseOut());
 
-        this.dimensions = null;
-        this.showingDimensions = false;
-        this.$dimensions = this.$el.append('g')
+        this.showingTooltip = false;
+        this.$tooltip = this.$el.append('g')
             .attr('class', 'dimensionality')
             .attr('opacity', 0);
 
-        this.dimensionBoxWidth = 75;
-        this.$dimensionRect = this.$dimensions.append('rect')
-            .attr('stroke', '#dddddd')
-            .attr('fill', '#dddddd')
-            .attr('width', this.dimensionBoxWidth)
+        this.tooltipBoxWidth = 75;
+        this.$tooltipRect = this.$tooltip.append('rect')
+            .attr('stroke', desc.tooltip.color)
+            .attr('fill', desc.tooltip.color)
+            .attr('width', this.tooltipBoxWidth)
             .attr('height', 25)
             .attr('rx', 10)
             .attr('ry', 10);
 
-        this.$dimensionText = this.$dimensions.append('text')
+        this.$tooltipText = this.$tooltip.append('text')
             .attr('x', 37.5)
             .attr('y', 12.5)
             .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'middle')
-            .text('unavailable');
+            .attr('font-style', desc.tooltip.fontStyle)
+            .text(desc.tooltip.text);
 
         this.update(desc);
         this.desc = desc;
@@ -59,39 +64,37 @@ define([
     Connection.prototype.onClick = function() {};
 
     Connection.prototype.onMouseOver = function() {
-        this.updateDimensionBoxWidth();
-        this.$dimensions
+        this.updateTooltipBoxWidth();
+        this.$tooltip
             .transition()
             .attr('opacity', 1);
 
         this.$path.attr('stroke-width', 3);
-        this.showingDimensions = true;
+        this.showingTooltip = true;
     };
 
     Connection.prototype.onMouseOut = function() {
-        this.$dimensions.transition().attr('opacity', 0);
+        this.$tooltip.transition().attr('opacity', 0);
         this.$path.attr('stroke-width', 2);
-        this.showingDimensions = false;
+        this.showingTooltip = false;
     };
 
-    Connection.prototype.setDimensionality = function(dims) {
-        dims = dims.map(dim => dim || 'None');
-        this.dimensions = dims;
-        this.$dimensionText.text(dims.join(' x '));
-        if (this.showingDimensions) {
-            this.updateDimensionBoxWidth();
+    Connection.prototype.setTooltip = function(text) {
+        this.$tooltipText.text(text);
+        if (this.showingTooltip) {
+            this.updateTooltipBoxWidth();
         }
     };
 
-    Connection.prototype.updateDimensionBoxWidth = function() {
+    Connection.prototype.updateTooltipBoxWidth = function() {
         const margin = 5;
-        const textWidth = this.$dimensionText.node().getBBox().width;
+        const textWidth = this.$tooltipText.node().getBBox().width;
         const width = textWidth + 2*margin;
 
-        this.$dimensionRect.attr('width', width);
-        this.$dimensionText.attr('x', width/2);
+        this.$tooltipRect.attr('width', width);
+        this.$tooltipText.attr('x', width/2);
 
-        this.dimensionBoxWidth = width;
+        this.tooltipBoxWidth = width;
         this.updateDimensionBoxPosition();
     };
 
@@ -103,20 +106,18 @@ define([
         const vertMiddle = minY + this._height/2;
         const midSection = this.points.find(pt => pt.y - vertMiddle > 0);
 
-        const x = midSection.x-this.dimensionBoxWidth/2;
+        const x = midSection.x-this.tooltipBoxWidth/2;
 
-        this.$dimensions
+        this.$tooltip
             .attr('transform', `translate(${x}, ${y})`);
 
     };
 
     Connection.prototype.redraw = function() {
-        //const marker = `arrowhead_${this.color}`;
-        //const markerLoc = this.desc.inverted ? 'marker-start' : 'marker-end';
         const transition = this.$path.attr('d', lineFn(this.points))
             .transition()
             .attr('stroke-width', 2)
-            .attr('stroke', this.color)
+            .attr('stroke', this.desc.color)
             .attr('fill', 'none');
 
         if (!this.desc.undirected) {

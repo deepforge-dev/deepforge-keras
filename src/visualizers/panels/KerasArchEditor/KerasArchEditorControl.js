@@ -175,6 +175,11 @@ define([
             undirected: true,
             canDelete: false,
             dash: 4,
+            tooltip: {
+                color: '#b2ebf2',
+                text: 'sharing weights',
+                fontStyle: 'italic',
+            }
         };
         this.removeConnectionByEndpoints(src, dst);
         this._widget.addConnection(connection);
