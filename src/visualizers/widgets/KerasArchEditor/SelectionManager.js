@@ -49,7 +49,9 @@ define([
                 });
             }
 
-            if (!this.selectedItem.desc.weightsOrigin) {
+            const {desc} = this.selectedItem;
+            const allowLayerReuse = desc.layerType !== 'Topology';
+            if (allowLayerReuse) {
                 btn = new Buttons.ReuseLayer({
                     context: this._widget,
                     $pEl: this.$selection,

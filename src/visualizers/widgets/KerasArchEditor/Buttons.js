@@ -250,7 +250,8 @@ define([
     ReuseLayer.prototype = Object.create(Buttons.ButtonBase.prototype);
 
     ReuseLayer.prototype._onClick = function(layer) {
-        this.createSharedWeightLayer(layer.id);
+        const {weightsOrigin} = layer.desc;
+        this.createSharedWeightLayer(weightsOrigin || layer.id);
         this.selectionManager.deselect();
     };
 
@@ -275,6 +276,5 @@ define([
 
     Buttons.ReuseLayer = ReuseLayer;
 
-    // TODO: Add "Create Shared Layer" or "Reuse Layer"
     return Buttons;
 });
