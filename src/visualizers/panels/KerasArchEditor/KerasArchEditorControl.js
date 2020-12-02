@@ -163,18 +163,16 @@ define([
 
     KerasArchEditorControl.prototype.addSharedWeightsConnection = function (desc) {
         const src = desc.weightsOrigin;
-        const srcArgId = this._getObjectDescriptor(src).outputs[0].getId();
         const dst = desc.id;
-        const dstArgId = desc.inputs[0].getId();
         const connection = {
             id: `weights-${src}-${dst}`,
-            color: 'blue',
+            color: '#b2ebf2',
             index: null,
             src,
             dst,
-            srcArgId,
-            dstArgId,
-            inverted: true,
+            srcArgId: src,
+            dstArgId: dst,
+            undirected: true,
         };
         this.removeConnectionByEndpoints(src, dst);
         this._widget.addConnection(connection);
