@@ -62,7 +62,7 @@ define([
                 });
             }
 
-        } else if (!this.selectedItem.desc.weightsOrigin) {
+        } else if (this.selectedItem.desc.canDelete !== false) {
             // Remove button
             btn = new Buttons.DisconnectLayers({
                 context: this._widget,

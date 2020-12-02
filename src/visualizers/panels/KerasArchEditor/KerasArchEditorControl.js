@@ -173,6 +173,8 @@ define([
             srcArgId: src,
             dstArgId: dst,
             undirected: true,
+            canDelete: false,
+            dash: 4,
         };
         this.removeConnectionByEndpoints(src, dst);
         this._widget.addConnection(connection);

@@ -86,7 +86,7 @@ define([
             .attr('d', 'M 0,0 V 4 L6,2 Z');
 
         defs.append('marker')
-            .attr('id', 'arrowhead_blue')  // FIXME: parameterize this
+            .attr('id', 'arrowhead_#b2ebf2')  // FIXME: parameterize this
             .attr('refX', 5.25)
             .attr('refY', 2)
             .attr('markerWidth', 6)
@@ -94,8 +94,8 @@ define([
             .attr('orient', 'auto-start-reverse')
             .append('path')
             .attr('d', 'M 0,0 V 4 L6,2 Z')
-            .attr('stroke', 'blue')
-            .attr('fill', 'blue');
+            .attr('stroke', '#b2ebf2')
+            .attr('fill', '#b2ebf2');
     };
 
     KerasArchEditorWidget.prototype.setupItemCallbacks = function() {

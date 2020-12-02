@@ -13,6 +13,7 @@ define([
 
     var Connection = function($parent, desc) {
         BaseConnection.apply(this, arguments);
+        this.color = desc.color || 'black';
         this.$index = this.$el.append('g')
             .attr('class', 'connection-index');
 
@@ -110,14 +111,21 @@ define([
     };
 
     Connection.prototype.redraw = function() {
-        const marker = `arrowhead_${this.color}`;
-        const markerLoc = this.desc.inverted ? 'marker-start' : 'marker-end';
-        this.$path.attr('d', lineFn(this.points))
+        //const marker = `arrowhead_${this.color}`;
+        //const markerLoc = this.desc.inverted ? 'marker-start' : 'marker-end';
+        const transition = this.$path.attr('d', lineFn(this.points))
             .transition()
             .attr('stroke-width', 2)
             .attr('stroke', this.color)
-            .attr('fill', 'none')
-            .attr(markerLoc, `url(#${marker})`);
+            .attr('fill', 'none');
+
+        if (!this.desc.undirected) {
+            transition.attr('marker-end', `url(#arrowhead)`);
+        }
+
+        if (this.desc.dash) {
+            transition.attr('stroke-dasharray', this.desc.dash);
+        }
 
         // Update the x,y,width, height from the points
         this.updateBounds();
