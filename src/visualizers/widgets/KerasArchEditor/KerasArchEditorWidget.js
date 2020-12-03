@@ -403,28 +403,5 @@ define([
             });
     };
 
-    KerasArchEditorWidget.prototype.displayErrors = function(errors) {
-        // For each of the errors, highlight the given nodes
-        var oldErrored = Object.keys(this.hasError),
-            currentErrored = errors.map(err => err.id),
-            newErrored = _.difference(currentErrored, oldErrored),
-            fixedLayers = _.difference(oldErrored, currentErrored);
-
-        this.logger.info('updating displayed errors to', currentErrored);
-        this.hasError = {};
-        newErrored.forEach(id => {
-            if (this.items[id]) {
-                this.items[id].decorator.highlight('red');
-                this.hasError[id] = true;
-            }
-        });
-
-        fixedLayers.forEach(id => {
-            if (this.items[id]) {
-                this.items[id].clear();
-            }
-        });
-    };
-
     return KerasArchEditorWidget;
 });
