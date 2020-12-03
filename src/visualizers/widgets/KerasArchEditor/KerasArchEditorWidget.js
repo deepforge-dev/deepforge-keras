@@ -71,33 +71,6 @@ define([
         return 'KerasArchEditor';
     };
 
-    KerasArchEditorWidget.prototype.initSvgDefs = function() {
-        ThumbnailWidget.prototype.initSvgDefs.apply(this, arguments);
-        const children = this._$svg.node().children;
-        const defs = d3.select(children[children.length-1]);
-        defs.append('marker')
-            .attr('id', 'arrowhead_black')
-            .attr('refX', 5.25)
-            .attr('refY', 2)
-            .attr('markerWidth', 6)
-            .attr('markerHeight', 4)
-            .attr('orient', 'auto-start-reverse')
-            .append('path')
-            .attr('d', 'M 0,0 V 4 L6,2 Z');
-
-        defs.append('marker')
-            .attr('id', 'arrowhead_#b2ebf2')  // FIXME: parameterize this
-            .attr('refX', 5.25)
-            .attr('refY', 2)
-            .attr('markerWidth', 6)
-            .attr('markerHeight', 4)
-            .attr('orient', 'auto-start-reverse')
-            .append('path')
-            .attr('d', 'M 0,0 V 4 L6,2 Z')
-            .attr('stroke', '#b2ebf2')
-            .attr('fill', '#b2ebf2');
-    };
-
     KerasArchEditorWidget.prototype.setupItemCallbacks = function() {
         ThumbnailWidget.prototype.setupItemCallbacks.apply(this, arguments);
         // Add the hover button functions
