@@ -238,11 +238,15 @@ define([
         this.updateConnections(desc);
     };
 
-    KerasArchEditorControl.prototype.updateLayersSharingWeights = function (layerId) {
+    KerasArchEditorControl.prototype.getChildrenIdsSharingWeights = function (layerId) {
         const currentNode = this._client.getNode(this._currentNodeId);
         const sharedWeightsIds = currentNode.getChildrenIds()
             .filter(nodeId => this._getWeightsOrigin(nodeId) === layerId);
+        return sharedWeightsIds;
+    };
 
+    KerasArchEditorControl.prototype.updateLayersSharingWeights = function (layerId) {
+        const sharedWeightsIds = this.getChildrenIdsSharingWeights(layerId);
         sharedWeightsIds.forEach(id => this._onUpdate(id));
     };
 
@@ -664,6 +668,14 @@ define([
         // Update their 'index' member attributes
         inputNodes.forEach(node => this.updateSourceIndices(node.getId()));
 
+        // Swap with a shared weight layer and delete that one instead.
+        // A bit odd but we don't want to delete the original definition that others depend upon
+        const sharingWeightIds = this.getChildrenIdsSharingWeights(nodeId);
+        if (sharingWeightIds.length) {
+            this._swapNodeLocations(nodeId, sharingWeightIds[0]);
+            nodeId = sharingWeightIds[0];
+        }
+
         // Remove the node
         ThumbnailControl.prototype._deleteNode.call(this, nodeId, true);
 
@@ -678,6 +690,66 @@ define([
 
         if (!silent) this._client.completeTransaction();
 
+    };
+
+    KerasArchEditorControl.prototype._swapNodeLocations = function(nodeId, otherNodeId) {
+        const inputs = this._getLayerInputs(nodeId);
+        const otherInputs = this._getLayerInputs(otherNodeId);
+        this._setLayerInputs(nodeId, otherInputs);
+        this._setLayerInputs(otherNodeId, inputs);
+
+        const allLayerInputs = this._getAllLayerArgNodes();
+        const outputIds = this.getSortedSetIds(nodeId, 'outputs');
+        const otherOutputIds = this.getSortedSetIds(otherNodeId, 'outputs');
+        const outputsToSwap = _.zip(outputIds, otherOutputIds);
+        allLayerInputs.forEach(layerInput => {
+            outputsToSwap.forEach(pair => {
+                const [outputId, otherOutputId] = pair;
+                this._swapSetMembers(layerInput, 'source', outputId, otherOutputId);
+            });
+        });
+    };
+
+    KerasArchEditorControl.prototype._getAllLayerArgNodes = function() {
+        const archNode = this._client.getNode(this._currentNodeId);
+        const childrenIds = archNode.getChildrenIds();
+        const layerArgs = childrenIds.flatMap(id => this.getSortedSetIds(id, 'inputs'));
+        return layerArgs;
+    };
+
+    KerasArchEditorControl.prototype._swapSetMembers = function(nodeId, set, id1, id2) {
+        const node = this._client.getNode(nodeId);
+        const memberIds = node.getMemberIds(set);
+        const hasOnlyOne = (memberIds.includes(id1) + memberIds.includes(id2)) === 1;
+        if (hasOnlyOne) {
+            const [oldId, newId] = memberIds.includes(id1) ? [id1, id2] : [id2, id1];
+            this._client.addMember(nodeId, newId, set);
+            const index = node.getMemberAttribute(set, oldId, 'index');
+            this._client.setMemberAttribute(nodeId, newId, set, 'index', index);
+            this._client.removeMember(nodeId, oldId, set);
+        }
+    };
+
+    KerasArchEditorControl.prototype._getLayerInputs = function(nodeId) {
+        const args = this.getSortedSetIds(nodeId, 'inputs');
+        const inputs = args.map(argId => this._getLayerArgInputIds(argId));
+        return inputs;
+    };
+
+    KerasArchEditorControl.prototype._setLayerInputs = function(nodeId, inputs) {
+        const args = this.getSortedSetIds(nodeId, 'inputs');
+        const argsWithInputs = _.zip(args, inputs);
+        argsWithInputs.forEach(pair => {
+            const [argId, inputs] = pair;
+            this._removeSetMembers(argId, 'source');
+            inputs.forEach(input => this._silentConnectNodes(input, argId));
+        });
+    };
+
+    KerasArchEditorControl.prototype._removeSetMembers = function(nodeId, set) {
+        const node = this._client.getNode(nodeId);
+        const memberIds = node.getMemberIds(set);
+        memberIds.forEach(memberId => this._client.removeMember(nodeId, memberId, set));
     };
 
     KerasArchEditorControl.prototype.isInputLayer = function(id) {
@@ -714,20 +786,12 @@ define([
         return existingInputs;
     };
 
-    KerasArchEditorControl.prototype._connectNodes = function(srcId, dstId) {
-        const [srcLayer, dstLayer] = [srcId, dstId].map(id => {
-            const layerId = this.getParentAtDepth(id);
-            const layer = this._client.getNode(layerId);
-            return layer.getAttribute('name');
-        });
-        const msg = `Connecting ${srcLayer} to ${dstLayer}`;
-
+    KerasArchEditorControl.prototype._silentConnectNodes = function(srcId, dstId) {
         // Get the index for the new input
         const dstNode = this._client.getNode(dstId);
         const existingInputs = dstNode.getMemberIds('source');
         const index = existingInputs.length;
 
-        this._client.startTransaction(msg);
         this._client.addMember(dstId, srcId, 'source');
         this._client.setMemberRegistry(
             dstId,
@@ -745,6 +809,18 @@ define([
             'index',
             index
         );
+    };
+
+    KerasArchEditorControl.prototype._connectNodes = function(srcId, dstId) {
+        const [srcLayer, dstLayer] = [srcId, dstId].map(id => {
+            const layerId = this.getParentAtDepth(id);
+            const layer = this._client.getNode(layerId);
+            return layer.getAttribute('name');
+        });
+        const msg = `Connecting ${srcLayer} to ${dstLayer}`;
+
+        this._client.startTransaction(msg);
+        this._silentConnectNodes(srcId, dstId);
         this._client.completeTransaction();
     };
 
