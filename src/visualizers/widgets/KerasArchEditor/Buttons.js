@@ -241,6 +241,7 @@ define([
 
     var ReuseLayer = function(params) {
         this.scale = params.scale || 1.0;
+        params.title = params.title || 'Reuse Layer';
         Buttons.ButtonBase.call(this, params);
     };
 
