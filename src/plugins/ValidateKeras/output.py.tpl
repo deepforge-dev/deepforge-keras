@@ -4,14 +4,16 @@ import typing
 
 layer_registry = {}
 def register_layer(name, node_id):
-    layer_registry[name] = node_id
+    if name not in layer_registry:
+        layer_registry[name] = []
+    layer_registry[name].append(node_id)
 
 <%= resultsVar %> = {}
 <%= resultsVar %>['errors'] = []
 <%= resultsVar %>['dimensions'] = {}
-def record_error(e):
+def record_error(node_id, e):
     info = {}
-    info['nodeId'] = layer_registry[current_layer_name]
+    info['nodeId'] = node_id
     if hasattr(e, 'message'):
         info['message'] = e.message
     if hasattr(e, 'strerror'):
@@ -29,12 +31,12 @@ def _convert_to_int(shape_or_int):
 def record_dimensions(model):
     for layer in model.layers:
         layer_name = layer.name
-        node_id = layer_registry[layer.name]
-        # Convert any int64 to python int
-        shape = _convert_to_int(layer.output_shape)
-        if isinstance(shape[0], list):
-            shape = shape[0]
-        <%= resultsVar %>['dimensions'][node_id] = shape
+        for node_id in layer_registry[layer.name]:
+            # Convert any int64 to python int
+            shape = _convert_to_int(layer.output_shape)
+            if isinstance(shape[0], list):
+                shape = shape[0]
+            <%= resultsVar %>['dimensions'][node_id] = shape
 
 def print_stats(results):
     print(json.dumps(results))

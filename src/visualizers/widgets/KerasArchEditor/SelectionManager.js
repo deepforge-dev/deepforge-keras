@@ -49,7 +49,20 @@ define([
                 });
             }
 
-        } else {
+            const {desc} = this.selectedItem;
+            const allowLayerReuse = desc.layerType !== 'Topology';
+            if (allowLayerReuse) {
+                btn = new Buttons.ReuseLayer({
+                    context: this._widget,
+                    $pEl: this.$selection,
+                    item: this.selectedItem,
+                    transition: transition,
+                    x: width,
+                    y: height,
+                });
+            }
+
+        } else if (this.selectedItem.desc.canDelete !== false) {
             // Remove button
             btn = new Buttons.DisconnectLayers({
                 context: this._widget,

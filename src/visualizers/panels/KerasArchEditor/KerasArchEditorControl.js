@@ -155,6 +155,35 @@ define([
                     srcArgId => this.removeConnectionByEndpoints(srcArgId, id)
                 );
             });
+
+        if (desc.weightsOrigin) {
+            this.addSharedWeightsConnection(desc);
+        }
+    };
+
+    KerasArchEditorControl.prototype.addSharedWeightsConnection = function (desc) {
+        const src = desc.weightsOrigin;
+        const dst = desc.id;
+        const connection = {
+            id: `weights-${src}-${dst}`,
+            color: '#81c784',
+            index: null,
+            src,
+            dst,
+            srcArgId: src,
+            dstArgId: dst,
+            undirected: true,
+            canDelete: false,
+            dash: 4,
+            tooltip: {
+                color: '#81c784',
+                text: 'sharing weights',
+                fontStyle: 'italic',
+            }
+        };
+        this.removeConnectionByEndpoints(src, dst);
+        this._widget.addConnection(connection);
+        this.connections.push(connection);
     };
 
     KerasArchEditorControl.prototype.removeConnectionByEndpoints = function (src, dst) {
@@ -203,9 +232,22 @@ define([
         // Update the child containing the id
         const childId = this.getParentAtDepth(gmeId);
         const desc = this._getObjectDescriptor(childId);
+        this.updateLayersSharingWeights(childId);
 
         this._widget.updateNode(desc);
         this.updateConnections(desc);
+    };
+
+    KerasArchEditorControl.prototype.getChildrenIdsSharingWeights = function (layerId) {
+        const currentNode = this._client.getNode(this._currentNodeId);
+        const sharedWeightsIds = currentNode.getChildrenIds()
+            .filter(nodeId => this._getWeightsOrigin(nodeId) === layerId);
+        return sharedWeightsIds;
+    };
+
+    KerasArchEditorControl.prototype.updateLayersSharingWeights = function (layerId) {
+        const sharedWeightsIds = this.getChildrenIdsSharingWeights(layerId);
+        sharedWeightsIds.forEach(id => this._onUpdate(id));
     };
 
     KerasArchEditorControl.prototype.onActiveNodeUpdate = function (id) {
@@ -232,6 +274,7 @@ define([
     KerasArchEditorControl.prototype._getMetaObjectDescriptor = function(id) {
         // Do not sort inputs/outputs since those nodes are probably not loaded...
         var node = this._client.getNode(id),
+            base = this._client.getNode(node.getMetaTypeId()),
             desc = ThumbnailControl.prototype._getObjectDescriptor.call(this, id);
 
         // Filter attributes
@@ -274,8 +317,7 @@ define([
         // Add layer type (base class's base class)
         desc.layerType = null;
         if (desc.baseName) {
-            var base = this._client.getNode(node.getMetaTypeId()),
-                layerType = this._client.getNode(base.getBaseId()),
+            var layerType = this._client.getNode(base.getBaseId()),
                 color;
 
             desc.baseName = base.getAttribute(nodePropertyNames.Attributes.name);
@@ -312,7 +354,32 @@ define([
             }
         }
 
+        const weightsOrigin = this._getWeightsOrigin(node.getId());
+        const isSharingWeights = !!weightsOrigin;
+        if (isSharingWeights) {
+            const sourceDesc = this._getObjectDescriptor(weightsOrigin);
+
+            desc.attributes = sourceDesc.attributes;
+            desc.pointers = sourceDesc.pointers;
+            desc.Decorator = sourceDesc.Decorator;
+            desc.color = sourceDesc.color;
+            desc.docs = sourceDesc.docs;
+            desc.layerType = sourceDesc.layerType;
+            desc.name = sourceDesc.name;
+
+            desc.weightsOrigin = weightsOrigin;
+        }
+
         return desc;
+    };
+
+    KerasArchEditorControl.prototype._getWeightsOrigin = function(id) {
+        const node = this._client.getNode(id);
+        const base = this._client.getNode(node.getMetaTypeId());
+        const isSharingWeights = base.getAttribute('name') === 'SharedWeightLayer';
+        if (isSharingWeights) {
+            return node.getPointer('source').to;
+        }
     };
 
     KerasArchEditorControl.prototype._getObjectDescriptor = function(id) {
@@ -601,6 +668,14 @@ define([
         // Update their 'index' member attributes
         inputNodes.forEach(node => this.updateSourceIndices(node.getId()));
 
+        // Swap with a shared weight layer and delete that one instead.
+        // A bit odd but we don't want to delete the original definition that others depend upon
+        const sharingWeightIds = this.getChildrenIdsSharingWeights(nodeId);
+        if (sharingWeightIds.length) {
+            this._swapNodeLocations(nodeId, sharingWeightIds[0]);
+            nodeId = sharingWeightIds[0];
+        }
+
         // Remove the node
         ThumbnailControl.prototype._deleteNode.call(this, nodeId, true);
 
@@ -615,6 +690,66 @@ define([
 
         if (!silent) this._client.completeTransaction();
 
+    };
+
+    KerasArchEditorControl.prototype._swapNodeLocations = function(nodeId, otherNodeId) {
+        const inputs = this._getLayerInputs(nodeId);
+        const otherInputs = this._getLayerInputs(otherNodeId);
+        this._setLayerInputs(nodeId, otherInputs);
+        this._setLayerInputs(otherNodeId, inputs);
+
+        const allLayerInputs = this._getAllLayerArgNodes();
+        const outputIds = this.getSortedSetIds(nodeId, 'outputs');
+        const otherOutputIds = this.getSortedSetIds(otherNodeId, 'outputs');
+        const outputsToSwap = _.zip(outputIds, otherOutputIds);
+        allLayerInputs.forEach(layerInput => {
+            outputsToSwap.forEach(pair => {
+                const [outputId, otherOutputId] = pair;
+                this._swapSetMembers(layerInput, 'source', outputId, otherOutputId);
+            });
+        });
+    };
+
+    KerasArchEditorControl.prototype._getAllLayerArgNodes = function() {
+        const archNode = this._client.getNode(this._currentNodeId);
+        const childrenIds = archNode.getChildrenIds();
+        const layerArgs = childrenIds.flatMap(id => this.getSortedSetIds(id, 'inputs'));
+        return layerArgs;
+    };
+
+    KerasArchEditorControl.prototype._swapSetMembers = function(nodeId, set, id1, id2) {
+        const node = this._client.getNode(nodeId);
+        const memberIds = node.getMemberIds(set);
+        const hasOnlyOne = (memberIds.includes(id1) + memberIds.includes(id2)) === 1;
+        if (hasOnlyOne) {
+            const [oldId, newId] = memberIds.includes(id1) ? [id1, id2] : [id2, id1];
+            this._client.addMember(nodeId, newId, set);
+            const index = node.getMemberAttribute(set, oldId, 'index');
+            this._client.setMemberAttribute(nodeId, newId, set, 'index', index);
+            this._client.removeMember(nodeId, oldId, set);
+        }
+    };
+
+    KerasArchEditorControl.prototype._getLayerInputs = function(nodeId) {
+        const args = this.getSortedSetIds(nodeId, 'inputs');
+        const inputs = args.map(argId => this._getLayerArgInputIds(argId));
+        return inputs;
+    };
+
+    KerasArchEditorControl.prototype._setLayerInputs = function(nodeId, inputs) {
+        const args = this.getSortedSetIds(nodeId, 'inputs');
+        const argsWithInputs = _.zip(args, inputs);
+        argsWithInputs.forEach(pair => {
+            const [argId, inputs] = pair;
+            this._removeSetMembers(argId, 'source');
+            inputs.forEach(input => this._silentConnectNodes(input, argId));
+        });
+    };
+
+    KerasArchEditorControl.prototype._removeSetMembers = function(nodeId, set) {
+        const node = this._client.getNode(nodeId);
+        const memberIds = node.getMemberIds(set);
+        memberIds.forEach(memberId => this._client.removeMember(nodeId, memberId, set));
     };
 
     KerasArchEditorControl.prototype.isInputLayer = function(id) {
@@ -651,20 +786,12 @@ define([
         return existingInputs;
     };
 
-    KerasArchEditorControl.prototype._connectNodes = function(srcId, dstId) {
-        const [srcLayer, dstLayer] = [srcId, dstId].map(id => {
-            const layerId = this.getParentAtDepth(id);
-            const layer = this._client.getNode(layerId);
-            return layer.getAttribute('name');
-        });
-        const msg = `Connecting ${srcLayer} to ${dstLayer}`;
-
+    KerasArchEditorControl.prototype._silentConnectNodes = function(srcId, dstId) {
         // Get the index for the new input
         const dstNode = this._client.getNode(dstId);
         const existingInputs = dstNode.getMemberIds('source');
         const index = existingInputs.length;
 
-        this._client.startTransaction(msg);
         this._client.addMember(dstId, srcId, 'source');
         this._client.setMemberRegistry(
             dstId,
@@ -682,6 +809,18 @@ define([
             'index',
             index
         );
+    };
+
+    KerasArchEditorControl.prototype._connectNodes = function(srcId, dstId) {
+        const [srcLayer, dstLayer] = [srcId, dstId].map(id => {
+            const layerId = this.getParentAtDepth(id);
+            const layer = this._client.getNode(layerId);
+            return layer.getAttribute('name');
+        });
+        const msg = `Connecting ${srcLayer} to ${dstLayer}`;
+
+        this._client.startTransaction(msg);
+        this._silentConnectNodes(srcId, dstId);
         this._client.completeTransaction();
     };
 
@@ -889,6 +1028,21 @@ define([
         this._widget.insertLayer = this.insertLayer.bind(this);
         this._widget.disconnectNodes = this._disconnectNodes.bind(this);
         this._widget.delAttribute = this._delAttribute.bind(this);
+        this._widget.createSharedWeightLayer = this.createSharedWeightLayer.bind(this);
+
+        // Wrap edit events
+        this._widget.setPointerForNode = this.addSharedWeightSupport(this._setPointerForNode);
+        this._widget.saveAttributeForNode = this.addSharedWeightSupport(this._saveAttributeForNode);
+    };
+
+    KerasArchEditorControl.prototype.addSharedWeightSupport = function(fn) {
+        const self = this;
+        return function(id) {
+            const weightsOrigin = self._getWeightsOrigin(id);
+            const args = [...arguments];
+            args[0] = weightsOrigin || id;
+            return fn.call(self, ...args);
+        };
     };
 
     KerasArchEditorControl.prototype.insertLayer = function(layerBaseId, connId) {
@@ -1018,6 +1172,41 @@ define([
             dstId = node.getMemberIds(ioSetName)[0];
 
         return ThumbnailControl.prototype.getSrcDstIdsForConn.call(this, srcId, dstId, reverse);
+    };
+
+    KerasArchEditorControl.prototype.createSharedWeightLayer = function(srcId) {
+        const SharedWeightLayer = this._client.getAllMetaNodes()
+            .find(node => node.getAttribute('name') === 'SharedWeightLayer');
+
+        if (!SharedWeightLayer) {
+            throw new Error(`Cannot create layer sharing weights of ${srcId}: SharedWeightLayer not found`);
+        }
+        const src = this._client.getNode(srcId);
+        const srcName = src.getAttribute('name');
+        const parentId = src.getParentId();
+        this._client.startTransaction(`Creating layer sharing weights of ${srcName}`);
+        const newNodeId = this._client.createNode({
+            baseId: SharedWeightLayer.getId(),
+            parentId,
+        });
+        this._client.setPointer(newNodeId, 'source', srcId);
+        const layerInterfaces = ['inputs', 'outputs'];
+        layerInterfaces.forEach(set => {
+            const memberIds = src.getMemberIds(set);
+            memberIds.forEach(memberId => {
+                const newMemberId = this._client.copyNode(memberId, newNodeId);
+                const index = src.getMemberAttribute(set, memberId, 'index') || 0;
+                this._client.addMember(newNodeId, newMemberId, set);
+                this._client.setMemberAttribute(
+                    newNodeId,
+                    newMemberId,
+                    set,
+                    'index',
+                    index
+                );
+            });
+        });
+        this._client.completeTransaction();
     };
 
     return KerasArchEditorControl;

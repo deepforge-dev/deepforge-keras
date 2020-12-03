@@ -39,6 +39,7 @@ define([
             const outputs = item.getOutputs()
                 .map(p => this._getPortInfo(item, p));
             const ports = inputs.concat(outputs);
+            ports.push(this._getSharedWeightPort(item));
 
             return {
                 id: itemId,
@@ -91,6 +92,19 @@ define([
             },
             x: position.x,
             y: position.y
+        };
+    };
+
+    KerasArchEditorWidgetLayout.prototype._getSharedWeightPort = function(item) {
+        return {
+            id: item.id,
+            width: 1,  // Ports are rendered outside the node in this library;
+            height: 1,  // we want it to look like it goes right up to the node
+            properties: {
+                'org.eclipse.elk.port.side': 'EAST'
+            },
+            x: item.width,
+            y: 0.5 * item.height,
         };
     };
 

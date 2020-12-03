@@ -399,7 +399,11 @@ define([
                     [dimensions[conn.src]] : dimensions[conn.src];
 
                 const index = outputIds.indexOf(conn.desc.srcArgId);
-                conn.setDimensionality(dims[index]);
+                if (index > -1) {
+                    const dimsText = dims[index].map(dim => dim || 'None')
+                        .join(' x ');
+                    conn.setTooltip(dimsText);
+                }
             });
     };
 

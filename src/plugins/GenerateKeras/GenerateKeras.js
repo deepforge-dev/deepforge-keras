@@ -186,7 +186,7 @@ define([
             return index1 < index2 ? -1 : 1;
         });
 
-        const outputNames = outputs.map(layer => layer.variableName)
+        const outputNames = outputs.map(layer => this.generateOutputNames(layer)[0])
             .join(',');
 
         return `Model(inputs=[${inputNames}], outputs=[${outputNames}])`;
@@ -203,7 +203,7 @@ define([
                 .map(id => inputIndexDict[id]);
             return index1 < index2 ? -1 : 1;
         });
-        return inputs.map(layer => layer.variableName).join(',');
+        return inputs.map(layer => this.generateOutputNames(layer)[0]).join(',');
     };
 
     GenerateKeras.prototype.defineCustomObject = function(name, def) {
@@ -212,13 +212,28 @@ define([
         return name;
     };
 
-    GenerateKeras.prototype.generateLayerCtor = function(layer) {
+    GenerateKeras.prototype.generateLayerCtor = function(layer, noReuse=false) {
         this.sortLayerInputsByIndex(layer);
 
-        const ctor = layer[SimpleConstants.BASE].name;
-        const args = this.getArgumentsString(layer);
+        if (this.isSharedWeightLayer(layer)) {
+            return this.generateLayerCtor(layer.source, noReuse);
+        } else
+        if (this.hasVariable(layer) && !noReuse) {
+            return this.getVariableForNode(layer);
+        } else {
+            const ctor = layer[SimpleConstants.BASE].name;
+            const args = this.getArgumentsString(layer);
 
-        return `${ctor}(${args})`;
+            return `${ctor}(${args})`;
+        }
+    };
+
+    GenerateKeras.prototype.hasVariable = function(node) {
+        return node.variableName;
+    };
+
+    GenerateKeras.prototype.isSharedWeightLayer = function(layer) {
+        return layer[SimpleConstants.BASE].name === 'SharedWeightLayer';
     };
 
     GenerateKeras.prototype.generateLayerCode = function(layer) {
@@ -227,10 +242,19 @@ define([
         if (layer[SimpleConstants.BASE].name === 'Input') {
             return `${outputs} = ${ctor}`;
         } else {  // add the inputs
-            // Add different types of inputs
-            // Add multiple outputs support
             const args = this.generateInputValues(layer);
-            return `${outputs} = ${ctor}(${args})`;
+            const originalLayer = this.isSharedWeightLayer(layer) ?
+                layer.source : layer;
+
+            if (!this.hasVariable(originalLayer)) {
+                const varName = this.getVariableForNode(originalLayer);
+                return [
+                    `${varName} = ${ctor}`,
+                    `${outputs} = ${varName}(${args})`,
+                ].join('\n');
+            } else {
+                return `${outputs} = ${ctor}(${args})`;
+            }
         }
     };
 
@@ -257,17 +281,7 @@ define([
     GenerateKeras.prototype.generateOutputNames = function(layer) {
         const outputs = this.getSortedMembers(layer, 'outputs');
 
-        if (outputs.length === 1) {
-            // use the same variable for the output and layer since they are
-            // basically the same
-            const name = this.getVariableForNode(layer);
-            outputs[0].variableName = name;
-            return [name];
-        } else {
-            // Generate variable names for each
-            // Add these variable names to the children json nodes
-            return outputs.map(output => this.getVariableForNode(output));
-        }
+        return outputs.map(output => this.getVariableForNode(output, layer.name.toLowerCase() + '_' + output.name));
     };
 
     GenerateKeras.prototype.getMemberIndicesDict = function(node, set) {
@@ -341,7 +355,7 @@ define([
     };
 
     GenerateKeras.prototype.getVariableForNode = function(layer, basename) {
-        if (!layer.variableName) {
+        if (!this.hasVariable(layer)) {
             basename = basename || layer.name.toLowerCase();
             const sanitizedBasename = basename
                 .replace(/ /g, '_')
