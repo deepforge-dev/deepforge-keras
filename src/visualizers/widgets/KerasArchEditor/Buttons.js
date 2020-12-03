@@ -192,7 +192,7 @@ define([
         const docs = ShowHelpDocs.convertDocsToHtml(item.desc.docs);
 
         // Remove old docs dialogs
-        $('#show-docs').remove();
+        $('.show-docs').remove();
 
         const docsDialog = $(modalTpl({desc: item.desc, docs: docs}));
 
