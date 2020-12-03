@@ -212,13 +212,13 @@ define([
         return name;
     };
 
-    GenerateKeras.prototype.generateLayerCtor = function(layer) {
+    GenerateKeras.prototype.generateLayerCtor = function(layer, noReuse=false) {
         this.sortLayerInputsByIndex(layer);
 
         if (this.isSharedWeightLayer(layer)) {
             return this.generateLayerCtor(layer.source);
         } else
-        if (this.hasVariable(layer)) {
+        if (this.hasVariable(layer) && !noReuse) {
             return this.getVariableForNode(layer);
         } else {
             const ctor = layer[SimpleConstants.BASE].name;

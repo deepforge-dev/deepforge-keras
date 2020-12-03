@@ -60,8 +60,8 @@ define([
     ValidateKeras.prototype.generateLayerCode = function(layer) {
         let code = PluginBase.prototype.generateLayerCode.call(this, layer);
         const outputs = this.generateOutputNames(layer);
-        const ctor = this.generateLayerCtor(layer);
-        const layerName = this.getLayerName(layer);
+        const ctor = this.generateLayerCtor(layer, true);
+        const layerName = this.getLayerName(layer.source || layer);
         const layerId = layer[SimpleConstants.NODE_PATH];
 
         // Wrap every layer with a
@@ -76,7 +76,7 @@ define([
             `        ${ctor}`,
             'except Exception as e:',
             '    has_bad_layer = True',
-            '    record_error(e)'
+            `    record_error('${layerId}', e)`
         ];
         return lines.join('\n');
     };
