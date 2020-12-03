@@ -216,7 +216,7 @@ define([
         this.sortLayerInputsByIndex(layer);
 
         if (this.isSharedWeightLayer(layer)) {
-            return this.generateLayerCtor(layer.source);
+            return this.generateLayerCtor(layer.source, noReuse);
         } else
         if (this.hasVariable(layer) && !noReuse) {
             return this.getVariableForNode(layer);
