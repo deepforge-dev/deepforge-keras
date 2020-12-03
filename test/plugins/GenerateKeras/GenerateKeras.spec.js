@@ -115,7 +115,7 @@ describe('GenerateKeras', function () {
         it('should preserve correct order', function() {
             // Check the argument ordering (Dense, Activation, Dropout)
             const addLayerLine = code.split('\n')
-                .find(line => line.includes('Add()'));
+                .find(line => line.includes('add('));
             const layers = ['dense', 'activation', 'dropout'];
             const indices = layers.map(layer => addLayerLine.indexOf(layer));
             const inputs = addLayerLine.split('[')[1].split(']')[0];
@@ -212,14 +212,20 @@ describe('GenerateKeras', function () {
 
     describe('multiple types of layer IO (seq2seq)', function() {
         let code,
+            encoderDef,
+            decoderDef,
             decoder,
             encoder;
 
         before(async function() {  // run the plugin and get the generated code
             code = await getGeneratedCode(ARCHITECTURE.Seq2Seq);
             const lines = code.split('\n');
-            encoder = lines.find(line => line.includes('return_sequences=False'));
-            decoder = lines.find(line => line.includes('return_sequences=True'));
+            encoderDef = lines.find(line => line.includes('return_sequences=False'));
+            const encoderVar = encoderDef.split(' = ').shift().trim();
+            encoder = lines.find(line => line.includes(encoderVar + '('));
+            decoderDef = lines.find(line => line.includes('return_sequences=True'));
+            const decoderVar = decoderDef.split(' = ').shift().trim();
+            decoder = lines.find(line => line.includes(decoderVar + '('));
         });
 
         it('should return multi values from LSTM', function() {
@@ -229,8 +235,8 @@ describe('GenerateKeras', function () {
 
         it('should sort outputs', function() {
             const returnVals = encoder.split('=')[0].split(/,\s*/);
-            assert.equal(returnVals[0], 'output');
-            assert.equal(returnVals[1], 'hidden_state');
+            assert.equal(returnVals[0], 'lstm_output');
+            assert.equal(returnVals[1], 'lstm_hidden_state');
         });
 
         it('should pass "hidden_state" to decoder', function() {
@@ -266,8 +272,8 @@ describe('GenerateKeras', function () {
 
         describe('special cases', function() {
             it('should set return_state to true in recurrent layers', function() {
-                assert(encoder.includes('return_state=True'), 'encoder not returning state');
-                assert(decoder.includes('return_state=True'), 'decoder not returning state');
+                assert(encoderDef.includes('return_state=True'), 'encoder not returning state');
+                assert(decoderDef.includes('return_state=True'), 'decoder not returning state');
             });
         });
 
