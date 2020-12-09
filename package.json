@@ -23,6 +23,7 @@
     "rimraf": "^2.4.0",
     "webgme-autoviz": "^2.2.1",
     "webgme-easydag": "github:dfst/webgme-easydag",
-    "webgme-simple-nodes": "github:brollb/webgme-simple-nodes"
+    "webgme-simple-nodes": "github:brollb/webgme-simple-nodes",
+    "zeromq": "^6.0.0-beta.6"
   }
 }

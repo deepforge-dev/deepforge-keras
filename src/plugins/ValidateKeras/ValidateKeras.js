@@ -48,10 +48,24 @@ define([
     };
 
     ValidateKeras.prototype.createOutputFiles = function(activeNode) {
+        this.resultsVar = this.generateVariableName('results');
         const files = PluginBase.prototype.createOutputFiles.call(this, activeNode);
-        let main = files['output.py'];
-        const resultsVar = this.generateVariableName('results');
-        const code = CodeTpl({indent, main, resultsVar});
+        const {importLines, mainLines} = _.groupBy(
+            files['output.py'].split('\n'),
+            line => {
+                const isImport = line.startsWith('import ') ||
+                    (line.startsWith('from ') && line.includes(' import '));
+                return isImport ? 'importLines' : 'mainLines';
+            }
+        );
+        const imports = importLines.join('\n');
+        const main = mainLines.join('\n');
+        const code = CodeTpl({
+            imports,
+            indent,
+            main,
+            resultsVar: this.resultsVar
+        });
 
         files['output.py'] = code;
         return files;
@@ -68,7 +82,7 @@ define([
         const lines = [
             'try:',
             `    current_layer_name = '${layerName}'`,
-            `    register_layer(current_layer_name, '${layerId}')`,
+            `    register_layer(layer_registry, current_layer_name, '${layerId}')`,
             '    if not has_bad_layer:',
             `        ${code.replace(/\n/g, '\n        ')}`,
             `        last_layer = ${outputs[0]}`,
@@ -76,7 +90,7 @@ define([
             `        ${ctor}`,
             'except Exception as e:',
             '    has_bad_layer = True',
-            `    record_error('${layerId}', e)`
+            `    record_error('${layerId}', e, ${this.resultsVar})`
         ];
         return lines.join('\n');
     };

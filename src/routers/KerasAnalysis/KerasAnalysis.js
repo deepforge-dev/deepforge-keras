@@ -21,6 +21,11 @@ const mkdir = promisify(fs.mkdir);
 const rm_rf = promisify(rimraf);
 let logger = null;
 
+const {port} = require('../../../config').server;
+const tmpdir = `${os.tmpdir()}/deepforge-keras-${port}/`;
+const PythonWorker = require('./PythonWorker');
+let worker;
+
 /**
  * Called when the server is created but before it starts to listening to incoming requests.
  * N.B. gmeAuth, safeStorage and workerManager are not ready to use until the start function is called.
@@ -35,8 +40,9 @@ let logger = null;
  * @param {object} middlewareOpts.safeStorage - Accesses the storage and emits events (PROJECT_CREATED, COMMIT..).
  * @param {object} middlewareOpts.workerManager - Spawns and keeps track of "worker" sub-processes.
  */
-function initialize(middlewareOpts) {
+async function initialize(middlewareOpts) {
     logger = middlewareOpts.logger.fork('KerasAnalysis');
+    worker = new PythonWorker(logger);
     const ensureAuthenticated = middlewareOpts.ensureAuthenticated;
     const authorizer = middlewareOpts.gmeAuth.authorizer;
     const getUserId = middlewareOpts.getUserId;
@@ -87,6 +93,14 @@ function initialize(middlewareOpts) {
         }
     });
 
+    try {
+        await mkdir(tmpdir);
+    } catch (err) {
+        if (err.code !== 'EEXIST') {
+            throw err;
+        }
+    }
+
     logger.debug('ready');
 }
 
@@ -130,8 +144,8 @@ function spawn(cmd, args) {
 }
 
 async function analyze(userId, projectId, commitHash, namespace, nodeId) {
-    const tmpdir = path.join(os.tmpdir(), `deepforge-keras-${commitHash}_${nodeId.split('/').join('-')}`);
-    const pythonFile = path.join(tmpdir, 'output.py');
+    const workdir = path.join(tmpdir, `deepforge-keras-${commitHash}_${nodeId.split('/').join('-')}`);
+    const pythonFile = path.join(workdir, 'output.py');
 
     const webgmeEnginePath =  path.join(require.resolve('webgme-engine'), '..');
     const [owner, projectName] = projectId.split('+');
@@ -148,40 +162,36 @@ async function analyze(userId, projectId, commitHash, namespace, nodeId) {
         '--activeNode',
         nodeId,
         '-w',
-        path.relative(process.cwd(), tmpdir)
+        path.relative(process.cwd(), workdir)
     ];
 
     if (namespace) {
         args.push('--namespace', namespace);
     }
 
-    logger.debug(`about to make tmpdir ${tmpdir}`);
+    logger.debug(`about to make tmpdir ${workdir}`);
     // only make dir if doesn't exist
     try {
-        await mkdir(tmpdir);
+        await mkdir(workdir);
     } catch (err) {
         if (err.code === 'EEXIST') {
-            await rm_rf(tmpdir);
-            await mkdir(tmpdir);
+            await rm_rf(workdir);
+            await mkdir(workdir);
         } else {
             throw err;
         }
     }
     await spawn('node', args);
     try {
-        const stdout = await spawn('python', [pythonFile]);
-        const report = JSON.parse(lastline(stdout));
-        await rm_rf(tmpdir);
+        const report = await worker.analyze(pythonFile);
+        console.log('analysis complete!');
         return report;
-    } catch (stderr) {
-        logger.warn(`Analysis failed (likely missing python dependencies): ${lastline(stderr)}`);
-        await rm_rf(tmpdir);
+    } catch (errmsg) {
+        logger.warn(`Analysis failed (likely missing python dependencies): ${errmsg}`);
+    } finally {
+        await rm_rf(workdir);
     }
     return null;
-}
-
-function lastline(stdout) {
-    return stdout.split('\n').filter(line => !!line).pop();
 }
 
 const MongoClient = require('mongodb').MongoClient;
