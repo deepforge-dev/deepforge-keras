@@ -14,7 +14,6 @@ class PythonWorker {
     }
 
     async analyze(pythonFile) {
-        // TODO: this needs to be queued!
         await this.socket.send(pythonFile);
         const [resultData] = await this.socket.receive();
         const result = JSON.parse(resultData.toString());
