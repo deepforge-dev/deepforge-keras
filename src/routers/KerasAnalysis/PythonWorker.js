@@ -6,9 +6,10 @@ const childProcess = require('child_process');
 class PythonWorker {
     constructor(logger, workdir=os.tmpdir()) {
         this.logger = logger.fork('PythonWorker');
-        this.socket = new zmq.Request();
+        const socket = new zmq.Request();
         const address = `ipc://${path.join(workdir, 'ipc-socket')}`;
-        this.socket.connect(address);
+        socket.connect(address);
+        this.socket = new MsgQueue(socket);
         this._startWorker(address, workdir);
     }
 
@@ -27,9 +28,22 @@ class PythonWorker {
     _startWorker(ipcSocket, workdir) {
         const pythonPath = path.join(__dirname, 'PythonWorker.py');
         const job = childProcess.spawn('python', [pythonPath, ipcSocket], {cwd: workdir});
-        job.stdout.on('data', data => console.log('+', data.toString()));
-        job.stderr.on('data', data => console.log('-', data.toString()));
         job.on('close', code => this.logger.warn(`Python worker exited with code: ${code}`));
+    }
+}
+
+class MsgQueue {
+    constructor(socket) {
+        this.socket = socket;
+        this.sendOp = Promise.resolve();
+    }
+
+    send(data) {
+        return this.sendOp = this.sendOp.then(() => this.socket.send(data));
+    }
+
+    receive() {
+        return this.socket.receive();
     }
 }
 

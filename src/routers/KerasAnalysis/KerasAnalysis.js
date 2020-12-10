@@ -184,7 +184,6 @@ async function analyze(userId, projectId, commitHash, namespace, nodeId) {
     await spawn('node', args);
     try {
         const report = await worker.analyze(pythonFile);
-        console.log('analysis complete!');
         return report;
     } catch (errmsg) {
         logger.warn(`Analysis failed (likely missing python dependencies): ${errmsg}`);
