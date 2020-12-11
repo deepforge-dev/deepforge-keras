@@ -4,3 +4,4 @@ dependencies:
   - pip:
     - tensorflow==2.3.0
     - spektral==0.6.2
+    - pyzmq==19.0.1
