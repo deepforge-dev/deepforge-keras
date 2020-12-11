@@ -1,6 +1,7 @@
 const zmq = require('zeromq');
 const os = require('os');
 const path = require('path');
+const assert = require('assert');
 const childProcess = require('child_process');
 
 class PythonWorker {
@@ -10,7 +11,7 @@ class PythonWorker {
         const address = `ipc://${path.join(workdir, 'ipc-socket')}`;
         socket.connect(address);
         this.socket = new MsgQueue(socket);
-        this._startWorker(address, workdir);
+        this._initWorker(address, workdir);
     }
 
     async analyze(pythonFile) {
@@ -24,10 +25,17 @@ class PythonWorker {
         }
     }
 
-    _startWorker(ipcSocket, workdir) {
+    kill() {
+        this.subprocess.kill();
+    }
+
+    _initWorker(ipcSocket, workdir) {
+        assert(!this.subprocess, 'Worker already initialized.');
         const pythonPath = path.join(__dirname, 'PythonWorker.py');
-        const job = childProcess.spawn('python', [pythonPath, ipcSocket], {cwd: workdir});
-        job.on('close', code => this.logger.warn(`Python worker exited with code: ${code}`));
+        this.subprocess = childProcess.spawn('python', [pythonPath, ipcSocket], {cwd: workdir});
+        this.subprocess.on('close', code => {
+            this.logger.warn(`Python worker exited with code: ${code}`);
+        });
     }
 }
 

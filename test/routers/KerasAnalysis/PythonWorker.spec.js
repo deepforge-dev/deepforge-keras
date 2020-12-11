@@ -19,6 +19,7 @@ describe('PythonWorker', function() {
     });
 
     after(async () => {
+        await worker.kill();
         await Promise.all(testScripts.map(file => rm_rf(file)));
     });
 
