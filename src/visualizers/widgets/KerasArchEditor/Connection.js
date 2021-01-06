@@ -67,12 +67,14 @@ define([
 
         const strokeWidth = this.desc.dash ? 6 : 4;
         this.$path.attr('stroke-width', strokeWidth);
+        this.$indexText.attr('font-weight', 'bold');
         this.showingTooltip = true;
     };
 
     Connection.prototype.onMouseOut = function() {
         this.$tooltip.transition().attr('opacity', 0);
         this.$path.attr('stroke-width', 2);
+        this.$indexText.attr('font-weight', '');
         this.showingTooltip = false;
     };
 
