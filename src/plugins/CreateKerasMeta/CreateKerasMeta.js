@@ -93,7 +93,7 @@ define([
         const languageNode = await importer.findNode(this.rootNode, language.id);
         const existingNodes = (await Promise.all(
             existingNodeStates.map(state => importer.findNode(languageNode, state.id))
-        )).concat([languageNode]);
+        )).concat([languageNode]).filter(node => !!node);
 
         const existingNodeIDs = existingNodes.map(node => this.core.getPath(node));
         state.sets = _.mapObject(
