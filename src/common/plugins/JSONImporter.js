@@ -154,9 +154,9 @@ define([
         }
 
         async tryResolveSelectors(stateNodePairs, resolvedSelectors) {
-            let childResolved = true;
-            while (childResolved) {
-                childResolved = false;
+            let tryResolveMore = true;
+            while (tryResolveMore) {
+                tryResolveMore = false;
                 for (let i = stateNodePairs.length; i--;) {
                     const [state, parentNode] = stateNodePairs[i];
                     let child = await this.findNode(parentNode, state.id, resolvedSelectors);
@@ -186,7 +186,7 @@ define([
                         this.resolveSelector(child, state, resolvedSelectors);
                         const pairs = this.getChildStateNodePairs(child, state);
                         stateNodePairs.splice(i, 1, ...pairs);
-                        childResolved = true;
+                        tryResolveMore = true;
                     }
                 }
             }
