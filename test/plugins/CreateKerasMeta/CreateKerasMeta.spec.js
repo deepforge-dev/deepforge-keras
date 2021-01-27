@@ -100,6 +100,18 @@ describe('CreateKerasMeta', function () {
             assert(attrs.includes('ctor_arg_order'));
         });
 
+        it('should convert constant attributes to enum', function () {
+            const node = {attribute_meta: {}, attributes: {}};
+            const value = 'True';
+            const schema = {type: 'constant_attribute'};
+            const name = 'testAttr';
+            plugin.addAttribute(node, name, schema, value);
+
+            assert(node.attribute_meta[name].enum);
+            assert.equal(node.attribute_meta[name].type, 'string');
+            assert.equal(node.attributes[name], value);
+        });
+
         describe('layer io', () => {
             it('should create a single output for Conv2D', function () {
                 let node = getMetaNode('Conv2D');

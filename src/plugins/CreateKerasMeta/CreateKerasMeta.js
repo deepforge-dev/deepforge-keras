@@ -497,6 +497,9 @@ define([
         if (schema.type === 'boolean') {
             schema.enum = ['True', 'False'];
             schema.type = 'string';
+        } else if (schema.type === 'constant_attribute') {
+            schema.enum = [defVal];
+            schema.type = 'string';
         }
 
         // Create the attribute and set the schema
