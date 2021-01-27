@@ -1,7 +1,7 @@
 /*jshint node:true, mocha:true*/
 
 'use strict';
-var testFixture = require('../../globals');
+const testFixture = require('../../globals');
 
 describe('CreateKerasMeta', function () {
     var gmeConfig = testFixture.getGmeConfig(),

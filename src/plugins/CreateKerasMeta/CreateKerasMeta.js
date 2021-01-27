@@ -60,11 +60,8 @@ define([
     };
 
     CreateKerasMeta.prototype.getBaseModel = async function (importer) {
-        const placeholder = name => ({id: `@name:${name}`});
-        const language = {
-            id: '@name:Language',
-            children: [],
-        };
+        const language = placeholder('Language');
+        language.children = [];
 
         const root = await importer.toJSON(this.rootNode, true);
         this.language = language;
@@ -75,20 +72,45 @@ define([
             language,
         ];
 
-        // Create the base class, if needed
-        this.addNodeToMeta(root, language);
+        return await this.addExistingNodes(importer, language, root);
+    };
 
-        const existingNodes = [
+    CreateKerasMeta.prototype.addExistingNodes = async function (importer, language, state) {
+        const existingNodeStates = [
             'Architecture',
             'Layer',
             'LayerData',
             'LayerInput',
             'LayerOutput',
+            'SharedWeightLayer',
             'Function',
-        ];
-        existingNodes.forEach(name => language.children.push(placeholder(name)));
+            'RegularizerFunction',
+            'ConstraintFunction',
+            'ActivationFunction',
+            'InitializerFunction',
+        ].map(name => placeholder(name));
 
-        return root;
+        const languageNode = await importer.findNode(this.rootNode, language.id);
+        const existingNodes = (await Promise.all(
+            existingNodeStates.map(state => importer.findNode(languageNode, state.id))
+        )).concat([languageNode]).filter(node => !!node);
+
+        const existingNodeIDs = existingNodes.map(node => this.core.getPath(node));
+        state.sets = _.mapObject(
+            state.sets,
+            memberList => memberList.filter(id => existingNodeIDs.includes(id)),
+        );
+        state.member_registry = _.mapObject(
+            state.member_registry,
+            registryDict => _.pick(registryDict, existingNodeIDs),
+        );
+        state.member_attributes = _.mapObject(
+            state.member_attributes,
+            attributeDict => _.pick(attributeDict, existingNodeIDs),
+        );
+
+        existingNodeStates.forEach(state => language.children.push(state));
+        return state;
     };
 
     CreateKerasMeta.prototype.getSpecialTypeNames = function () {
@@ -494,6 +516,9 @@ define([
         });
     }
 
+    function placeholder(name) {
+        return {id: `@name:${name}`};
+    }
     // Helpers for testing
     CreateKerasMeta.prototype.getSchemas = function () {
         return ConcreteLayers;
