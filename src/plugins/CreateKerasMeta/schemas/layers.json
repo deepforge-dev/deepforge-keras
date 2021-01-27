@@ -4489,7 +4489,7 @@
   {
     "name": "AGNNConv",
     "base": "MessagePassing",
-    "docstring": "\n    An Attention-based Graph Neural Network (AGNN) as presented by\n    [Thekumparampil et al. (2018)](https://arxiv.org/abs/1803.03735).\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes:\n    $$\n        \\Z = \\P\\X\n    $$\n    where\n    $$\n        \\P_{ij} = \\frac{\n            \\exp \\left( \\beta \\cos \\left( \\X_i, \\X_j \\right) \\right)\n        }{\n            \\sum\\limits_{k \\in \\mathcal{N}(i) \\cup \\{ i \\}}\n            \\exp \\left( \\beta \\cos \\left( \\X_i, \\X_k \\right) \\right)\n        }\n    $$\n    and \\(\\beta\\) is a trainable parameter.\n\n    **Input**\n\n    - Node features of shape `(N, F)`;\n    - Binary adjacency matrix of shape `(N, N)`.\n\n    **Output**\n\n    - Node features with the same shape of the input.\n\n    **Arguments**\n\n    - `trainable`: boolean, if True, then beta is a trainable parameter.\n    Otherwise, beta is fixed to 1;\n    - `activation`: activation function to use;\n    ",
+    "docstring": "\n    An Attention-based Graph Neural Network (AGNN) from the paper\n\n    > [Attention-based Graph Neural Network for Semi-supervised Learning](https://arxiv.org/abs/1803.03735)<br>\n    > Kiran K. Thekumparampil et al.\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes:\n    $$\n        \\X' = \\P\\X\n    $$\n    where\n    $$\n        \\P_{ij} = \\frac{\n            \\exp \\left( \\beta \\cos \\left( \\x_i, \\x_j \\right) \\right)\n        }{\n            \\sum\\limits_{k \\in \\mathcal{N}(i) \\cup \\{ i \\}}\n            \\exp \\left( \\beta \\cos \\left( \\x_i, \\x_k \\right) \\right)\n        }\n    $$\n    and \\(\\beta\\) is a trainable parameter.\n\n    **Input**\n\n    - Node features of shape `(n_nodes, n_node_features)`;\n    - Binary adjacency matrix of shape `(n_nodes, n_nodes)`.\n\n    **Output**\n\n    - Node features with the same shape of the input.\n\n    **Arguments**\n\n    - `trainable`: boolean, if True, then beta is a trainable parameter.\n    Otherwise, beta is fixed to 1;\n    - `activation`: activation function;\n    ",
     "arguments": [
       {
         "name": "self",
@@ -4499,6 +4499,10 @@
         "name": "trainable",
         "default": "True",
         "type": "boolean"
+      },
+      {
+        "name": "aggregate",
+        "default": "sum"
       },
       {
         "name": "activation",
@@ -4521,9 +4525,9 @@
     "aliases": []
   },
   {
-    "name": "APPNP",
-    "base": "GraphConv",
-    "docstring": "\n    A graph convolutional layer implementing the APPNP operator, as presented by\n    [Klicpera et al. (2019)](https://arxiv.org/abs/1810.05997).\n\n    This layer computes:\n    $$\n        \\Z^{(0)} = \\textrm{MLP}(\\X); \\\\\n        \\Z^{(K)} = (1 - \\alpha) \\hat \\D^{-1/2} \\hat \\A \\hat \\D^{-1/2} \\Z^{(K - 1)} +\n                   \\alpha \\Z^{(0)},\n    $$\n    where \\(\\alpha\\) is the _teleport_ probability and \\(\\textrm{MLP}\\) is a\n    multi-layer perceptron.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Modified Laplacian of shape `([batch], N, N)`; can be computed with\n    `spektral.utils.convolution.localpooling_filter`.\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `alpha`: teleport probability during propagation;\n    - `propagations`: number of propagation steps;\n    - `mlp_hidden`: list of integers, number of hidden units for each hidden\n    layer in the MLP (if None, the MLP has only the output layer);\n    - `mlp_activation`: activation for the MLP layers;\n    - `dropout_rate`: dropout rate for Laplacian and MLP layers;\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
+    "name": "APPNPConv",
+    "base": "Conv",
+    "docstring": "\n    The APPNP operator from the paper\n\n    > [Predict then Propagate: Graph Neural Networks meet Personalized PageRank](https://arxiv.org/abs/1810.05997)<br>\n    > Johannes Klicpera et al.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    This layer computes:\n    $$\n        \\Z^{(0)} = \\textrm{MLP}(\\X); \\\\\n        \\Z^{(K)} = (1 - \\alpha) \\hat \\D^{-1/2} \\hat \\A \\hat \\D^{-1/2} \\Z^{(K - 1)} +\n                   \\alpha \\Z^{(0)},\n    $$\n    where \\(\\alpha\\) is the teleport probability, \\(\\textrm{MLP}\\) is a\n    multi-layer perceptron, and \\(K\\) is defined by the `propagations` argument.\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Modified Laplacian of shape `([batch], n_nodes, n_nodes)`; can be computed with\n    `spektral.utils.convolution.gcn_filter`.\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `alpha`: teleport probability during propagation;\n    - `propagations`: number of propagation steps;\n    - `mlp_hidden`: list of integers, number of hidden units for each hidden\n    layer in the MLP (if None, the MLP has only the output layer);\n    - `mlp_activation`: activation for the MLP layers;\n    - `dropout_rate`: dropout rate for Laplacian and MLP layers;\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
     "arguments": [
       {
         "name": "self",
@@ -4603,13 +4607,13 @@
         "default": null
       }
     ],
-    "file": "spektral/layers/convolutional/appnp.py",
+    "file": "spektral/layers/convolutional/appnp_conv.py",
     "aliases": []
   },
   {
     "name": "ARMAConv",
-    "base": "GraphConv",
-    "docstring": "\n    A graph convolutional layer with ARMA\\(_K\\) filters, as presented by\n    [Bianchi et al. (2019)](https://arxiv.org/abs/1901.01343).\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    This layer computes:\n    $$\n        \\Z = \\frac{1}{K} \\sum\\limits_{k=1}^K \\bar\\X_k^{(T)},\n    $$\n    where \\(K\\) is the order of the ARMA\\(_K\\) filter, and where:\n    $$\n        \\bar \\X_k^{(t + 1)} =\n        \\sigma \\left(\\tilde \\L \\bar \\X^{(t)} \\W^{(t)} + \\X \\V^{(t)} \\right)\n    $$\n    is a recursive approximation of an ARMA\\(_1\\) filter, where\n    \\( \\bar \\X^{(0)} = \\X \\)\n    and\n    $$\n        \\tilde \\L =  \\frac{2}{\\lambda_{max}} \\cdot (\\I - \\D^{-1/2} \\A \\D^{-1/2}) - \\I\n    $$\n    is the normalized Laplacian with a rescaled spectrum.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Normalized and rescaled Laplacian of shape `([batch], N, N)`; can be\n    computed with `spektral.utils.convolution.normalized_laplacian` and\n    `spektral.utils.convolution.rescale_laplacian`.\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `order`: order of the full ARMA\\(_K\\) filter, i.e., the number of parallel\n    stacks in the layer;\n    - `iterations`: number of iterations to compute each ARMA\\(_1\\) approximation;\n    - `share_weights`: share the weights in each ARMA\\(_1\\) stack.\n    - `gcn_activation`: activation function to use to compute each ARMA\\(_1\\)\n    stack;\n    - `dropout_rate`: dropout rate for skip connection;\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
+    "base": "Conv",
+    "docstring": "\n    An Auto-Regressive Moving Average convolutional layer (ARMA) from the paper\n\n    > [Graph Neural Networks with convolutional ARMA filters](https://arxiv.org/abs/1901.01343)<br>\n    > Filippo Maria Bianchi et al.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    This layer computes:\n    $$\n        \\X' = \\frac{1}{K} \\sum\\limits_{k=1}^K \\bar\\X_k^{(T)},\n    $$\n    where \\(K\\) is the order of the ARMA\\(_K\\) filter, and where:\n    $$\n        \\bar \\X_k^{(t + 1)} =\n        \\sigma \\left(\\tilde \\A \\bar \\X^{(t)} \\W^{(t)} + \\X \\V^{(t)} \\right)\n    $$\n    is a recursive approximation of an ARMA\\(_1\\) filter, where\n    \\( \\bar \\X^{(0)} = \\X \\)\n    and\n    $$\n        \\tilde \\A =  \\D^{-1/2} \\A \\D^{-1/2}.\n    $$\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Normalized and rescaled Laplacian of shape `([batch], n_nodes, n_nodes)`; can be\n    computed with `spektral.utils.convolution.normalized_laplacian` and\n    `spektral.utils.convolution.rescale_laplacian`.\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `order`: order of the full ARMA\\(_K\\) filter, i.e., the number of parallel\n    stacks in the layer;\n    - `iterations`: number of iterations to compute each ARMA\\(_1\\) approximation;\n    - `share_weights`: share the weights in each ARMA\\(_1\\) stack.\n    - `gcn_activation`: activation function to compute each ARMA\\(_1\\)\n    stack;\n    - `dropout_rate`: dropout rate for skip connection;\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
     "arguments": [
       {
         "name": "self",
@@ -4695,8 +4699,8 @@
   },
   {
     "name": "ChebConv",
-    "base": "GraphConv",
-    "docstring": "\n    A Chebyshev convolutional layer as presented by\n    [Defferrard et al. (2016)](https://arxiv.org/abs/1606.09375).\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    This layer computes:\n    $$\n        \\Z = \\sum \\limits_{k=0}^{K - 1} \\T^{(k)} \\W^{(k)}  + \\b^{(k)},\n    $$\n    where \\( \\T^{(0)}, ..., \\T^{(K - 1)} \\) are Chebyshev polynomials of \\(\\tilde \\L\\)\n    defined as\n    $$\n        \\T^{(0)} = \\X \\\\\n        \\T^{(1)} = \\tilde \\L \\X \\\\\n        \\T^{(k \\ge 2)} = 2 \\cdot \\tilde \\L \\T^{(k - 1)} - \\T^{(k - 2)},\n    $$\n    where\n    $$\n        \\tilde \\L =  \\frac{2}{\\lambda_{max}} \\cdot (\\I - \\D^{-1/2} \\A \\D^{-1/2}) - \\I\n    $$\n    is the normalized Laplacian with a rescaled spectrum.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - A list of K Chebyshev polynomials of shape\n    `[([batch], N, N), ..., ([batch], N, N)]`; can be computed with\n    `spektral.utils.convolution.chebyshev_filter`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `K`: order of the Chebyshev polynomials;\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n\n    ",
+    "base": "Conv",
+    "docstring": "\n    A Chebyshev convolutional layer from the paper\n\n    > [Convolutional Neural Networks on Graphs with Fast Localized Spectral\n  Filtering](https://arxiv.org/abs/1606.09375)<br>\n    > Micha\u00ebl Defferrard et al.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    This layer computes:\n    $$\n        \\X' = \\sum \\limits_{k=0}^{K - 1} \\T^{(k)} \\W^{(k)}  + \\b^{(k)},\n    $$\n    where \\( \\T^{(0)}, ..., \\T^{(K - 1)} \\) are Chebyshev polynomials of \\(\\tilde \\L\\)\n    defined as\n    $$\n        \\T^{(0)} = \\X \\\\\n        \\T^{(1)} = \\tilde \\L \\X \\\\\n        \\T^{(k \\ge 2)} = 2 \\cdot \\tilde \\L \\T^{(k - 1)} - \\T^{(k - 2)},\n    $$\n    where\n    $$\n        \\tilde \\L =  \\frac{2}{\\lambda_{max}} \\cdot (\\I - \\D^{-1/2} \\A \\D^{-1/2}) - \\I.\n    $$\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - A list of K Chebyshev polynomials of shape\n    `[([batch], n_nodes, n_nodes), ..., ([batch], n_nodes, n_nodes)]`; can be computed with\n    `spektral.utils.convolution.chebyshev_filter`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `K`: order of the Chebyshev polynomials;\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n\n    ",
     "arguments": [
       {
         "name": "self",
@@ -4766,7 +4770,7 @@
   {
     "name": "CrystalConv",
     "base": "MessagePassing",
-    "docstring": "\n    A Crystal Graph Convolutional layer as presented by\n    [Xie & Grossman (2018)](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.145301).\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes for each node \\(i\\):\n    $$\n        \\H_i = \\X_i +\n               \\sum\\limits_{j \\in \\mathcal{N}(i)}\n                    \\sigma \\left( \\z_{ij} \\W^{(f)} + \\b^{(f)} \\right)\n                    \\odot\n                    \\g \\left( \\z_{ij} \\W^{(s)} + \\b^{(s)} \\right)\n    $$\n    where \\(\\z_{ij} = \\X_i \\| \\X_j \\| \\E_{ij} \\), \\(\\sigma\\) is a sigmoid\n    activation, and \\(g\\) is the activation function (defined by the `activation`\n    argument).\n\n    **Input**\n\n    - Node features of shape `(N, F)`;\n    - Binary adjacency matrix of shape `(N, N)`.\n    - Edge features of shape `(num_edges, S)`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
+    "docstring": "\n    A crystal graph convolutional layer from the paper\n\n    > [Crystal Graph Convolutional Neural Networks for an Accurate and\n    Interpretable Prediction of Material Properties](https://arxiv.org/abs/1710.10324)<br>\n    > Tian Xie and Jeffrey C. Grossman\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes:\n    $$\n        \\x_i' = \\x_i + \\sum\\limits_{j \\in \\mathcal{N}(i)} \\sigma \\left( \\z_{ij}\n        \\W^{(f)} + \\b^{(f)} \\right) \\odot \\g \\left( \\z_{ij} \\W^{(s)} + \\b^{(s)}\n        \\right)\n    $$\n    where \\(\\z_{ij} = \\X_i \\| \\X_j \\| \\E_{ij} \\), \\(\\sigma\\) is a sigmoid\n    activation, and \\(g\\) is the activation function (defined by the `activation`\n    argument).\n\n    **Input**\n\n    - Node features of shape `(n_nodes, n_node_features)`;\n    - Binary adjacency matrix of shape `(n_nodes, n_nodes)`.\n    - Edge features of shape `(num_edges, n_edge_features)`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
     "arguments": [
       {
         "name": "self",
@@ -4775,6 +4779,10 @@
       {
         "name": "channels",
         "default": null
+      },
+      {
+        "name": "aggregate",
+        "default": "sum"
       },
       {
         "name": "activation",
@@ -4831,8 +4839,8 @@
   },
   {
     "name": "DiffPool",
-    "base": "Layer",
-    "docstring": "\n    A DiffPool layer as presented by\n    [Ying et al. (2018)](https://arxiv.org/abs/1806.08804).\n\n    **Mode**: batch.\n\n    This layer computes a soft clustering \\(\\S\\) of the input graphs using a GNN,\n    and reduces graphs as follows:\n\n    $$\n        \\S = \\textrm{GNN}(\\A, \\X); \\\\\n        \\A' = \\S^\\top \\A \\S; \\X' = \\S^\\top \\X;\n    $$\n\n    where GNN consists of one GraphConv layer with softmax activation.\n    Two auxiliary loss terms are also added to the model: the _link prediction\n    loss_\n    $$\n        \\big\\| \\A - \\S\\S^\\top \\big\\|_F\n    $$\n    and the _entropy loss_\n    $$\n        - \\frac{1}{N} \\sum\\limits_{i = 1}^{N} \\S \\log (\\S).\n    $$\n\n    The layer also applies a 1-layer GCN to the input features, and returns\n    the updated graph signal (the number of output channels is controlled by\n    the `channels` parameter).\n    The layer can be used without a supervised loss, to compute node clustering\n    simply by minimizing the two auxiliary losses.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Binary adjacency matrix of shape `([batch], N, N)`;\n\n    **Output**\n\n    - Reduced node features of shape `([batch], K, channels)`;\n    - Reduced adjacency matrix of shape `([batch], K, K)`;\n    - If `return_mask=True`, the soft clustering matrix of shape `([batch], N, K)`.\n\n    **Arguments**\n\n    - `k`: number of nodes to keep;\n    - `channels`: number of output channels (if None, the number of output\n    channels is assumed to be the same as the input);\n    - `return_mask`: boolean, whether to return the cluster assignment matrix;\n    - `kernel_initializer`: initializer for the weights;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `kernel_constraint`: constraint applied to the weights;\n    ",
+    "base": "Pool",
+    "docstring": "\n    A DiffPool layer from the paper\n\n    > [Hierarchical Graph Representation Learning with Differentiable Pooling](https://arxiv.org/abs/1806.08804)<br>\n    > Rex Ying et al.\n\n    **Mode**: batch.\n\n    This layer computes a soft clustering \\(\\S\\) of the input graphs using a GNN,\n    and reduces graphs as follows:\n    $$\n        \\S = \\textrm{GNN}(\\A, \\X); \\\\\n        \\A' = \\S^\\top \\A \\S; \\X' = \\S^\\top \\X;\n    $$\n\n    where GNN consists of one GraphConv layer with softmax activation.\n    Two auxiliary loss terms are also added to the model: the _link prediction\n    loss_\n    $$\n        \\big\\| \\A - \\S\\S^\\top \\big\\|_F\n    $$\n    and the _entropy loss_\n    $$\n        - \\frac{1}{N} \\sum\\limits_{i = 1}^{N} \\S \\log (\\S).\n    $$\n\n    The layer also applies a 1-layer GCN to the input features, and returns\n    the updated graph signal (the number of output channels is controlled by\n    the `channels` parameter).\n    The layer can be used without a supervised loss, to compute node clustering\n    simply by minimizing the two auxiliary losses.\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Binary adjacency matrix of shape `([batch], n_nodes, n_nodes)`;\n\n    **Output**\n\n    - Reduced node features of shape `([batch], K, channels)`;\n    - Reduced adjacency matrix of shape `([batch], K, K)`;\n    - If `return_mask=True`, the soft clustering matrix of shape `([batch], n_nodes, K)`.\n\n    **Arguments**\n\n    - `k`: number of nodes to keep;\n    - `channels`: number of output channels (if None, the number of output\n    channels is assumed to be the same as the input);\n    - `return_mask`: boolean, whether to return the cluster assignment matrix;\n    - `kernel_initializer`: initializer for the weights;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `kernel_constraint`: constraint applied to the weights;\n    ",
     "arguments": [
       {
         "name": "self",
@@ -4885,8 +4893,8 @@
   },
   {
     "name": "DiffusionConv",
-    "base": "GraphConv",
-    "docstring": "Applies Graph Diffusion Convolution as descibed by\n    [Li et al. (2016)](https://arxiv.org/pdf/1707.01926.pdf)\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **This layer expects a dense adjacency matrix.**\n\n    Given a number of diffusion steps \\(K\\) and a row normalized adjacency matrix \\(\\hat \\A \\),\n    this layer calculates the q'th channel as:\n    $$\n    \\mathbf{H}_{~:,~q} = \\sigma\\left(\n        \\sum_{f=1}^{F}\n            \\left(\n                \\sum_{k=0}^{K-1}\\theta_k {\\hat \\A}^k\n            \\right)\n        \\X_{~:,~f}\n    \\right)\n    $$\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Normalized adjacency or attention coef. matrix \\(\\hat \\A \\) of shape\n    `([batch], N, N)`; Use `DiffusionConvolution.preprocess` to normalize.\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `num_diffusion_steps`: How many diffusion steps to consider. \\(K\\) in paper.\n    - `activation`: activation function \\(\\sigma\\); (\\(\\tanh\\) by default)\n    - `kernel_initializer`: initializer for the weights;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `kernel_constraint`: constraint applied to the weights;\n    ",
+    "base": "Conv",
+    "docstring": "\n    A diffusion convolution operator from the paper\n\n    > [Diffusion Convolutional Recurrent Neural Network: Data-Driven Traffic\n  Forecasting](https://arxiv.org/abs/1707.01926)<br>\n    > Yaguang Li et al.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **This layer expects a dense adjacency matrix.**\n\n    Given a number of diffusion steps \\(K\\) and a row-normalized adjacency\n    matrix \\(\\hat \\A \\), this layer calculates the \\(q\\)-th channel as:\n    $$\n    \\mathbf{X}_{~:,~q}' = \\sigma\\left( \\sum_{f=1}^{F} \\left( \\sum_{k=0}^{K-1}\n    \\theta_k {\\hat \\A}^k \\right) \\X_{~:,~f} \\right)\n    $$\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Normalized adjacency or attention coef. matrix \\(\\hat \\A \\) of shape\n    `([batch], n_nodes, n_nodes)`; Use `DiffusionConvolution.preprocess` to normalize.\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `K`: number of diffusion steps.\n    - `activation`: activation function \\(\\sigma\\); (\\(\\tanh\\) by default)\n    - `kernel_initializer`: initializer for the weights;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `kernel_constraint`: constraint applied to the weights;\n    ",
     "arguments": [
       {
         "name": "self",
@@ -4897,8 +4905,12 @@
         "default": null
       },
       {
-        "name": "num_diffusion_steps",
+        "name": "K",
         "default": 6
+      },
+      {
+        "name": "activation",
+        "default": "tanh"
       },
       {
         "name": "kernel_initializer",
@@ -4911,10 +4923,6 @@
       {
         "name": "kernel_constraint",
         "default": "None"
-      },
-      {
-        "name": "activation",
-        "default": "tanh"
       }
     ],
     "abstract": false,
@@ -4935,7 +4943,7 @@
   {
     "name": "Disjoint2Batch",
     "base": "Layer",
-    "docstring": "Utility layer that converts data from disjoint mode to batch mode by\n    zero-padding the node features and adjacency matrices.\n\n    **Mode**: disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    **Input**\n\n    - Node features of shape `(N, F)`;\n    - Binary adjacency matrix of shape `(N, N)`;\n    - Graph IDs of shape `(N, )`;\n\n    **Output**\n\n    - Batched node features of shape `(batch, N_max, F)`;\n    - Batched adjacency matrix of shape `(batch, N_max, N_max)`;\n    ",
+    "docstring": "Utility layer that converts data from disjoint mode to batch mode by\n    zero-padding the node features and adjacency matrices.\n\n    **Mode**: disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    **Input**\n\n    - Node features of shape `(n_nodes, n_node_features)`;\n    - Binary adjacency matrix of shape `(n_nodes, n_nodes)`;\n    - Graph IDs of shape `(n_nodes, )`;\n\n    **Output**\n\n    - Batched node features of shape `(batch, N_max, n_node_features)`;\n    - Batched adjacency matrix of shape `(batch, N_max, N_max)`;\n    ",
     "arguments": [
       {
         "name": "self",
@@ -4958,9 +4966,9 @@
     "aliases": []
   },
   {
-    "name": "EdgeConditionedConv",
-    "base": "GraphConv",
-    "docstring": "\n    An edge-conditioned convolutional layer (ECC) as presented by\n    [Simonovsky & Komodakis (2017)](https://arxiv.org/abs/1704.02901).\n\n    **Mode**: single, disjoint, batch.\n\n    **Notes**:\n        - This layer expects dense inputs and self-loops when working in batch mode.\n        - In single mode, if the adjacency matrix is dense it will be converted\n        to a SparseTensor automatically (which is an expensive operation).\n\n    For each node \\( i \\), this layer computes:\n    $$\n        \\Z_i = \\X_{i} \\W_{\\textrm{root}} + \\sum\\limits_{j \\in \\mathcal{N}(i)} \\X_{j} \\textrm{MLP}(\\E_{ji}) + \\b\n    $$\n    where \\(\\textrm{MLP}\\) is a multi-layer perceptron that outputs an\n    edge-specific weight as a function of edge attributes.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Binary adjacency matrices of shape `([batch], N, N)`;\n    - Edge features. In single mode, shape `(num_edges, S)`; in batch mode, shape\n    `(batch, N, N, S)`.\n\n    **Output**\n\n    - node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `kernel_network`: a list of integers representing the hidden neurons of\n    the kernel-generating network;\n    - 'root': if False, the layer will not consider the root node for computing\n    the message passing (first term in equation above), but only the neighbours.\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n\n    ",
+    "name": "ECCConv",
+    "base": "Conv",
+    "docstring": "\n    An edge-conditioned convolutional layer (ECC) from the paper\n\n    > [Dynamic Edge-Conditioned Filters in Convolutional Neural Networks on\n  Graphs](https://arxiv.org/abs/1704.02901)<br>\n    > Martin Simonovsky and Nikos Komodakis\n\n    **Mode**: single, disjoint, batch.\n\n    This layer computes:\n    $$\n        \\x_i' = \\x_{i} \\W_{\\textrm{root}} + \\sum\\limits_{j \\in \\mathcal{N}(i)}\n        \\x_{j} \\textrm{MLP}(\\e_{j \\rightarrow i}) + \\b\n    $$\n    where \\(\\textrm{MLP}\\) is a multi-layer perceptron that outputs an\n    edge-specific weight as a function of edge attributes.\n\n    **Note:** In single mode, if the adjacency matrix is dense it will be\n    converted to a SparseTensor automatically (which is an expensive operation).\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Binary adjacency matrices of shape `([batch], n_nodes, n_nodes)`;\n    - Edge features. In single mode, shape `(num_edges, n_edge_features)`; in batch mode, shape\n    `(batch, n_nodes, n_nodes, n_edge_features)`.\n\n    **Output**\n\n    - node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `kernel_network`: a list of integers representing the hidden neurons of\n    the kernel-generating network;\n    - 'root': if False, the layer will not consider the root node for computing\n    the message passing (first term in equation above), but only the neighbours.\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n\n    ",
     "arguments": [
       {
         "name": "self",
@@ -5035,7 +5043,7 @@
   {
     "name": "EdgeConv",
     "base": "MessagePassing",
-    "docstring": "\n    An Edge Convolutional layer as presented by\n    [Wang et al. (2018)](https://arxiv.org/abs/1801.07829).\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes for each node \\(i\\):\n    $$\n        \\Z_i = \\sum\\limits_{j \\in \\mathcal{N}(i)} \\textrm{MLP}\\big( \\X_i \\| \\X_j - \\X_i \\big)\n    $$\n    where \\(\\textrm{MLP}\\) is a multi-layer perceptron.\n\n    **Input**\n\n    - Node features of shape `(N, F)`;\n    - Binary adjacency matrix of shape `(N, N)`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `mlp_hidden`: list of integers, number of hidden units for each hidden\n    layer in the MLP (if None, the MLP has only the output layer);\n    - `mlp_activation`: activation for the MLP layers;\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
+    "docstring": "\n    An edge convolutional layer from the paper\n\n    > [Dynamic Graph CNN for Learning on Point Clouds](https://arxiv.org/abs/1801.07829)<br>\n    > Yue Wang et al.\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes for each node \\(i\\):\n    $$\n        \\x_i' = \\sum\\limits_{j \\in \\mathcal{N}(i)} \\textrm{MLP}\\big( \\x_i \\|\n        \\x_j - \\x_i \\big)\n    $$\n    where \\(\\textrm{MLP}\\) is a multi-layer perceptron.\n\n    **Input**\n\n    - Node features of shape `(n_nodes, n_node_features)`;\n    - Binary adjacency matrix of shape `(n_nodes, n_nodes)`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `mlp_hidden`: list of integers, number of hidden units for each hidden\n    layer in the MLP (if None, the MLP has only the output layer);\n    - `mlp_activation`: activation for the MLP layers;\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
     "arguments": [
       {
         "name": "self",
@@ -5052,6 +5060,10 @@
       {
         "name": "mlp_activation",
         "default": "relu"
+      },
+      {
+        "name": "aggregate",
+        "default": "sum"
       },
       {
         "name": "activation",
@@ -5107,322 +5119,9 @@
     "aliases": []
   },
   {
-    "name": "GINConv",
-    "base": "MessagePassing",
-    "docstring": "\n    A Graph Isomorphism Network (GIN) as presented by\n    [Xu et al. (2018)](https://arxiv.org/abs/1810.00826).\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes for each node \\(i\\):\n    $$\n        \\Z_i = \\textrm{MLP}\\big( (1 + \\epsilon) \\cdot \\X_i + \\sum\\limits_{j \\in \\mathcal{N}(i)} \\X_j \\big)\n    $$\n    where \\(\\textrm{MLP}\\) is a multi-layer perceptron.\n\n    **Input**\n\n    - Node features of shape `(N, F)`;\n    - Binary adjacency matrix of shape `(N, N)`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `epsilon`: unnamed parameter, see\n    [Xu et al. (2018)](https://arxiv.org/abs/1810.00826), and the equation above.\n    By setting `epsilon=None`, the parameter will be learned (default behaviour).\n    If given as a value, the parameter will stay fixed.\n    - `mlp_hidden`: list of integers, number of hidden units for each hidden\n    layer in the MLP (if None, the MLP has only the output layer);\n    - `mlp_activation`: activation for the MLP layers;\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
-    "arguments": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "channels",
-        "default": null
-      },
-      {
-        "name": "epsilon",
-        "default": "None"
-      },
-      {
-        "name": "mlp_hidden",
-        "default": "None"
-      },
-      {
-        "name": "mlp_activation",
-        "default": "relu"
-      },
-      {
-        "name": "activation",
-        "default": "None"
-      },
-      {
-        "name": "use_bias",
-        "default": "True",
-        "type": "boolean"
-      },
-      {
-        "name": "kernel_initializer",
-        "default": "glorot_uniform"
-      },
-      {
-        "name": "bias_initializer",
-        "default": "zeros"
-      },
-      {
-        "name": "kernel_regularizer",
-        "default": "None"
-      },
-      {
-        "name": "bias_regularizer",
-        "default": "None"
-      },
-      {
-        "name": "activity_regularizer",
-        "default": "None"
-      },
-      {
-        "name": "kernel_constraint",
-        "default": "None"
-      },
-      {
-        "name": "bias_constraint",
-        "default": "None"
-      }
-    ],
-    "abstract": false,
-    "outputs": [],
-    "inputs": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "inputs",
-        "default": null
-      }
-    ],
-    "file": "spektral/layers/convolutional/gin_conv.py",
-    "aliases": []
-  },
-  {
-    "name": "GatedGraphConv",
-    "base": "MessagePassing",
-    "docstring": "\n    A gated graph convolutional layer as presented by\n    [Li et al. (2018)](https://arxiv.org/abs/1511.05493).\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer repeatedly applies a GRU cell \\(L\\) times to the node attributes\n    $$\n    \\begin{align}\n        & \\h^{(0)}_i = \\X_i \\| \\mathbf{0} \\\\\n        & \\m^{(l)}_i = \\sum\\limits_{j \\in \\mathcal{N}(i)} \\h^{(l - 1)}_j \\W \\\\\n        & \\h^{(l)}_i = \\textrm{GRU} \\left(\\m^{(l)}_i, \\h^{(l - 1)}_i \\right) \\\\\n        & \\Z_i = h^{(L)}_i\n    \\end{align}\n    $$\n    where \\(\\textrm{GRU}\\) is the GRU cell.\n\n    **Input**\n\n    - Node features of shape `(N, F)`; note that `F` must be smaller or equal\n    than `channels`.\n    - Binary adjacency matrix of shape `(N, N)`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `n_layers`: integer, number of iterations with the GRU cell;\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
-    "arguments": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "channels",
-        "default": null
-      },
-      {
-        "name": "n_layers",
-        "default": null
-      },
-      {
-        "name": "activation",
-        "default": "None"
-      },
-      {
-        "name": "use_bias",
-        "default": "True",
-        "type": "boolean"
-      },
-      {
-        "name": "kernel_initializer",
-        "default": "glorot_uniform"
-      },
-      {
-        "name": "bias_initializer",
-        "default": "zeros"
-      },
-      {
-        "name": "kernel_regularizer",
-        "default": "None"
-      },
-      {
-        "name": "bias_regularizer",
-        "default": "None"
-      },
-      {
-        "name": "activity_regularizer",
-        "default": "None"
-      },
-      {
-        "name": "kernel_constraint",
-        "default": "None"
-      },
-      {
-        "name": "bias_constraint",
-        "default": "None"
-      }
-    ],
-    "abstract": false,
-    "outputs": [],
-    "inputs": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "inputs",
-        "default": null
-      }
-    ],
-    "file": "spektral/layers/convolutional/gated_graph_conv.py",
-    "aliases": []
-  },
-  {
-    "name": "GlobalAttentionPool",
-    "base": "GlobalPooling",
-    "docstring": "\n    A gated attention global pooling layer as presented by\n    [Li et al. (2017)](https://arxiv.org/abs/1511.05493).\n\n    This layer computes:\n    $$\n        \\X' = \\sum\\limits_{i=1}^{N} (\\sigma(\\X \\W_1 + \\b_1) \\odot (\\X \\W_2 + \\b_2))_i\n    $$\n    where \\(\\sigma\\) is the sigmoid activation function.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Graph IDs of shape `(N, )` (only in disjoint mode);\n\n    **Output**\n\n    - Pooled node features of shape `(batch, channels)` (if single mode,\n    shape will be `(1, channels)`).\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `bias_initializer`: initializer for the bias vectors;\n    - `kernel_regularizer`: regularization applied to the kernel matrices;\n    - `bias_regularizer`: regularization applied to the bias vectors;\n    - `kernel_constraint`: constraint applied to the kernel matrices;\n    - `bias_constraint`: constraint applied to the bias vectors.\n    ",
-    "arguments": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "channels",
-        "default": null
-      },
-      {
-        "name": "kernel_initializer",
-        "default": "glorot_uniform"
-      },
-      {
-        "name": "bias_initializer",
-        "default": "zeros"
-      },
-      {
-        "name": "kernel_regularizer",
-        "default": "None"
-      },
-      {
-        "name": "bias_regularizer",
-        "default": "None"
-      },
-      {
-        "name": "kernel_constraint",
-        "default": "None"
-      },
-      {
-        "name": "bias_constraint",
-        "default": "None"
-      }
-    ],
-    "abstract": false,
-    "outputs": [],
-    "inputs": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "inputs",
-        "default": null
-      }
-    ],
-    "file": "spektral/layers/pooling/global_pool.py",
-    "aliases": []
-  },
-  {
-    "name": "GlobalAttnSumPool",
-    "base": "GlobalPooling",
-    "docstring": "\n    A node-attention global pooling layer. Pools a graph by learning attention\n    coefficients to sum node features.\n\n    This layer computes:\n    $$\n        \\alpha = \\textrm{softmax}( \\X \\a); \\\\\n        \\X' = \\sum\\limits_{i=1}^{N} \\alpha_i \\cdot \\X_i\n    $$\n    where \\(\\a \\in \\mathbb{R}^F\\) is a trainable vector. Note that the softmax\n    is applied across nodes, and not across features.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Graph IDs of shape `(N, )` (only in disjoint mode);\n\n    **Output**\n\n    - Pooled node features of shape `(batch, F)` (if single mode, shape will\n    be `(1, F)`).\n\n    **Arguments**\n\n    - `attn_kernel_initializer`: initializer for the attention weights;\n    - `attn_kernel_regularizer`: regularization applied to the attention kernel\n    matrix;\n    - `attn_kernel_constraint`: constraint applied to the attention kernel\n    matrix;\n    ",
-    "arguments": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "attn_kernel_initializer",
-        "default": "glorot_uniform"
-      },
-      {
-        "name": "attn_kernel_regularizer",
-        "default": "None"
-      },
-      {
-        "name": "attn_kernel_constraint",
-        "default": "None"
-      }
-    ],
-    "abstract": false,
-    "outputs": [],
-    "inputs": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "inputs",
-        "default": null
-      }
-    ],
-    "file": "spektral/layers/pooling/global_pool.py",
-    "aliases": []
-  },
-  {
-    "name": "GlobalAvgPool",
-    "base": "GlobalPooling",
-    "docstring": "\n    An average pooling layer. Pools a graph by computing the average of its node\n    features.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Graph IDs of shape `(N, )` (only in disjoint mode);\n\n    **Output**\n\n    - Pooled node features of shape `(batch, F)` (if single mode, shape will\n    be `(1, F)`).\n\n    **Arguments**\n\n    None.\n\n    ",
-    "arguments": [
-      {
-        "name": "self",
-        "default": null
-      }
-    ],
-    "abstract": false,
-    "outputs": [],
-    "inputs": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "inputs",
-        "default": null
-      }
-    ],
-    "file": "spektral/layers/pooling/global_pool.py",
-    "aliases": []
-  },
-  {
-    "name": "GlobalMaxPool",
-    "base": "GlobalPooling",
-    "docstring": "\n    A max pooling layer. Pools a graph by computing the maximum of its node\n    features.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Graph IDs of shape `(N, )` (only in disjoint mode);\n\n    **Output**\n\n    - Pooled node features of shape `(batch, F)` (if single mode, shape will\n    be `(1, F)`).\n\n    **Arguments**\n\n    None.\n\n    ",
-    "arguments": [
-      {
-        "name": "self",
-        "default": null
-      }
-    ],
-    "abstract": false,
-    "outputs": [],
-    "inputs": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "inputs",
-        "default": null
-      }
-    ],
-    "file": "spektral/layers/pooling/global_pool.py",
-    "aliases": []
-  },
-  {
-    "name": "GlobalSumPool",
-    "base": "GlobalPooling",
-    "docstring": "\n    A global sum pooling layer. Pools a graph by computing the sum of its node\n    features.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Graph IDs of shape `(N, )` (only in disjoint mode);\n\n    **Output**\n\n    - Pooled node features of shape `(batch, F)` (if single mode, shape will\n    be `(1, F)`).\n\n    **Arguments**\n\n    None.\n\n    ",
-    "arguments": [
-      {
-        "name": "self",
-        "default": null
-      }
-    ],
-    "abstract": false,
-    "outputs": [],
-    "inputs": [
-      {
-        "name": "self",
-        "default": null
-      },
-      {
-        "name": "inputs",
-        "default": null
-      }
-    ],
-    "file": "spektral/layers/pooling/global_pool.py",
-    "aliases": []
-  },
-  {
-    "name": "GraphAttention",
-    "base": "GraphConv",
-    "docstring": "\n    A graph attention layer (GAT) as presented by\n    [Velickovic et al. (2017)](https://arxiv.org/abs/1710.10903).\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **This layer expects dense inputs when working in batch mode.**\n\n    This layer computes a convolution similar to `layers.GraphConv`, but\n    uses the attention mechanism to weight the adjacency matrix instead of\n    using the normalized Laplacian:\n    $$\n        \\Z = \\mathbf{\\alpha}\\X\\W + \\b\n    $$\n    where\n    $$\n        \\mathbf{\\alpha}_{ij} =\n            \\frac{\n                \\exp\\left(\n                    \\mathrm{LeakyReLU}\\left(\n                        \\a^{\\top} [(\\X\\W)_i \\, \\| \\, (\\X\\W)_j]\n                    \\right)\n                \\right)\n            }\n            {\\sum\\limits_{k \\in \\mathcal{N}(i) \\cup \\{ i \\}}\n                \\exp\\left(\n                    \\mathrm{LeakyReLU}\\left(\n                        \\a^{\\top} [(\\X\\W)_i \\, \\| \\, (\\X\\W)_k]\n                    \\right)\n                \\right)\n            }\n    $$\n    where \\(\\a \\in \\mathbb{R}^{2F'}\\) is a trainable attention kernel.\n    Dropout is also applied to \\(\\alpha\\) before computing \\(\\Z\\).\n    Parallel attention heads are computed in parallel and their results are\n    aggregated by concatenation or average.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Binary adjacency matrix of shape `([batch], N, N)`;\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`;\n    - if `return_attn_coef=True`, a list with the attention coefficients for\n    each attention head. Each attention coefficient matrix has shape\n    `([batch], N, N)`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `attn_heads`: number of attention heads to use;\n    - `concat_heads`: bool, whether to concatenate the output of the attention\n     heads instead of averaging;\n    - `dropout_rate`: internal dropout rate for attention coefficients;\n    - `return_attn_coef`: if True, return the attention coefficients for\n    the given input (one N x N matrix for each head).\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `attn_kernel_initializer`: initializer for the attention weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `attn_kernel_regularizer`: regularization applied to the attention kernels;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `attn_kernel_constraint`: constraint applied to the attention kernels;\n    - `bias_constraint`: constraint applied to the bias vector.\n\n    ",
+    "name": "GATConv",
+    "base": "Conv",
+    "docstring": "\n    A Graph Attention layer (GAT) from the paper\n\n    > [Graph Attention Networks](https://arxiv.org/abs/1710.10903)<br>\n    > Petar Veli\u010dkovi\u0107 et al.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **This layer expects dense inputs when working in batch mode.**\n\n    This layer computes a convolution similar to `layers.GraphConv`, but\n    uses the attention mechanism to weight the adjacency matrix instead of\n    using the normalized Laplacian:\n    $$\n        \\X' = \\mathbf{\\alpha}\\X\\W + \\b\n    $$\n    where\n    $$\n        \\mathbf{\\alpha}_{ij} =\\frac{ \\exp\\left(\\mathrm{LeakyReLU}\\left(\n        \\a^{\\top} [(\\X\\W)_i \\, \\| \\, (\\X\\W)_j]\\right)\\right)}{\\sum\\limits_{k\n        \\in \\mathcal{N}(i) \\cup \\{ i \\}} \\exp\\left(\\mathrm{LeakyReLU}\\left(\n        \\a^{\\top} [(\\X\\W)_i \\, \\| \\, (\\X\\W)_k]\\right)\\right)}\n    $$\n    where \\(\\a \\in \\mathbb{R}^{2F'}\\) is a trainable attention kernel.\n    Dropout is also applied to \\(\\alpha\\) before computing \\(\\Z\\).\n    Parallel attention heads are computed in parallel and their results are\n    aggregated by concatenation or average.\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Binary adjacency matrix of shape `([batch], n_nodes, n_nodes)`;\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`;\n    - if `return_attn_coef=True`, a list with the attention coefficients for\n    each attention head. Each attention coefficient matrix has shape\n    `([batch], n_nodes, n_nodes)`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `attn_heads`: number of attention heads to use;\n    - `concat_heads`: bool, whether to concatenate the output of the attention\n     heads instead of averaging;\n    - `dropout_rate`: internal dropout rate for attention coefficients;\n    - `return_attn_coef`: if True, return the attention coefficients for\n    the given input (one n_nodes x n_nodes matrix for each head).\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `attn_kernel_initializer`: initializer for the attention weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `attn_kernel_regularizer`: regularization applied to the attention kernels;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `attn_kernel_constraint`: constraint applied to the attention kernels;\n    - `bias_constraint`: constraint applied to the bias vector.\n\n    ",
     "arguments": [
       {
         "name": "self",
@@ -5512,13 +5211,13 @@
         "default": null
       }
     ],
-    "file": "spektral/layers/convolutional/graph_attention.py",
+    "file": "spektral/layers/convolutional/gat_conv.py",
     "aliases": []
   },
   {
-    "name": "GraphConv",
-    "base": "Layer",
-    "docstring": "\n    A graph convolutional layer (GCN) as presented by\n    [Kipf & Welling (2016)](https://arxiv.org/abs/1609.02907).\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    This layer computes:\n    $$\n        \\Z = \\hat \\D^{-1/2} \\hat \\A \\hat \\D^{-1/2} \\X \\W + \\b\n    $$\n    where \\( \\hat \\A = \\A + \\I \\) is the adjacency matrix with added self-loops\n    and \\(\\hat\\D\\) is its degree matrix.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Modified Laplacian of shape `([batch], N, N)`; can be computed with\n    `spektral.utils.convolution.localpooling_filter`.\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
+    "name": "GCNConv",
+    "base": "Conv",
+    "docstring": "\n    A graph convolutional layer (GCN) from the paper\n\n    > [Semi-Supervised Classification with Graph Convolutional Networks](https://arxiv.org/abs/1609.02907)<br>\n    > Thomas N. Kipf and Max Welling\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    This layer computes:\n    $$\n        \\X' = \\hat \\D^{-1/2} \\hat \\A \\hat \\D^{-1/2} \\X \\W + \\b\n    $$\n    where \\( \\hat \\A = \\A + \\I \\) is the adjacency matrix with added self-loops\n    and \\(\\hat\\D\\) is its degree matrix.\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Modified Laplacian of shape `([batch], n_nodes, n_nodes)`; can be computed with\n    `spektral.utils.convolution.gcn_filter`.\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
     "arguments": [
       {
         "name": "self",
@@ -5578,13 +5277,13 @@
         "default": null
       }
     ],
-    "file": "spektral/layers/convolutional/graph_conv.py",
+    "file": "spektral/layers/convolutional/gcn_conv.py",
     "aliases": []
   },
   {
-    "name": "GraphConvSkip",
-    "base": "GraphConv",
-    "docstring": "\n    A simple convolutional layer with a skip connection.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    This layer computes:\n    $$\n        \\Z = \\D^{-1/2} \\A \\D^{-1/2} \\X \\W_1 + \\X \\W_2 + \\b\n    $$\n    where \\( \\A \\) does not have self-loops (unlike in GraphConv).\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Normalized adjacency matrix of shape `([batch], N, N)`; can be computed\n    with `spektral.utils.convolution.normalized_adjacency`.\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n\n    ",
+    "name": "GCSConv",
+    "base": "Conv",
+    "docstring": "\n    A `GraphConv` layer with a trainable skip connection.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    This layer computes:\n    $$\n        \\Z' = \\D^{-1/2} \\A \\D^{-1/2} \\X \\W_1 + \\X \\W_2 + \\b\n    $$\n    where \\( \\A \\) does not have self-loops.\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Normalized adjacency matrix of shape `([batch], n_nodes, n_nodes)`; can be computed\n    with `spektral.utils.convolution.normalized_adjacency`.\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n\n    ",
     "arguments": [
       {
         "name": "self",
@@ -5644,13 +5343,409 @@
         "default": null
       }
     ],
-    "file": "spektral/layers/convolutional/graph_conv_skip.py",
+    "file": "spektral/layers/convolutional/gcs_conv.py",
+    "aliases": []
+  },
+  {
+    "name": "GINConv",
+    "base": "MessagePassing",
+    "docstring": "\n    A Graph Isomorphism Network (GIN) from the paper\n\n    > [How Powerful are Graph Neural Networks?](https://arxiv.org/abs/1810.00826)<br>\n    > Keyulu Xu et al.\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes for each node \\(i\\):\n    $$\n        \\x_i' = \\textrm{MLP}\\big( (1 + \\epsilon) \\cdot \\x_i + \\sum\\limits_{j\n        \\in \\mathcal{N}(i)} \\x_j \\big)\n    $$\n    where \\(\\textrm{MLP}\\) is a multi-layer perceptron.\n\n    **Input**\n\n    - Node features of shape `(n_nodes, n_node_features)`;\n    - Binary adjacency matrix of shape `(n_nodes, n_nodes)`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `epsilon`: unnamed parameter, see the original paper and the equation\n    above.\n    By setting `epsilon=None`, the parameter will be learned (default behaviour).\n    If given as a value, the parameter will stay fixed.\n    - `mlp_hidden`: list of integers, number of hidden units for each hidden\n    layer in the MLP (if None, the MLP has only the output layer);\n    - `mlp_activation`: activation for the MLP layers;\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "channels",
+        "default": null
+      },
+      {
+        "name": "epsilon",
+        "default": "None"
+      },
+      {
+        "name": "mlp_hidden",
+        "default": "None"
+      },
+      {
+        "name": "mlp_activation",
+        "default": "relu"
+      },
+      {
+        "name": "aggregate",
+        "default": "sum"
+      },
+      {
+        "name": "activation",
+        "default": "None"
+      },
+      {
+        "name": "use_bias",
+        "default": "True",
+        "type": "boolean"
+      },
+      {
+        "name": "kernel_initializer",
+        "default": "glorot_uniform"
+      },
+      {
+        "name": "bias_initializer",
+        "default": "zeros"
+      },
+      {
+        "name": "kernel_regularizer",
+        "default": "None"
+      },
+      {
+        "name": "bias_regularizer",
+        "default": "None"
+      },
+      {
+        "name": "activity_regularizer",
+        "default": "None"
+      },
+      {
+        "name": "kernel_constraint",
+        "default": "None"
+      },
+      {
+        "name": "bias_constraint",
+        "default": "None"
+      }
+    ],
+    "abstract": false,
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "file": "spektral/layers/convolutional/gin_conv.py",
+    "aliases": []
+  },
+  {
+    "name": "GatedGraphConv",
+    "base": "MessagePassing",
+    "docstring": "\n    A gated graph convolutional layer from the paper\n\n    > [Gated Graph Sequence Neural Networks](https://arxiv.org/abs/1511.05493)<br>\n    > Yujia Li et al.\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes \\(\\x_i' = \\h^{(L)}_i\\) where:\n    $$\n    \\begin{align}\n        & \\h^{(0)}_i = \\x_i \\| \\mathbf{0} \\\\\n        & \\m^{(l)}_i = \\sum\\limits_{j \\in \\mathcal{N}(i)} \\h^{(l - 1)}_j \\W \\\\\n        & \\h^{(l)}_i = \\textrm{GRU} \\left(\\m^{(l)}_i, \\h^{(l - 1)}_i \\right) \\\\\n    \\end{align}\n    $$\n    where \\(\\textrm{GRU}\\) is a gated recurrent unit cell.\n\n    **Input**\n\n    - Node features of shape `(n_nodes, n_node_features)`; note that `n_node_features` must be smaller or equal\n    than `channels`.\n    - Binary adjacency matrix of shape `(n_nodes, n_nodes)`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `n_layers`: integer, number of iterations with the GRU cell;\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "channels",
+        "default": null
+      },
+      {
+        "name": "n_layers",
+        "default": null
+      },
+      {
+        "name": "activation",
+        "default": "None"
+      },
+      {
+        "name": "use_bias",
+        "default": "True",
+        "type": "boolean"
+      },
+      {
+        "name": "kernel_initializer",
+        "default": "glorot_uniform"
+      },
+      {
+        "name": "bias_initializer",
+        "default": "zeros"
+      },
+      {
+        "name": "kernel_regularizer",
+        "default": "None"
+      },
+      {
+        "name": "bias_regularizer",
+        "default": "None"
+      },
+      {
+        "name": "activity_regularizer",
+        "default": "None"
+      },
+      {
+        "name": "kernel_constraint",
+        "default": "None"
+      },
+      {
+        "name": "bias_constraint",
+        "default": "None"
+      }
+    ],
+    "abstract": false,
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "file": "spektral/layers/convolutional/gated_graph_conv.py",
+    "aliases": []
+  },
+  {
+    "name": "GeneralConv",
+    "base": "MessagePassing",
+    "docstring": "\n    A general convolutional layer from the paper\n\n    > [Design Space for Graph Neural Networks](https://arxiv.org/abs/2011.08843)<br>\n    > Jiaxuan You et al.\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes:\n    $$\n        \\x_i' = \\mathrm{Agg} \\left( \\left\\{ \\mathrm{Act} \\left( \\mathrm{Dropout}\n        \\left( \\mathrm{BN} \\left( \\x_j \\W + \\b \\right) \\right) \\right),\n        j \\in \\mathcal{N}(i) \\right\\} \\right)\n    $$\n\n    where \\( \\mathrm{Agg} \\) is an aggregation function for the messages,\n    \\( \\mathrm{Act} \\) is an activation function, \\( \\mathrm{Dropout} \\)\n    applies dropout to the node features, and \\( \\mathrm{BN} \\) applies batch\n    normalization to the node features.\n\n    This layer supports the PReLU activation via the 'prelu' keyword.\n\n    The default parameters of this layer are selected according to the best\n    results obtained in the paper, and should provide a good performance on\n    many node-level and graph-level tasks, without modifications.\n    The defaults are as follows:\n\n    - 256 channels\n    - Batch normalization\n    - No dropout\n    - PReLU activation\n    - Sum aggregation\n\n    If you are uncertain about which layers to use for your GNN, this is a\n    safe choice. Check out the original paper for more specific configurations.\n\n    **Input**\n\n    - Node features of shape `(n_nodes, n_node_features)`;\n    - Binary adjacency matrix of shape `(n_nodes, n_nodes)`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `batch_norm`: bool, whether to use batch normalization;\n    - `dropout`: float, dropout rate;\n    - `aggregate`: string or callable, an aggregation function. Supported\n    aggregations: 'sum', 'mean', 'max', 'min', 'prod'.\n    - `activation`: activation function. This layer also supports the\n    advanced activation PReLU by passing `activation='prelu'`.\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "channels",
+        "default": 256
+      },
+      {
+        "name": "batch_norm",
+        "default": "True",
+        "type": "boolean"
+      },
+      {
+        "name": "dropout",
+        "default": 0.0
+      },
+      {
+        "name": "aggregate",
+        "default": "sum"
+      },
+      {
+        "name": "activation",
+        "default": "prelu"
+      },
+      {
+        "name": "use_bias",
+        "default": "True",
+        "type": "boolean"
+      },
+      {
+        "name": "kernel_initializer",
+        "default": "glorot_uniform"
+      },
+      {
+        "name": "bias_initializer",
+        "default": "zeros"
+      },
+      {
+        "name": "kernel_regularizer",
+        "default": "None"
+      },
+      {
+        "name": "bias_regularizer",
+        "default": "None"
+      },
+      {
+        "name": "activity_regularizer",
+        "default": "None"
+      },
+      {
+        "name": "kernel_constraint",
+        "default": "None"
+      },
+      {
+        "name": "bias_constraint",
+        "default": "None"
+      }
+    ],
+    "abstract": false,
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "file": "spektral/layers/convolutional/general_conv.py",
+    "aliases": []
+  },
+  {
+    "name": "GlobalAttentionPool",
+    "base": "GlobalPool",
+    "docstring": "\n    A gated attention global pooling layer from the paper\n\n    > [Gated Graph Sequence Neural Networks](https://arxiv.org/abs/1511.05493)<br>\n    > Yujia Li et al.\n\n    This layer computes:\n    $$\n        \\X' = \\sum\\limits_{i=1}^{N} (\\sigma(\\X \\W_1 + \\b_1) \\odot (\\X \\W_2 + \\b_2))_i\n    $$\n    where \\(\\sigma\\) is the sigmoid activation function.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Graph IDs of shape `(n_nodes, )` (only in disjoint mode);\n\n    **Output**\n\n    - Pooled node features of shape `(batch, channels)` (if single mode,\n    shape will be `(1, channels)`).\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `bias_initializer`: initializer for the bias vectors;\n    - `kernel_regularizer`: regularization applied to the kernel matrices;\n    - `bias_regularizer`: regularization applied to the bias vectors;\n    - `kernel_constraint`: constraint applied to the kernel matrices;\n    - `bias_constraint`: constraint applied to the bias vectors.\n    ",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "channels",
+        "default": null
+      },
+      {
+        "name": "kernel_initializer",
+        "default": "glorot_uniform"
+      },
+      {
+        "name": "bias_initializer",
+        "default": "zeros"
+      },
+      {
+        "name": "kernel_regularizer",
+        "default": "None"
+      },
+      {
+        "name": "bias_regularizer",
+        "default": "None"
+      },
+      {
+        "name": "kernel_constraint",
+        "default": "None"
+      },
+      {
+        "name": "bias_constraint",
+        "default": "None"
+      }
+    ],
+    "abstract": false,
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "file": "spektral/layers/pooling/global_pool.py",
+    "aliases": []
+  },
+  {
+    "name": "GlobalAttnSumPool",
+    "base": "GlobalPool",
+    "docstring": "\n    A node-attention global pooling layer. Pools a graph by learning attention\n    coefficients to sum node features.\n\n    This layer computes:\n    $$\n        \\alpha = \\textrm{softmax}( \\X \\a); \\\\\n        \\X' = \\sum\\limits_{i=1}^{N} \\alpha_i \\cdot \\X_i\n    $$\n    where \\(\\a \\in \\mathbb{R}^F\\) is a trainable vector. Note that the softmax\n    is applied across nodes, and not across features.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Graph IDs of shape `(n_nodes, )` (only in disjoint mode);\n\n    **Output**\n\n    - Pooled node features of shape `(batch, n_node_features)` (if single mode, shape will\n    be `(1, n_node_features)`).\n\n    **Arguments**\n\n    - `attn_kernel_initializer`: initializer for the attention weights;\n    - `attn_kernel_regularizer`: regularization applied to the attention kernel\n    matrix;\n    - `attn_kernel_constraint`: constraint applied to the attention kernel\n    matrix;\n    ",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "attn_kernel_initializer",
+        "default": "glorot_uniform"
+      },
+      {
+        "name": "attn_kernel_regularizer",
+        "default": "None"
+      },
+      {
+        "name": "attn_kernel_constraint",
+        "default": "None"
+      }
+    ],
+    "abstract": false,
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "file": "spektral/layers/pooling/global_pool.py",
+    "aliases": []
+  },
+  {
+    "name": "GlobalAvgPool",
+    "base": "GlobalPool",
+    "docstring": "\n    An average pooling layer. Pools a graph by computing the average of its node\n    features.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Graph IDs of shape `(n_nodes, )` (only in disjoint mode);\n\n    **Output**\n\n    - Pooled node features of shape `(batch, n_node_features)` (if single mode, shape will\n    be `(1, n_node_features)`).\n\n    **Arguments**\n\n    None.\n\n    ",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      }
+    ],
+    "abstract": false,
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "file": "spektral/layers/pooling/global_pool.py",
+    "aliases": []
+  },
+  {
+    "name": "GlobalMaxPool",
+    "base": "GlobalPool",
+    "docstring": "\n    A max pooling layer. Pools a graph by computing the maximum of its node\n    features.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Graph IDs of shape `(n_nodes, )` (only in disjoint mode);\n\n    **Output**\n\n    - Pooled node features of shape `(batch, n_node_features)` (if single mode, shape will\n    be `(1, n_node_features)`).\n\n    **Arguments**\n\n    None.\n\n    ",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      }
+    ],
+    "abstract": false,
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "file": "spektral/layers/pooling/global_pool.py",
+    "aliases": []
+  },
+  {
+    "name": "GlobalSumPool",
+    "base": "GlobalPool",
+    "docstring": "\n    A global sum pooling layer. Pools a graph by computing the sum of its node\n    features.\n\n    **Mode**: single, disjoint, mixed, batch.\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Graph IDs of shape `(n_nodes, )` (only in disjoint mode);\n\n    **Output**\n\n    - Pooled node features of shape `(batch, n_node_features)` (if single mode, shape will\n    be `(1, n_node_features)`).\n\n    **Arguments**\n\n    None.\n\n    ",
+    "arguments": [
+      {
+        "name": "self",
+        "default": null
+      }
+    ],
+    "abstract": false,
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "self",
+        "default": null
+      },
+      {
+        "name": "inputs",
+        "default": null
+      }
+    ],
+    "file": "spektral/layers/pooling/global_pool.py",
     "aliases": []
   },
   {
     "name": "GraphSageConv",
-    "base": "GraphConv",
-    "docstring": "\n    A GraphSAGE layer as presented by\n    [Hamilton et al. (2017)](https://arxiv.org/abs/1706.02216).\n\n    **Mode**: single, disjoint.\n\n    This layer computes:\n    $$\n        \\Z = \\big[ \\textrm{AGGREGATE}(\\X) \\| \\X \\big] \\W + \\b; \\\\\n        \\Z = \\frac{\\Z}{\\|\\Z\\|}\n    $$\n    where \\( \\textrm{AGGREGATE} \\) is a function to aggregate a node's\n    neighbourhood. The supported aggregation methods are: sum, mean,\n    max, min, and product.\n\n    **Input**\n\n    - Node features of shape `(N, F)`;\n    - Binary adjacency matrix of shape `(N, N)`.\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `aggregate_op`: str, aggregation method to use (`'sum'`, `'mean'`,\n    `'max'`, `'min'`, `'prod'`);\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n\n    ",
+    "base": "MessagePassing",
+    "docstring": "\n    A GraphSAGE layer from the paper\n\n    > [Inductive Representation Learning on Large Graphs](https://arxiv.org/abs/1706.02216)<br>\n    > William L. Hamilton et al.\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes:\n    $$\n        \\X' = \\big[ \\textrm{AGGREGATE}(\\X) \\| \\X \\big] \\W + \\b; \\\\\n        \\X' = \\frac{\\X'}{\\|\\X'\\|}\n    $$\n    where \\( \\textrm{AGGREGATE} \\) is a function to aggregate a node's\n    neighbourhood. The supported aggregation methods are: sum, mean,\n    max, min, and product.\n\n    **Input**\n\n    - Node features of shape `(n_nodes, n_node_features)`;\n    - Binary adjacency matrix of shape `(n_nodes, n_nodes)`.\n\n    **Output**\n\n    - Node features with the same shape as the input, but with the last\n    dimension changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: number of output channels;\n    - `aggregate_op`: str, aggregation method to use (`'sum'`, `'mean'`,\n    `'max'`, `'min'`, `'prod'`);\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n\n    ",
     "arguments": [
       {
         "name": "self",
@@ -5661,7 +5756,7 @@
         "default": null
       },
       {
-        "name": "aggregate_op",
+        "name": "aggregate",
         "default": "mean"
       },
       {
@@ -5720,7 +5815,7 @@
   {
     "name": "InnerProduct",
     "base": "Layer",
-    "docstring": "\n    Computes the inner product between elements of a 2d Tensor:\n    $$\n        \\langle \\x, \\x \\rangle = \\x\\x^\\top.\n    $$\n\n    **Mode**: single.\n\n    **Input**\n\n    - Tensor of shape `(N, M)`;\n\n    **Output**\n\n    - Tensor of shape `(N, N)`.\n\n    :param trainable_kernel: add a trainable square matrix between the inner\n    product (e.g., `X @ W @ X.T`);\n    :param activation: activation function to use;\n    :param kernel_initializer: initializer for the weights;\n    :param kernel_regularizer: regularization applied to the kernel;\n    :param kernel_constraint: constraint applied to the kernel;\n    ",
+    "docstring": "\n    Computes the inner product between elements of a 2d Tensor:\n    $$\n        \\langle \\x, \\x \\rangle = \\x\\x^\\top.\n    $$\n\n    **Mode**: single.\n\n    **Input**\n\n    - Tensor of shape `(N, M)`;\n\n    **Output**\n\n    - Tensor of shape `(N, N)`.\n\n    :param trainable_kernel: add a trainable square matrix between the inner\n    product (e.g., `X @ W @ X.T`);\n    :param activation: activation function;\n    :param kernel_initializer: initializer for the weights;\n    :param kernel_regularizer: regularization applied to the kernel;\n    :param kernel_constraint: constraint applied to the kernel;\n    ",
     "arguments": [
       {
         "name": "self",
@@ -5766,7 +5861,7 @@
   {
     "name": "MessagePassing",
     "base": "Layer",
-    "docstring": "\n    A general class for message passing as presented by\n    [Gilmer et al. (2017)](https://arxiv.org/abs/1704.01212).\n\n    **Mode**: single, disjoint.\n\n    **This layer and all of its extensions expect a sparse adjacency matrix.**\n\n    This layer computes:\n    $$\n        \\Z_i = \\gamma \\left( \\X_i, \\square_{j \\in \\mathcal{N}(i)} \\,\n        \\phi \\left(\\X_i, \\X_j, \\E_{j,i} \\right) \\right),\n    $$\n    \n    where \\( \\gamma \\) is a differentiable update function, \\( \\phi \\) is a\n    differentiable message function, \\( \\square \\) is a permutation-invariant\n    function to aggregate the messages (like the sum or the average), and\n    \\(\\E_{ij}\\) is the edge attribute of edge i-j.\n\n    By extending this class, it is possible to create any message-passing layer\n    in single/disjoint mode.\n\n    **API:**\n\n    - `propagate(X, A, E=None, **kwargs)`: propagate the messages and computes\n    embeddings for each node in the graph. `kwargs` will be propagated as\n    keyword arguments to `message()`, `aggregate()` and `update()`.\n    - `message(X, **kwargs)`: computes messages, equivalent to \\(\\phi\\) in the\n    definition.\n    Any extra keyword argument of this function will be  populated by\n    `propagate()` if a matching keyword is found.\n    Use `self.get_i()` and  `self.get_j()` to gather the elements using the\n    indices `i` or `j` of the adjacency matrix (e.g, `self.get_j(X)` will get\n    the features of the neighbours).\n    - `aggregate(messages, **kwargs)`: aggregates the messages, equivalent to\n    \\(\\square\\) in the definition.\n    The behaviour of this function can also be controlled using the `aggregate`\n    keyword in the constructor of the layer (supported aggregations: sum, mean,\n    max, min, prod).\n    Any extra keyword argument of this function will be  populated by\n    `propagate()` if a matching keyword is found.\n    - `update(embeddings, **kwargs)`: updates the aggregated messages to obtain\n    the final node embeddings, equivalent to \\(\\gamma\\) in the definition.\n    Any extra keyword argument of this function will be  populated by\n    `propagate()` if a matching keyword is found.\n\n    **Arguments**:\n\n    - `aggregate`: string or callable, an aggregate function. This flag can be\n    used to control the behaviour of `aggregate()` wihtout re-implementing it.\n    Supported aggregations: 'sum', 'mean', 'max', 'min', 'prod'.\n    If callable, the function must have the signature `foo(updates, indices, N)`\n    and return a rank 2 tensor with shape `(N, ...)`.\n    ",
+    "docstring": "\n    A general class for message passing networks from the paper\n\n    > [Neural Message Passing for Quantum Chemistry](https://arxiv.org/abs/1704.01212)<br>\n    > Justin Gilmer et al.\n\n    **Mode**: single, disjoint.\n\n    **This layer and all of its extensions expect a sparse adjacency matrix.**\n\n    This layer computes:\n    $$\n        \\x_i' = \\gamma \\left( \\x_i, \\square_{j \\in \\mathcal{N}(i)} \\,\n        \\phi \\left(\\x_i, \\x_j, \\e_{j \\rightarrow i} \\right) \\right),\n    $$\n    \n    where \\( \\gamma \\) is a differentiable update function, \\( \\phi \\) is a\n    differentiable message function, \\( \\square \\) is a permutation-invariant\n    function to aggregate the messages (like the sum or the average), and\n    \\(\\E_{ij}\\) is the edge attribute of edge i-j.\n\n    By extending this class, it is possible to create any message-passing layer\n    in single/disjoint mode.\n\n    **API**\n\n    ```python\n    propagate(x, a, e=None, **kwargs)\n    ```\n    Propagates the messages and computes embeddings for each node in the graph. <br>\n    Any `kwargs` will be forwarded as keyword arguments to `message()`,\n    `aggregate()` and `update()`.\n\n    ```python\n    message(x, **kwargs)\n    ```\n    Computes messages, equivalent to \\(\\phi\\) in the definition. <br>\n    Any extra keyword argument of this function will be populated by\n    `propagate()` if a matching keyword is found. <br>\n    Use `self.get_i()` and  `self.get_j()` to gather the elements using the\n    indices `i` or `j` of the adjacency matrix. Equivalently, you can access\n    the indices themselves via the `index_i` and `index_j` attributes.\n\n    ```python\n    aggregate(messages, **kwargs)\n    ```\n    Aggregates the messages, equivalent to \\(\\square\\) in the definition. <br>\n    The behaviour of this function can also be controlled using the `aggregate`\n    keyword in the constructor of the layer (supported aggregations: sum, mean,\n    max, min, prod). <br>\n    Any extra keyword argument of this function will be  populated by\n    `propagate()` if a matching keyword is found.\n\n    ```python\n    update(embeddings, **kwargs)\n    ```\n    Updates the aggregated messages to obtain the final node embeddings,\n    equivalent to \\(\\gamma\\) in the definition. <br>\n    Any extra keyword argument of this function will be  populated by\n    `propagate()` if a matching keyword is found.\n\n    **Arguments**:\n\n    - `aggregate`: string or callable, an aggregation function. This flag can be\n    used to control the behaviour of `aggregate()` wihtout re-implementing it.\n    Supported aggregations: 'sum', 'mean', 'max', 'min', 'prod'.\n    If callable, the function must have the signature `foo(updates, indices, n_nodes)`\n    and return a rank 2 tensor with shape `(n_nodes, ...)`.\n    - `kwargs`: additional keyword arguments specific to Keras' Layers, like\n    regularizers, initializers, constraints, etc.\n    ",
     "arguments": [
       {
         "name": "self",
@@ -5794,8 +5889,8 @@
   },
   {
     "name": "MinCutPool",
-    "base": "Layer",
-    "docstring": "\n    A minCUT pooling layer as presented by\n    [Bianchi et al. (2019)](https://arxiv.org/abs/1907.00481).\n\n    **Mode**: batch.\n\n    This layer computes a soft clustering \\(\\S\\) of the input graphs using a MLP,\n    and reduces graphs as follows:\n\n    $$\n        \\S = \\textrm{MLP}(\\X); \\\\\n        \\A' = \\S^\\top \\A \\S; \\X' = \\S^\\top \\X;\n    $$\n\n    where MLP is a multi-layer perceptron with softmax output.\n    Two auxiliary loss terms are also added to the model: the _minCUT loss_\n    $$\n        - \\frac{ \\mathrm{Tr}(\\S^\\top \\A \\S) }{ \\mathrm{Tr}(\\S^\\top \\D \\S) }\n    $$\n    and the _orthogonality loss_\n    $$\n        \\left\\|\n            \\frac{\\S^\\top \\S}{\\| \\S^\\top \\S \\|_F}\n            - \\frac{\\I_K}{\\sqrt{K}}\n        \\right\\|_F.\n    $$\n\n    The layer can be used without a supervised loss, to compute node clustering\n    simply by minimizing the two auxiliary losses.\n\n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Binary adjacency matrix of shape `([batch], N, N)`;\n\n    **Output**\n\n    - Reduced node features of shape `([batch], K, F)`;\n    - Reduced adjacency matrix of shape `([batch], K, K)`;\n    - If `return_mask=True`, the soft clustering matrix of shape `([batch], N, K)`.\n\n    **Arguments**\n\n    - `k`: number of nodes to keep;\n    - `mlp_hidden`: list of integers, number of hidden units for each hidden\n    layer in the MLP used to compute cluster assignments (if None, the MLP has\n    only the output layer);\n    - `mlp_activation`: activation for the MLP layers;\n    - `return_mask`: boolean, whether to return the cluster assignment matrix;\n    - `kernel_initializer`: initializer for the weights;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `kernel_constraint`: constraint applied to the weights;\n    ",
+    "base": "Pool",
+    "docstring": "\n    A MinCut pooling layer from the paper\n\n    > [Spectral Clustering with Graph Neural Networks for Graph Pooling](https://arxiv.org/abs/1907.00481)<br>\n    > Filippo Maria Bianchi et al.\n\n    **Mode**: batch.\n\n    This layer computes a soft clustering \\(\\S\\) of the input graphs using a MLP,\n    and reduces graphs as follows:\n    $$\n        \\S = \\textrm{MLP}(\\X); \\\\\n        \\A' = \\S^\\top \\A \\S; \\X' = \\S^\\top \\X;\n    $$\n    where MLP is a multi-layer perceptron with softmax output.\n    Two auxiliary loss terms are also added to the model: the _minCUT loss_\n    $$\n        - \\frac{ \\mathrm{Tr}(\\S^\\top \\A \\S) }{ \\mathrm{Tr}(\\S^\\top \\D \\S) }\n    $$\n    and the _orthogonality loss_\n    $$\n        \\left\\|\n            \\frac{\\S^\\top \\S}{\\| \\S^\\top \\S \\|_F}\n            - \\frac{\\I_K}{\\sqrt{K}}\n        \\right\\|_F.\n    $$\n\n    The layer can be used without a supervised loss, to compute node clustering\n    simply by minimizing the two auxiliary losses.\n\n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Symmetrically normalized adjacency matrix of shape `([batch], n_nodes, n_nodes)`;\n\n    **Output**\n\n    - Reduced node features of shape `([batch], K, n_node_features)`;\n    - Reduced adjacency matrix of shape `([batch], K, K)`;\n    - If `return_mask=True`, the soft clustering matrix of shape `([batch], n_nodes, K)`.\n\n    **Arguments**\n\n    - `k`: number of nodes to keep;\n    - `mlp_hidden`: list of integers, number of hidden units for each hidden\n    layer in the MLP used to compute cluster assignments (if None, the MLP has\n    only the output layer);\n    - `mlp_activation`: activation for the MLP layers;\n    - `return_mask`: boolean, whether to return the cluster assignment matrix;\n    - `use_bias`: use bias in the MLP;\n    - `kernel_initializer`: initializer for the weights of the MLP;\n    - `bias_initializer`: initializer for the bias of the MLP;\n    - `kernel_regularizer`: regularization applied to the weights of the MLP;\n    - `bias_regularizer`: regularization applied to the bias of the MLP;\n    - `kernel_constraint`: constraint applied to the weights of the MLP;\n    - `bias_constraint`: constraint applied to the bias of the MLP;\n    ",
     "arguments": [
       {
         "name": "self",
@@ -5870,7 +5965,7 @@
   {
     "name": "MinkowskiProduct",
     "base": "Layer",
-    "docstring": "\n    Computes the hyperbolic inner product between elements of a rank 2 Tensor:\n    $$\n        \\langle \\x, \\x \\rangle = \\x \\,\n        \\begin{pmatrix}\n            \\I_{d \\times d} & 0 \\\\\n            0              & -1\n        \\end{pmatrix} \\, \\x^\\top.\n    $$\n\n    **Mode**: single.\n\n    **Input**\n\n    - Tensor of shape `(N, M)`;\n\n    **Output**\n\n    - Tensor of shape `(N, N)`.\n\n    :param input_dim_1: first dimension of the input Tensor; set this if you\n    encounter issues with shapes in your model, in order to provide an explicit\n    output shape for your layer.\n    :param activation: activation function to use;\n    ",
+    "docstring": "\n    Computes the hyperbolic inner product between elements of a rank 2 Tensor:\n    $$\n        \\langle \\x, \\x \\rangle = \\x \\,\n        \\begin{pmatrix}\n            \\I_{d \\times d} & 0 \\\\\n            0              & -1\n        \\end{pmatrix} \\, \\x^\\top.\n    $$\n\n    **Mode**: single.\n\n    **Input**\n\n    - Tensor of shape `(N, M)`;\n\n    **Output**\n\n    - Tensor of shape `(N, N)`.\n\n    :param input_dim_1: first dimension of the input Tensor; set this if you\n    encounter issues with shapes in your model, in order to provide an explicit\n    output shape for your layer.\n    :param activation: activation function;\n    ",
     "arguments": [
       {
         "name": "self",
@@ -5903,7 +5998,7 @@
   {
     "name": "SAGPool",
     "base": "TopKPool",
-    "docstring": "\n    A self-attention graph pooling layer as presented by\n    [Lee et al. (2019)](https://arxiv.org/abs/1904.08082).\n\n    **Mode**: single, disjoint.\n\n    This layer computes the following operations:\n\n    $$\n    \\y = \\textrm{GNN}(\\A, \\X); \\;\\;\\;\\;\n    \\i = \\textrm{rank}(\\y, K); \\;\\;\\;\\;\n    \\X' = (\\X \\odot \\textrm{tanh}(\\y))_\\i; \\;\\;\\;\\;\n    \\A' = \\A_{\\i, \\i}\n    $$\n\n    where \\( \\textrm{rank}(\\y, K) \\) returns the indices of the top K values of\n    \\(\\y\\), and \\(\\textrm{GNN}\\) consists of one GraphConv layer with no\n    activation. \\(K\\) is defined for each graph as a fraction of the number of\n    nodes.\n\n    This layer temporarily makes the adjacency matrix dense in order to compute\n    \\(\\A'\\).\n    If memory is not an issue, considerable speedups can be achieved by using\n    dense graphs directly.\n    Converting a graph from sparse to dense and back to sparse is an expensive\n    operation.\n\n    **Input**\n\n    - Node features of shape `(N, F)`;\n    - Binary adjacency matrix of shape `(N, N)`;\n    - Graph IDs of shape `(N, )` (only in disjoint mode);\n\n    **Output**\n\n    - Reduced node features of shape `(ratio * N, F)`;\n    - Reduced adjacency matrix of shape `(ratio * N, ratio * N)`;\n    - Reduced graph IDs of shape `(ratio * N, )` (only in disjoint mode);\n    - If `return_mask=True`, the binary pooling mask of shape `(ratio * N, )`.\n\n    **Arguments**\n\n    - `ratio`: float between 0 and 1, ratio of nodes to keep in each graph;\n    - `return_mask`: boolean, whether to return the binary mask used for pooling;\n    - `sigmoid_gating`: boolean, use a sigmoid gating activation instead of a\n        tanh;\n    - `kernel_initializer`: initializer for the weights;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `kernel_constraint`: constraint applied to the weights;\n    ",
+    "docstring": "\n    A self-attention graph pooling layer (SAG) from the paper\n\n    > [Self-Attention Graph Pooling](https://arxiv.org/abs/1904.08082)<br>\n    > Junhyun Lee et al.\n\n    **Mode**: single, disjoint.\n\n    This layer computes the following operations:\n    $$\n        \\y = \\textrm{GNN}(\\A, \\X); \\;\\;\\;\\;\n        \\i = \\textrm{rank}(\\y, K); \\;\\;\\;\\;\n        \\X' = (\\X \\odot \\textrm{tanh}(\\y))_\\i; \\;\\;\\;\\;\n        \\A' = \\A_{\\i, \\i}\n    $$\n\n    where \\( \\textrm{rank}(\\y, K) \\) returns the indices of the top K values of\n    \\(\\y\\), and \\(\\textrm{GNN}\\) consists of one GraphConv layer with no\n    activation. \\(K\\) is defined for each graph as a fraction of the number of\n    nodes.\n\n    This layer temporarily makes the adjacency matrix dense in order to compute\n    \\(\\A'\\).\n    If memory is not an issue, considerable speedups can be achieved by using\n    dense graphs directly.\n    Converting a graph from sparse to dense and back to sparse is an expensive\n    operation.\n\n    **Input**\n\n    - Node features of shape `(n_nodes, n_node_features)`;\n    - Binary adjacency matrix of shape `(n_nodes, n_nodes)`;\n    - Graph IDs of shape `(n_nodes, )` (only in disjoint mode);\n\n    **Output**\n\n    - Reduced node features of shape `(ratio * n_nodes, n_node_features)`;\n    - Reduced adjacency matrix of shape `(ratio * n_nodes, ratio * n_nodes)`;\n    - Reduced graph IDs of shape `(ratio * n_nodes, )` (only in disjoint mode);\n    - If `return_mask=True`, the binary pooling mask of shape `(ratio * n_nodes, )`.\n\n    **Arguments**\n\n    - `ratio`: float between 0 and 1, ratio of nodes to keep in each graph;\n    - `return_mask`: boolean, whether to return the binary mask used for pooling;\n    - `sigmoid_gating`: boolean, use a sigmoid gating activation instead of a\n        tanh;\n    - `kernel_initializer`: initializer for the weights;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `kernel_constraint`: constraint applied to the weights;\n    ",
     "arguments": [
       {
         "name": "self",
@@ -5954,7 +6049,7 @@
   {
     "name": "SortPool",
     "base": "Layer",
-    "docstring": "\n    A SortPool layer as described by\n    [Zhang et al](https://www.cse.wustl.edu/~muhan/papers/AAAI_2018_DGCNN.pdf).\n    This layers takes a graph signal \\(\\mathbf{X}\\) and returns the topmost k\n    rows according to the last column.\n    If \\(\\mathbf{X}\\) has less than k rows, the result is zero-padded to k.\n    \n    **Mode**: single, disjoint, batch.\n    \n    **Input**\n\n    - Node features of shape `([batch], N, F)`;\n    - Graph IDs of shape `(N, )` (only in disjoint mode);\n\n    **Output**\n\n    - Pooled node features of shape `(batch, k, F)` (if single mode, shape will\n    be `(1, k, F)`).\n\n    **Arguments**\n\n    - `k`: integer, number of nodes to keep;\n    ",
+    "docstring": "\n    A SortPool layer as described by\n    [Zhang et al](https://www.cse.wustl.edu/~muhan/papers/AAAI_2018_DGCNN.pdf).\n    This layers takes a graph signal \\(\\mathbf{X}\\) and returns the topmost k\n    rows according to the last column.\n    If \\(\\mathbf{X}\\) has less than k rows, the result is zero-padded to k.\n    \n    **Mode**: single, disjoint, batch.\n    \n    **Input**\n\n    - Node features of shape `([batch], n_nodes, n_node_features)`;\n    - Graph IDs of shape `(n_nodes, )` (only in disjoint mode);\n\n    **Output**\n\n    - Pooled node features of shape `(batch, k, n_node_features)` (if single mode, shape will\n    be `(1, k, n_node_features)`).\n\n    **Arguments**\n\n    - `k`: integer, number of nodes to keep;\n    ",
     "arguments": [
       {
         "name": "self",
@@ -6024,7 +6119,7 @@
   {
     "name": "TAGConv",
     "base": "MessagePassing",
-    "docstring": "\n    A Topology Adaptive Graph Convolutional layer (TAG) as presented by\n    [Du et al. (2017)](https://arxiv.org/abs/1710.10370).\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes:\n    $$\n        \\Z = \\sum\\limits_{k=0}^{K} \\D^{-1/2}\\A^k\\D^{-1/2}\\X\\W^{(k)}\n    $$\n\n    **Input**\n\n    - Node features of shape `(N, F)`;\n    - Binary adjacency matrix of shape `(N, N)`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `K`: the order of the layer (i.e., the layer will consider a K-hop\n    neighbourhood for each node);\n    - `activation`: activation function to use;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
+    "docstring": "\n    A Topology Adaptive Graph Convolutional layer (TAG) from the paper\n\n    > [Topology Adaptive Graph Convolutional Networks](https://arxiv.org/abs/1710.10370)<br>\n    > Jian Du et al.\n\n    **Mode**: single, disjoint.\n\n    **This layer expects a sparse adjacency matrix.**\n\n    This layer computes:\n    $$\n        \\Z = \\sum\\limits_{k=0}^{K} \\D^{-1/2}\\A^k\\D^{-1/2}\\X\\W^{(k)}\n    $$\n\n    **Input**\n\n    - Node features of shape `(n_nodes, n_node_features)`;\n    - Binary adjacency matrix of shape `(n_nodes, n_nodes)`.\n\n    **Output**\n\n    - Node features with the same shape of the input, but the last dimension\n    changed to `channels`.\n\n    **Arguments**\n\n    - `channels`: integer, number of output channels;\n    - `K`: the order of the layer (i.e., the layer will consider a K-hop\n    neighbourhood for each node);\n    - `activation`: activation function;\n    - `use_bias`: bool, add a bias vector to the output;\n    - `kernel_initializer`: initializer for the weights;\n    - `bias_initializer`: initializer for the bias vector;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `bias_regularizer`: regularization applied to the bias vector;\n    - `activity_regularizer`: regularization applied to the output;\n    - `kernel_constraint`: constraint applied to the weights;\n    - `bias_constraint`: constraint applied to the bias vector.\n    ",
     "arguments": [
       {
         "name": "self",
@@ -6037,6 +6132,10 @@
       {
         "name": "K",
         "default": 3
+      },
+      {
+        "name": "aggregate",
+        "default": "sum"
       },
       {
         "name": "activation",
@@ -6093,8 +6192,8 @@
   },
   {
     "name": "TopKPool",
-    "base": "Layer",
-    "docstring": "\n    A gPool/Top-K layer as presented by\n    [Gao & Ji (2019)](http://proceedings.mlr.press/v97/gao19a/gao19a.pdf) and\n    [Cangea et al. (2018)](https://arxiv.org/abs/1811.01287).\n\n    **Mode**: single, disjoint.\n\n    This layer computes the following operations:\n\n    $$\n    \\y = \\frac{\\X\\p}{\\|\\p\\|}; \\;\\;\\;\\;\n    \\i = \\textrm{rank}(\\y, K); \\;\\;\\;\\;\n    \\X' = (\\X \\odot \\textrm{tanh}(\\y))_\\i; \\;\\;\\;\\;\n    \\A' = \\A_{\\i, \\i}\n    $$\n\n    where \\( \\textrm{rank}(\\y, K) \\) returns the indices of the top K values of\n    \\(\\y\\), and \\(\\p\\) is a learnable parameter vector of size \\(F\\). \\(K\\) is\n    defined for each graph as a fraction of the number of nodes.\n    Note that the the gating operation \\(\\textrm{tanh}(\\y)\\) (Cangea et al.)\n    can be replaced with a sigmoid (Gao & Ji).\n\n    This layer temporarily makes the adjacency matrix dense in order to compute\n    \\(\\A'\\).\n    If memory is not an issue, considerable speedups can be achieved by using\n    dense graphs directly.\n    Converting a graph from sparse to dense and back to sparse is an expensive\n    operation.\n\n    **Input**\n\n    - Node features of shape `(N, F)`;\n    - Binary adjacency matrix of shape `(N, N)`;\n    - Graph IDs of shape `(N, )` (only in disjoint mode);\n\n    **Output**\n\n    - Reduced node features of shape `(ratio * N, F)`;\n    - Reduced adjacency matrix of shape `(ratio * N, ratio * N)`;\n    - Reduced graph IDs of shape `(ratio * N, )` (only in disjoint mode);\n    - If `return_mask=True`, the binary pooling mask of shape `(ratio * N, )`.\n\n    **Arguments**\n\n    - `ratio`: float between 0 and 1, ratio of nodes to keep in each graph;\n    - `return_mask`: boolean, whether to return the binary mask used for pooling;\n    - `sigmoid_gating`: boolean, use a sigmoid gating activation instead of a\n        tanh;\n    - `kernel_initializer`: initializer for the weights;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `kernel_constraint`: constraint applied to the weights;\n    ",
+    "base": "Pool",
+    "docstring": "\n    A gPool/Top-K layer from the papers\n\n    > [Graph U-Nets](https://arxiv.org/abs/1905.05178)<br>\n    > Hongyang Gao and Shuiwang Ji\n\n    and\n\n    > [Towards Sparse Hierarchical Graph Classifiers](https://arxiv.org/abs/1811.01287)<br>\n    > C\u0103t\u0103lina Cangea et al.\n\n    **Mode**: single, disjoint.\n\n    This layer computes the following operations:\n    $$\n        \\y = \\frac{\\X\\p}{\\|\\p\\|}; \\;\\;\\;\\;\n        \\i = \\textrm{rank}(\\y, K); \\;\\;\\;\\;\n        \\X' = (\\X \\odot \\textrm{tanh}(\\y))_\\i; \\;\\;\\;\\;\n        \\A' = \\A_{\\i, \\i}\n    $$\n\n    where \\( \\textrm{rank}(\\y, K) \\) returns the indices of the top K values of\n    \\(\\y\\), and \\(\\p\\) is a learnable parameter vector of size \\(F\\). \\(K\\) is\n    defined for each graph as a fraction of the number of nodes.\n    Note that the the gating operation \\(\\textrm{tanh}(\\y)\\) (Cangea et al.)\n    can be replaced with a sigmoid (Gao & Ji).\n\n    This layer temporarily makes the adjacency matrix dense in order to compute\n    \\(\\A'\\).\n    If memory is not an issue, considerable speedups can be achieved by using\n    dense graphs directly.\n    Converting a graph from sparse to dense and back to sparse is an expensive\n    operation.\n\n    **Input**\n\n    - Node features of shape `(n_nodes, n_node_features)`;\n    - Binary adjacency matrix of shape `(n_nodes, n_nodes)`;\n    - Graph IDs of shape `(n_nodes, )` (only in disjoint mode);\n\n    **Output**\n\n    - Reduced node features of shape `(ratio * n_nodes, n_node_features)`;\n    - Reduced adjacency matrix of shape `(ratio * n_nodes, ratio * n_nodes)`;\n    - Reduced graph IDs of shape `(ratio * n_nodes, )` (only in disjoint mode);\n    - If `return_mask=True`, the binary pooling mask of shape `(ratio * n_nodes, )`.\n\n    **Arguments**\n\n    - `ratio`: float between 0 and 1, ratio of nodes to keep in each graph;\n    - `return_mask`: boolean, whether to return the binary mask used for pooling;\n    - `sigmoid_gating`: boolean, use a sigmoid gating activation instead of a\n        tanh;\n    - `kernel_initializer`: initializer for the weights;\n    - `kernel_regularizer`: regularization applied to the weights;\n    - `kernel_constraint`: constraint applied to the weights;\n    ",
     "arguments": [
       {
         "name": "self",

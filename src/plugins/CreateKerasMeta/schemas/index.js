@@ -57,8 +57,42 @@ define([
                         argument.type = SpecialTypeNames
                             .find(name => argument.name.includes(name));
                     }
+
+                    if (argument.name === 'return_attn_coef') {
+                        if (layer.outputs.length === 0) {
+                            layer.outputs.push({name: 'output'});
+                        }
+                        layer.outputs.push({name: 'attn_coef'});
+                        argument.type = 'constant_attribute';
+                        argument.default = 'True';
+                    }
+
+                    // Fix case sensitivity issue
+                    if (argument.default === 'prelu') {
+                        argument.default = 'PReLU';
+                    }
                 });
             }
+
+            const isMaskPoolingLayer = [
+                'DiffPool',
+                'MinCutPool',
+                'SAGPool',
+                'TopKPool',
+            ].includes(layer.name);
+            if (isMaskPoolingLayer) {
+                layer.outputs = [
+                    {name: 'reduced_features'},
+                    {name: 'reduced_adj'},
+                    {name: 'clustering_matrix'},
+                ];
+                // TODO: if disjoint, add another input...
+                // https://github.com/danielegrattarola/spektral/blob/d720de476d04a8d9ed23570336eddfedb97dd7de/spektral/layers/pooling/topk_pool.py#L137
+                const returnMask = layer.arguments.find(arg => arg.name === 'return_mask');
+                returnMask.type = 'constant_attribute';
+                returnMask.default = 'True';
+            }
+
             return layer;
         });
 

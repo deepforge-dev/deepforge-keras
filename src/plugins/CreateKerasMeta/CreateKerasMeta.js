@@ -413,7 +413,7 @@ define([
         let position = this.getNextPositionFor(tabName);
 
         if (!tabId) {
-            var err = `No meta sheet for ${tabName}`;
+            const err = `No meta sheet for ${tabName}`;
             this.logger.error(err);
             throw new Error(err);
         }
