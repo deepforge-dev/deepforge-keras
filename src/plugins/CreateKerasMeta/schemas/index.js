@@ -93,8 +93,26 @@ define([
                 returnMask.default = 'True';
             }
 
+            addKnownAliases(layer);
+
             return layer;
         });
+
+    function addKnownAliases(layer) {
+        const KNOWN_LAYER_ALIASES = {
+            GCNConv: 'GraphConv',
+            ECCConv: 'EdgeConditionedConv',
+            GATConv: 'GraphAttention',
+            GCSConv: 'GraphConvSkip',
+            APPNPConv: 'APPNP'
+        };
+
+        const alias = KNOWN_LAYER_ALIASES[layer.name];
+        if (alias) {
+            layer.aliases.push(alias);
+        }
+        return layer;
+    }
 
     return {SpecialTypes, Layers};
 });
