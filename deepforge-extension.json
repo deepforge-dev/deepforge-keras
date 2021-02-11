@@ -6,5 +6,12 @@
     "initCode": "./init_code.py",
     "nodeTypes": [
         "Architecture"
+    ],
+    "models": [
+        {
+            "name": "LeNet",
+            "description": "A simple neural network...",
+            "path": "src/models/lenet.webgmexm"
+        }
     ]
 }
