@@ -10,8 +10,38 @@
     "models": [
         {
             "name": "LeNet",
-            "description": "A simple neural network...",
+            "description": "A simple CNN for image classfication.",
             "path": "src/models/lenet.webgmexm"
+        },
+        {
+            "name": "AlexNet",
+            "description": "A CNN trained for image classification on ImageNet in 2012.",
+            "path": "src/models/alexnet.webgmexm"
+        },
+        {
+            "name": "DCGAN",
+            "description": "Deep Convolutional Generative Adversarial Network",
+            "path": "src/models/dcgan.webgmexm"
+        },
+        {
+            "name": "Inception",
+            "description": "CNN with 27 layers for image classification.",
+            "path": "src/models/inception.webgmexm"
+        },
+        {
+            "name": "ResNet-50",
+            "description": "CNN with 50 layers leveraging skip connections.",
+            "path": "src/models/resnet50.webgmexm"
+        },
+        {
+            "name": "VGG-16",
+            "description": "Deep CNN with improvements over AlexNet on ImageNet",
+            "path": "src/models/vgg16.webgmexm"
+        },
+        {
+            "name": "Xception",
+            "description": "A variation of Inception with depthwise separable convolutions.",
+            "path": "src/models/xception.webgmexm"
         }
     ]
 }
