@@ -2,7 +2,7 @@
 /*jshint node:true, browser:true*/
 
 define([
-    'deepforge-keras/plugins/JSONImporter',
+    'webgme-json-importer/JSONImporter',
     'deepforge-keras/Constants',
     'plugin/PluginBase',
     'common/util/guid',
