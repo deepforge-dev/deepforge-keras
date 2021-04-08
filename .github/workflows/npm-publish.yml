@@ -21,7 +21,11 @@ jobs:
           node-version: 12
           registry-url: https://registry.npmjs.org/
 
-      - run: npm ci
+      - run: |
+          # See https://gist.github.com/taoyuan/bfa3ff87e4b5611b5cbe
+          git config --global url."https://github.com/".insteadOf git@github.com:
+          git config --global url."https://".insteadOf git://
+          npm ci
 
       - run: npm publish
         env:
