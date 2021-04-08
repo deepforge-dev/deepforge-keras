@@ -10,6 +10,8 @@ config.server.port = process.env.PORT ? +process.env.PORT : 8080;
 config.storage.keyType = 'rand160Bits';  // tmp hack
 
 config.requirejsPaths.keras = './src/common';
+config.requirejsPaths['webgme-json-importer'] = './node_modules/webgme-json-importer/src/common';
+
 config.plugin.allowServerExecution = true;
 validateConfig(config);
 module.exports = config;
