@@ -6,10 +6,14 @@
 
 'use strict';
 
-var env = process.env.NODE_ENV || 'default',
-    configFilename = __dirname + '/config.' + env + '.js',
-    config = require(configFilename),
-    validateConfig = require('webgme/config/validator');
+const fs = require('fs');
+const validEnvs = fs.readdirSync(__dirname)
+    .filter(name => name.startsWith('config'))
+    .map(name => name.split('.')[1]);
+const env = validEnvs.find(name => name === process.env.NODE_ENV) || 'default';
+const configFilename = __dirname + '/config.' + env + '.js';
+const config = require(configFilename);
+const validateConfig = require('webgme/config/validator');
 
 validateConfig(configFilename);
 module.exports = config;
