@@ -22,8 +22,9 @@ jobs:
           registry-url: https://registry.npmjs.org/
 
       - run: |
+          npm install -g npm
           git config --global url."https://github.com/".insteadOf git@github.com:
-          git config --global url."git+https://".insteadOf git+ssh://
+          git config --global url."https://".insteadOf git://
           npm ci
 
       - run: npm publish
