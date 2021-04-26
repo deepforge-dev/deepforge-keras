@@ -4,8 +4,6 @@ on:
   release:
     types:
       - published
-  pull_request:
-    branches: [master]
 
 jobs:
   publish:
@@ -29,4 +27,3 @@ jobs:
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        if: github.event_name == 'publish'
