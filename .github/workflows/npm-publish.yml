@@ -21,7 +21,8 @@ jobs:
           node-version: 12
           registry-url: https://registry.npmjs.org/
 
-      - run: |
+      - name: Run npm ci
+        run: |
           npm install -g npm
           npm ci
 
