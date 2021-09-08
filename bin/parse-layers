@@ -99,7 +99,6 @@ class LayerParser:
 
     def parse_layers(self):
         layers = self._parse_class_module(module_name=keras.layers)
-        layers.extend(self._parse_class_module(module_name=tf.python.keras.layers.cudnn_recurrent))
         layers.extend(self._parse_class_module(module_name=spektral.layers))
         layers = self._replace_aliases(layers)
         self.delete_key(layers)
@@ -278,7 +277,7 @@ class LayerParser:
                 else:
                     default = None if param.default is param.empty else param.default
 
-                if isinstance(default, tf.python.framework.dtypes.DType):
+                if isinstance(default, tf.dtypes.DType):
                     default = str(default)
 
                 params_list.append({

@@ -25,7 +25,7 @@
         "default": null
       }
     ],
-    "file": "tensorflow/python/keras/regularizers.py",
+    "file": "keras/regularizers.py",
     "aliases": [
       "l1"
     ]
@@ -60,7 +60,7 @@
         "default": null
       }
     ],
-    "file": "tensorflow/python/keras/regularizers.py",
+    "file": "keras/regularizers.py",
     "aliases": [
       "l1_l2"
     ]
@@ -91,7 +91,7 @@
         "default": null
       }
     ],
-    "file": "tensorflow/python/keras/regularizers.py",
+    "file": "keras/regularizers.py",
     "aliases": [
       "l2"
     ]
