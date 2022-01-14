@@ -1132,10 +1132,11 @@ define([
 
         request.onreadystatechange = function () {
             if (request.readyState === 4) {
-                if (request.status === 200) {
+                if (request.status < 400) {
                     deferred.resolve(JSON.parse(request.responseText));
                 } else {
-                    deferred.reject(request.responseText);
+                    const msg = request.responseText || `Received status code ${request.status}`;
+                    deferred.reject(new Error(msg));
                 }
             }
         };
