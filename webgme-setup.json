@@ -16,6 +16,10 @@
       "ExportKeras": {
         "src": "src/plugins/ExportKeras",
         "test": "test/plugins/ExportKeras"
+      },
+      "ExportKerasToJSON": {
+        "src": "src/plugins/ExportKerasToJSON",
+        "test": "test/plugins/ExportKerasToJSON"
       }
     },
     "visualizers": {
