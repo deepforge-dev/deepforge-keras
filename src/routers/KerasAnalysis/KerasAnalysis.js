@@ -181,8 +181,8 @@ async function analyze(userId, projectId, commitHash, namespace, nodeId) {
             throw err;
         }
     }
-    await spawn('node', args);
     try {
+        await spawn('node', args);
         const report = await worker.analyze(pythonFile);
         return report;
     } catch (errmsg) {
