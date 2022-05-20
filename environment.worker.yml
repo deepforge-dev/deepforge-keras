@@ -5,3 +5,4 @@ dependencies:
   - pip:
     - tensorflow==2.3.0
     - spektral==1.0.3
+    - dill==0.3.5.1
