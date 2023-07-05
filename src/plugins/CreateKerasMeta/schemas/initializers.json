@@ -29,14 +29,14 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "constant"
     ]
   },
   {
     "name": "GlorotNormal",
-    "base": "VarianceScaling",
+    "base": "Initializer",
     "docstring": "The Glorot normal initializer, also called Xavier normal initializer.\n\n  Also available via the shortcut function\n  `tf.keras.initializers.glorot_normal`.\n\n  Draws samples from a truncated normal distribution centered on 0 with `stddev\n  = sqrt(2 / (fan_in + fan_out))` where `fan_in` is the number of input units in\n  the weight tensor and `fan_out` is the number of output units in the weight\n  tensor.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.GlorotNormal()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.GlorotNormal()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n\n  References:\n      [Glorot et al., 2010](http://proceedings.mlr.press/v9/glorot10a.html)\n      ([pdf](http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf))\n  ",
     "arguments": [
       {
@@ -64,14 +64,14 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "glorot_normal"
     ]
   },
   {
     "name": "GlorotUniform",
-    "base": "VarianceScaling",
+    "base": "Initializer",
     "docstring": "The Glorot uniform initializer, also called Xavier uniform initializer.\n\n  Also available via the shortcut function\n  `tf.keras.initializers.glorot_uniform`.\n\n  Draws samples from a uniform distribution within `[-limit, limit]`, where\n  `limit = sqrt(6 / (fan_in + fan_out))` (`fan_in` is the number of input units\n  in the weight tensor and `fan_out` is the number of output units).\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.GlorotUniform()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.GlorotUniform()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n\n  References:\n      [Glorot et al., 2010](http://proceedings.mlr.press/v9/glorot10a.html)\n      ([pdf](http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf))\n  ",
     "arguments": [
       {
@@ -99,15 +99,15 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "glorot_uniform"
     ]
   },
   {
     "name": "HeNormal",
-    "base": "VarianceScaling",
-    "docstring": "He normal initializer.\n\n   Also available via the shortcut function\n  `tf.keras.initializers.he_normal`.\n\n  It draws samples from a truncated normal distribution centered on 0 with\n  `stddev = sqrt(2 / fan_in)` where `fan_in` is the number of input units in the\n  weight tensor.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.HeNormal()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.HeNormal()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Arguments:\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n\n  References:\n      [He et al., 2015](https://www.cv-foundation.org/openaccess/content_iccv_2015/html/He_Delving_Deep_into_ICCV_2015_paper.html) # pylint: disable=line-too-long\n      ([pdf](https://www.cv-foundation.org/openaccess/content_iccv_2015/papers/He_Delving_Deep_into_ICCV_2015_paper.pdf))\n  ",
+    "base": "Initializer",
+    "docstring": "He normal initializer.\n\n   Also available via the shortcut function\n  `tf.keras.initializers.he_normal`.\n\n  It draws samples from a truncated normal distribution centered on 0 with\n  `stddev = sqrt(2 / fan_in)` where `fan_in` is the number of input units in the\n  weight tensor.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.HeNormal()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.HeNormal()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n\n  References:\n      [He et al., 2015](https://www.cv-foundation.org/openaccess/content_iccv_2015/html/He_Delving_Deep_into_ICCV_2015_paper.html) # pylint: disable=line-too-long\n      ([pdf](https://www.cv-foundation.org/openaccess/content_iccv_2015/papers/He_Delving_Deep_into_ICCV_2015_paper.pdf))\n  ",
     "arguments": [
       {
         "name": "self",
@@ -134,15 +134,15 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "he_normal"
     ]
   },
   {
     "name": "HeUniform",
-    "base": "VarianceScaling",
-    "docstring": "He uniform variance scaling initializer.\n\n   Also available via the shortcut function\n  `tf.keras.initializers.he_uniform`.\n\n  Draws samples from a uniform distribution within `[-limit, limit]`, where\n  `limit = sqrt(6 / fan_in)` (`fan_in` is the number of input units in the\n  weight tensor).\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.HeUniform()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.HeUniform()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Arguments:\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n\n  References:\n      [He et al., 2015](https://www.cv-foundation.org/openaccess/content_iccv_2015/html/He_Delving_Deep_into_ICCV_2015_paper.html) # pylint: disable=line-too-long\n      ([pdf](https://www.cv-foundation.org/openaccess/content_iccv_2015/papers/He_Delving_Deep_into_ICCV_2015_paper.pdf))\n  ",
+    "base": "Initializer",
+    "docstring": "He uniform variance scaling initializer.\n\n   Also available via the shortcut function\n  `tf.keras.initializers.he_uniform`.\n\n  Draws samples from a uniform distribution within `[-limit, limit]`, where\n  `limit = sqrt(6 / fan_in)` (`fan_in` is the number of input units in the\n  weight tensor).\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.HeUniform()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.HeUniform()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n\n  References:\n      [He et al., 2015](https://www.cv-foundation.org/openaccess/content_iccv_2015/html/He_Delving_Deep_into_ICCV_2015_paper.html) # pylint: disable=line-too-long\n      ([pdf](https://www.cv-foundation.org/openaccess/content_iccv_2015/papers/He_Delving_Deep_into_ICCV_2015_paper.pdf))\n  ",
     "arguments": [
       {
         "name": "self",
@@ -169,14 +169,14 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "he_uniform"
     ]
   },
   {
     "name": "Identity",
-    "base": "Initializer",
+    "base": "object",
     "docstring": "Initializer that generates the identity matrix.\n\n  Also available via the shortcut function `tf.keras.initializers.identity`.\n\n  Only usable for generating 2D matrices.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.Identity()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.Identity()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    gain: Multiplicative factor to apply to the identity matrix.\n  ",
     "arguments": [
       {
@@ -204,15 +204,15 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "identity"
     ]
   },
   {
     "name": "LecunNormal",
-    "base": "VarianceScaling",
-    "docstring": "Lecun normal initializer.\n\n   Also available via the shortcut function\n  `tf.keras.initializers.lecun_normal`.\n\n  Initializers allow you to pre-specify an initialization strategy, encoded in\n  the Initializer object, without knowing the shape and dtype of the variable\n  being initialized.\n\n  Draws samples from a truncated normal distribution centered on 0 with `stddev\n  = sqrt(1 / fan_in)` where `fan_in` is the number of input units in the weight\n  tensor.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.LecunNormal()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.LecunNormal()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Arguments:\n    seed: A Python integer. Used to seed the random generator.\n\n  References:\n      - Self-Normalizing Neural Networks,\n      [Klambauer et al., 2017]\n      (https://papers.nips.cc/paper/6698-self-normalizing-neural-networks)\n      ([pdf]\n      (https://papers.nips.cc/paper/6698-self-normalizing-neural-networks.pdf))\n      - Efficient Backprop,\n      [Lecun et al., 1998](http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf)\n  ",
+    "base": "Initializer",
+    "docstring": "Lecun normal initializer.\n\n   Also available via the shortcut function\n  `tf.keras.initializers.lecun_normal`.\n\n  Initializers allow you to pre-specify an initialization strategy, encoded in\n  the Initializer object, without knowing the shape and dtype of the variable\n  being initialized.\n\n  Draws samples from a truncated normal distribution centered on 0 with `stddev\n  = sqrt(1 / fan_in)` where `fan_in` is the number of input units in the weight\n  tensor.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.LecunNormal()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.LecunNormal()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    seed: A Python integer. Used to seed the random generator.\n\n  References:\n      - Self-Normalizing Neural Networks,\n      [Klambauer et al., 2017]\n      (https://papers.nips.cc/paper/6698-self-normalizing-neural-networks)\n      ([pdf]\n      (https://papers.nips.cc/paper/6698-self-normalizing-neural-networks.pdf))\n      - Efficient Backprop,\n      [Lecun et al., 1998](http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf)\n  ",
     "arguments": [
       {
         "name": "self",
@@ -239,15 +239,15 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "lecun_normal"
     ]
   },
   {
     "name": "LecunUniform",
-    "base": "VarianceScaling",
-    "docstring": "Lecun uniform initializer.\n\n   Also available via the shortcut function\n  `tf.keras.initializers.lecun_uniform`.\n\n  Draws samples from a uniform distribution within `[-limit, limit]`,\n  where `limit = sqrt(3 / fan_in)` (`fan_in` is the number of input units in the\n  weight tensor).\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.LecunUniform()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.LecunUniform()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Arguments:\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n\n  References:\n      - Self-Normalizing Neural Networks,\n      [Klambauer et al., 2017](https://papers.nips.cc/paper/6698-self-normalizing-neural-networks) # pylint: disable=line-too-long\n      ([pdf](https://papers.nips.cc/paper/6698-self-normalizing-neural-networks.pdf))\n      - Efficient Backprop,\n      [Lecun et al., 1998](http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf)\n  ",
+    "base": "Initializer",
+    "docstring": "Lecun uniform initializer.\n\n   Also available via the shortcut function\n  `tf.keras.initializers.lecun_uniform`.\n\n  Draws samples from a uniform distribution within `[-limit, limit]`,\n  where `limit = sqrt(3 / fan_in)` (`fan_in` is the number of input units in the\n  weight tensor).\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.LecunUniform()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.LecunUniform()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n\n  References:\n      - Self-Normalizing Neural Networks,\n      [Klambauer et al., 2017](https://papers.nips.cc/paper/6698-self-normalizing-neural-networks) # pylint: disable=line-too-long\n      ([pdf](https://papers.nips.cc/paper/6698-self-normalizing-neural-networks.pdf))\n      - Efficient Backprop,\n      [Lecun et al., 1998](http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf)\n  ",
     "arguments": [
       {
         "name": "self",
@@ -274,14 +274,14 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "lecun_uniform"
     ]
   },
   {
     "name": "Ones",
-    "base": "Initializer",
+    "base": "object",
     "docstring": "Initializer that generates tensors initialized to 1.\n\n  Also available via the shortcut function `tf.keras.initializers.ones`.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.Ones()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.Ones()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n  ",
     "arguments": null,
     "abstract": false,
@@ -300,14 +300,14 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "ones"
     ]
   },
   {
     "name": "Orthogonal",
-    "base": "Initializer",
+    "base": "object",
     "docstring": "Initializer that generates an orthogonal matrix.\n\n  Also available via the shortcut function `tf.keras.initializers.orthogonal`.\n\n  If the shape of the tensor to initialize is two-dimensional, it is initialized\n  with an orthogonal matrix obtained from the QR decomposition of a matrix of\n  random numbers drawn from a normal distribution.\n  If the matrix has fewer rows than columns then the output will have orthogonal\n  rows. Otherwise, the output will have orthogonal columns.\n\n  If the shape of the tensor to initialize is more than two-dimensional,\n  a matrix of shape `(shape[0] * ... * shape[n - 2], shape[n - 1])`\n  is initialized, where `n` is the length of the shape vector.\n  The matrix is subsequently reshaped to give a tensor of the desired shape.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.Orthogonal()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.Orthogonal()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    gain: multiplicative factor to apply to the orthogonal matrix\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n\n  References:\n      [Saxe et al., 2014](https://openreview.net/forum?id=_wzZwKpTDF_9C)\n      ([pdf](https://arxiv.org/pdf/1312.6120.pdf))\n  ",
     "arguments": [
       {
@@ -339,14 +339,14 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "orthogonal"
     ]
   },
   {
     "name": "RandomNormal",
-    "base": "Initializer",
+    "base": "object",
     "docstring": "Initializer that generates tensors with a normal distribution.\n\n  Also available via the shortcut function\n  `tf.keras.initializers.random_normal`.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.RandomNormal(mean=0., stddev=1.)\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.RandomNormal(mean=0., stddev=1.)\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    mean: a python scalar or a scalar tensor. Mean of the random values to\n      generate.\n    stddev: a python scalar or a scalar tensor. Standard deviation of the random\n      values to generate.\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n  ",
     "arguments": [
       {
@@ -382,14 +382,14 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "random_normal"
     ]
   },
   {
     "name": "RandomUniform",
-    "base": "Initializer",
+    "base": "object",
     "docstring": "Initializer that generates tensors with a uniform distribution.\n\n  Also available via the shortcut function\n  `tf.keras.initializers.random_uniform`.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.RandomUniform(minval=0., maxval=1.)\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.RandomUniform(minval=0., maxval=1.)\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    minval: A python scalar or a scalar tensor. Lower bound of the range of\n      random values to generate (inclusive).\n    maxval: A python scalar or a scalar tensor. Upper bound of the range of\n      random values to generate (exclusive).\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n  ",
     "arguments": [
       {
@@ -425,7 +425,7 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "random_uniform",
       "uniform"
@@ -433,8 +433,8 @@
   },
   {
     "name": "TruncatedNormal",
-    "base": "Initializer",
-    "docstring": "Initializer that generates a truncated normal distribution.\n\n  Also available via the shortcut function\n  `tf.keras.initializers.truncated_normal`.\n\n  The values generated are similar to values from a\n  `tf.keras.initializers.RandomNormal` initializer except that values more\n  than two standard deviations from the mean are\n  discarded and re-drawn.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.TruncatedNormal(mean=0., stddev=1.)\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.TruncatedNormal(mean=0., stddev=1.)\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    mean: a python scalar or a scalar tensor. Mean of the random values\n      to generate.\n    stddev: a python scalar or a scalar tensor. Standard deviation of the\n      random values to generate.\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n  ",
+    "base": "object",
+    "docstring": "Initializer that generates a truncated normal distribution.\n\n  Also available via the shortcut function\n  `tf.keras.initializers.truncated_normal`.\n\n  The values generated are similar to values from a\n  `tf.keras.initializers.RandomNormal` initializer except that values more\n  than two standard deviations from the mean are\n  discarded and re-drawn.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.TruncatedNormal(mean=0., stddev=1.)\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.TruncatedNormal(mean=0., stddev=1.)\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    mean: a python scalar or a scalar tensor. Mean of the random values\n      to generate.\n    stddev: a python scalar or a scalar tensor. Standard deviation of the\n      random values to generate before truncation.\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n  ",
     "arguments": [
       {
         "name": "self",
@@ -469,14 +469,14 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "truncated_normal"
     ]
   },
   {
     "name": "VarianceScaling",
-    "base": "Initializer",
+    "base": "object",
     "docstring": "Initializer capable of adapting its scale to the shape of weights tensors.\n\n  Also available via the shortcut function\n  `tf.keras.initializers.variance_scaling`.\n\n  With `distribution=\"truncated_normal\" or \"untruncated_normal\"`, samples are\n  drawn from a truncated/untruncated normal distribution with a mean of zero and\n  a standard deviation (after truncation, if used) `stddev = sqrt(scale / n)`,\n  where `n` is:\n\n  - number of input units in the weight tensor, if `mode=\"fan_in\"`\n  - number of output units, if `mode=\"fan_out\"`\n  - average of the numbers of input and output units, if `mode=\"fan_avg\"`\n\n  With `distribution=\"uniform\"`, samples are drawn from a uniform distribution\n  within `[-limit, limit]`, where `limit = sqrt(3 * scale / n)`.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.VarianceScaling(\n  ... scale=0.1, mode='fan_in', distribution='uniform')\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.VarianceScaling(\n  ... scale=0.1, mode='fan_in', distribution='uniform')\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n\n  Args:\n    scale: Scaling factor (positive float).\n    mode: One of \"fan_in\", \"fan_out\", \"fan_avg\".\n    distribution: Random distribution to use. One of \"truncated_normal\",\n      \"untruncated_normal\" and  \"uniform\".\n    seed: A Python integer. An initializer created with a given seed will\n      always produce the same random tensor for a given shape and dtype.\n  ",
     "arguments": [
       {
@@ -516,14 +516,14 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "variance_scaling"
     ]
   },
   {
     "name": "Zeros",
-    "base": "Initializer",
+    "base": "object",
     "docstring": "Initializer that generates tensors initialized to 0.\n\n  Also available via the shortcut function `tf.keras.initializers.zeros`.\n\n  Examples:\n\n  >>> # Standalone usage:\n  >>> initializer = tf.keras.initializers.Zeros()\n  >>> values = initializer(shape=(2, 2))\n\n  >>> # Usage in a Keras layer:\n  >>> initializer = tf.keras.initializers.Zeros()\n  >>> layer = tf.keras.layers.Dense(3, kernel_initializer=initializer)\n  ",
     "arguments": null,
     "abstract": false,
@@ -542,7 +542,7 @@
         "default": "None"
       }
     ],
-    "file": "tensorflow/python/keras/initializers/initializers_v2.py",
+    "file": "keras/initializers/initializers_v2.py",
     "aliases": [
       "zeros"
     ]

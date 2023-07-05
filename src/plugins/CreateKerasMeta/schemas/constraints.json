@@ -2,7 +2,7 @@
   {
     "name": "MaxNorm",
     "base": "Constraint",
-    "docstring": "MaxNorm weight constraint.\n\n  Constrains the weights incident to each hidden unit\n  to have a norm less than or equal to a desired value.\n\n  Also available via the shortcut function `tf.keras.constraints.max_norm`.\n\n  Arguments:\n    max_value: the maximum norm value for the incoming weights.\n    axis: integer, axis along which to calculate weight norms.\n      For instance, in a `Dense` layer the weight matrix\n      has shape `(input_dim, output_dim)`,\n      set `axis` to `0` to constrain each weight vector\n      of length `(input_dim,)`.\n      In a `Conv2D` layer with `data_format=\"channels_last\"`,\n      the weight tensor has shape\n      `(rows, cols, input_depth, output_depth)`,\n      set `axis` to `[0, 1, 2]`\n      to constrain the weights of each filter tensor of size\n      `(rows, cols, input_depth)`.\n\n  ",
+    "docstring": "MaxNorm weight constraint.\n\n  Constrains the weights incident to each hidden unit\n  to have a norm less than or equal to a desired value.\n\n  Also available via the shortcut function `tf.keras.constraints.max_norm`.\n\n  Args:\n    max_value: the maximum norm value for the incoming weights.\n    axis: integer, axis along which to calculate weight norms.\n      For instance, in a `Dense` layer the weight matrix\n      has shape `(input_dim, output_dim)`,\n      set `axis` to `0` to constrain each weight vector\n      of length `(input_dim,)`.\n      In a `Conv2D` layer with `data_format=\"channels_last\"`,\n      the weight tensor has shape\n      `(rows, cols, input_depth, output_depth)`,\n      set `axis` to `[0, 1, 2]`\n      to constrain the weights of each filter tensor of size\n      `(rows, cols, input_depth)`.\n\n  ",
     "arguments": [
       {
         "name": "self",
@@ -29,7 +29,7 @@
         "default": null
       }
     ],
-    "file": "tensorflow/python/keras/constraints.py",
+    "file": "keras/constraints.py",
     "aliases": [
       "max_norm"
     ]
@@ -37,7 +37,7 @@
   {
     "name": "MinMaxNorm",
     "base": "Constraint",
-    "docstring": "MinMaxNorm weight constraint.\n\n  Constrains the weights incident to each hidden unit\n  to have the norm between a lower bound and an upper bound.\n\n  Also available via the shortcut function `tf.keras.constraints.min_max_norm`.\n\n  Arguments:\n    min_value: the minimum norm for the incoming weights.\n    max_value: the maximum norm for the incoming weights.\n    rate: rate for enforcing the constraint: weights will be\n      rescaled to yield\n      `(1 - rate) * norm + rate * norm.clip(min_value, max_value)`.\n      Effectively, this means that rate=1.0 stands for strict\n      enforcement of the constraint, while rate<1.0 means that\n      weights will be rescaled at each step to slowly move\n      towards a value inside the desired interval.\n    axis: integer, axis along which to calculate weight norms.\n      For instance, in a `Dense` layer the weight matrix\n      has shape `(input_dim, output_dim)`,\n      set `axis` to `0` to constrain each weight vector\n      of length `(input_dim,)`.\n      In a `Conv2D` layer with `data_format=\"channels_last\"`,\n      the weight tensor has shape\n      `(rows, cols, input_depth, output_depth)`,\n      set `axis` to `[0, 1, 2]`\n      to constrain the weights of each filter tensor of size\n      `(rows, cols, input_depth)`.\n  ",
+    "docstring": "MinMaxNorm weight constraint.\n\n  Constrains the weights incident to each hidden unit\n  to have the norm between a lower bound and an upper bound.\n\n  Also available via the shortcut function `tf.keras.constraints.min_max_norm`.\n\n  Args:\n    min_value: the minimum norm for the incoming weights.\n    max_value: the maximum norm for the incoming weights.\n    rate: rate for enforcing the constraint: weights will be\n      rescaled to yield\n      `(1 - rate) * norm + rate * norm.clip(min_value, max_value)`.\n      Effectively, this means that rate=1.0 stands for strict\n      enforcement of the constraint, while rate<1.0 means that\n      weights will be rescaled at each step to slowly move\n      towards a value inside the desired interval.\n    axis: integer, axis along which to calculate weight norms.\n      For instance, in a `Dense` layer the weight matrix\n      has shape `(input_dim, output_dim)`,\n      set `axis` to `0` to constrain each weight vector\n      of length `(input_dim,)`.\n      In a `Conv2D` layer with `data_format=\"channels_last\"`,\n      the weight tensor has shape\n      `(rows, cols, input_depth, output_depth)`,\n      set `axis` to `[0, 1, 2]`\n      to constrain the weights of each filter tensor of size\n      `(rows, cols, input_depth)`.\n  ",
     "arguments": [
       {
         "name": "self",
@@ -72,7 +72,7 @@
         "default": null
       }
     ],
-    "file": "tensorflow/python/keras/constraints.py",
+    "file": "keras/constraints.py",
     "aliases": [
       "min_max_norm"
     ]
@@ -94,7 +94,7 @@
         "default": null
       }
     ],
-    "file": "tensorflow/python/keras/constraints.py",
+    "file": "keras/constraints.py",
     "aliases": [
       "non_neg"
     ]
@@ -116,7 +116,7 @@
         "default": null
       }
     ],
-    "file": "tensorflow/python/keras/constraints.py",
+    "file": "keras/constraints.py",
     "aliases": [
       "radial_constraint"
     ]
@@ -124,7 +124,7 @@
   {
     "name": "UnitNorm",
     "base": "Constraint",
-    "docstring": "Constrains the weights incident to each hidden unit to have unit norm.\n\n  Also available via the shortcut function `tf.keras.constraints.unit_norm`.\n\n  Arguments:\n    axis: integer, axis along which to calculate weight norms.\n      For instance, in a `Dense` layer the weight matrix\n      has shape `(input_dim, output_dim)`,\n      set `axis` to `0` to constrain each weight vector\n      of length `(input_dim,)`.\n      In a `Conv2D` layer with `data_format=\"channels_last\"`,\n      the weight tensor has shape\n      `(rows, cols, input_depth, output_depth)`,\n      set `axis` to `[0, 1, 2]`\n      to constrain the weights of each filter tensor of size\n      `(rows, cols, input_depth)`.\n  ",
+    "docstring": "Constrains the weights incident to each hidden unit to have unit norm.\n\n  Also available via the shortcut function `tf.keras.constraints.unit_norm`.\n\n  Args:\n    axis: integer, axis along which to calculate weight norms.\n      For instance, in a `Dense` layer the weight matrix\n      has shape `(input_dim, output_dim)`,\n      set `axis` to `0` to constrain each weight vector\n      of length `(input_dim,)`.\n      In a `Conv2D` layer with `data_format=\"channels_last\"`,\n      the weight tensor has shape\n      `(rows, cols, input_depth, output_depth)`,\n      set `axis` to `[0, 1, 2]`\n      to constrain the weights of each filter tensor of size\n      `(rows, cols, input_depth)`.\n  ",
     "arguments": [
       {
         "name": "self",
@@ -147,7 +147,7 @@
         "default": null
       }
     ],
-    "file": "tensorflow/python/keras/constraints.py",
+    "file": "keras/constraints.py",
     "aliases": [
       "unit_norm"
     ]
